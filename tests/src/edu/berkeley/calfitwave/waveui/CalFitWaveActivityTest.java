@@ -1,4 +1,4 @@
-package edu.berkeley.calfitwave;
+package edu.berkeley.calfitwave.waveui;
 
 import android.test.ActivityInstrumentationTestCase2;
 
@@ -9,13 +9,20 @@ import android.test.ActivityInstrumentationTestCase2;
  * <p/>
  * To run this test, you can type:
  * adb shell am instrument -w \
- * -e class waveui.CalFitWaveActivityTest \
+ * -e class edu.berkeley.calfitwave.waveui.CalFitWaveActivityTest \
  * edu.berkeley.calfitwave.tests/android.test.InstrumentationTestRunner
  */
 public class CalFitWaveActivityTest extends ActivityInstrumentationTestCase2<CalFitWaveActivity> {
 
     public CalFitWaveActivityTest() {
-        super("edu.berkeley.calfitwave", CalFitWaveActivity.class);
+        super("edu.berkeley.calfitwave.waveui", CalFitWaveActivity.class);
+    }
+
+    /**
+     * Verifies that activity under test can be launched.
+     */
+    public void testActivityTestCaseSetUpProperly() {
+        assertNotNull("activity should be launched successfully", getActivity());
     }
 
 }

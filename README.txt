@@ -91,4 +91,11 @@ WAVE - Logic for sensors
                                  Push notification? (at varying priority/latency?)
                                  Get notification?
 
+       Can the same service export two different interfaces?  It seems not.
+       So do we create two services that access the same data? We don't really
+       need a service for the UI, as it shouldn't be responsible for backgrounding anything.
+       Now it seems we can have multiple interfaces, from a service, through
+       multiple intents.  Good because the waveui can be separate, but bad
+       because we really ought to authenticate the UI app then. We should use a
+       LocalBinder
 
