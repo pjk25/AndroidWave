@@ -8,9 +8,7 @@ import android.test.ActivityInstrumentationTestCase2;
  * how to write and extend Application tests.
  * <p/>
  * To run this test, you can type:
- * adb shell am instrument -w \
- * -e class edu.berkeley.calfitwave.waveui.CalFitWaveActivityTest \
- * edu.berkeley.calfitwave.tests/android.test.InstrumentationTestRunner
+ * adb shell am instrument -w -e class edu.berkeley.calfitwave.waveui.CalFitWaveActivityTest edu.berkeley.calfitwave.tests/android.test.InstrumentationTestRunner
  */
 public class CalFitWaveActivityTest extends ActivityInstrumentationTestCase2<CalFitWaveActivity> {
 

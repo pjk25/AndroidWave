@@ -11,7 +11,7 @@
     <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> -->
 
     <application android:label="@string/app_name">
-        <activity android:name="waveui.CalFitWaveActivity"
+        <activity android:name="edu.berkeley.calfitwave.waveui.CalFitWaveActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,4 +19,5 @@
             </intent-filter>
         </activity>
     </application>
+    <uses-sdk android:minSdkVersion="4" />
 </manifest> 
