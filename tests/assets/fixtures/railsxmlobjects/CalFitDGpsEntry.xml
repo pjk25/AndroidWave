@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cal-fit-d-gps-entry>
+  <accuracy type="float">1.0</accuracy>
+  <altitude type="float">100.0</altitude>
+  <bearing type="float" nil="true"></bearing>
+  <created-at type="datetime" nil="true"></created-at>
+  <imei nil="true"></imei>
+  <latitude type="float" nil="true"></latitude>
+  <longitude type="float" nil="true"></longitude>
+  <provider>Some provider</provider>
+  <speed type="float" nil="true"></speed>
+  <subject-role-id type="integer">1</subject-role-id>
+  <time type="datetime">2010-06-16T17:22:11Z</time>
+  <updated-at type="datetime" nil="true"></updated-at>
+</cal-fit-d-gps-entry>

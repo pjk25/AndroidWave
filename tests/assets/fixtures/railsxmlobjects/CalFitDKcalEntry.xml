@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cal-fit-d-kcal-entry>
+  <created-at type="datetime" nil="true"></created-at>
+  <imei nil="true"></imei>
+  <kcal type="float">60.1</kcal>
+  <local-h type="float" nil="true"></local-h>
+  <local-v type="float" nil="true"></local-v>
+  <subject-role-id type="integer">1</subject-role-id>
+  <time type="datetime">2010-06-16T17:22:11Z</time>
+  <updated-at type="datetime" nil="true"></updated-at>
+</cal-fit-d-kcal-entry>
