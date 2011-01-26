@@ -6,7 +6,9 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-class WaveService extends Service {
+import edu.berkeley.calfitwave.waverecipe.*;
+
+public class WaveService extends Service {
     
     @Override
     public IBinder onBind(Intent intent) {
@@ -18,13 +20,6 @@ class WaveService extends Service {
         }
         return null;
     }
-    
-    /**
-     * The IWaveServicePublic is defined through IDL
-     */
-    private final IWaveServicePublic.Stub mPublicBinder = new IWaveServicePublic.Stub() {
-        
-    };
     
     /**
      * The UI service is a local binding only as there is only one UI app
@@ -45,4 +40,82 @@ class WaveService extends Service {
      * UI (LOCAL) METHODS
      */
     
+    /**
+     * deviceRecipes
+     * 
+     * Get an array of all recipes in-use as well as locally installed/stored
+     * recipes. @see edu.berkeley.calfitwave.waverecipe.WaveRecipe
+     */
+    WaveRecipe[] deviceRecipes() {
+        return null;
+    }
+    
+    /**
+     * recipeStatus
+     * 
+     * @see edu.berkeley.calfitwave.waverecipe.WaveRecipeStatus
+     */
+    WaveRecipeStatus recipeStatus(WaveRecipe recipe) {
+        return null;
+    }
+    
+    /**
+     * changeRecipeStatus
+     */
+    boolean changeRecipeStatus(WaveRecipe recipe, WaveRecipeStatus status) {
+        return false;
+    }
+    
+    /**
+     * syncStatus
+     *
+     * @see WaveSyncStatus
+     */
+    WaveSyncStatus syncStatus() {
+        return null;
+    }
+    
+    /**
+     * deviceChannels
+     *
+     * Get a list of all outgoing data channels the device supports
+     * @see WaveDeviceChannel
+     */
+    WaveDeviceChannel deviceChannels() {
+        return null;
+    }
+    
+    /**
+     * WAVESERVICE PUBLIC METHODS
+     */
+     
+     private final IWaveServicePublic.Stub mPublicBinder = new IWaveServicePublic.Stub() {
+         /**
+          * registerRecipe
+          *
+          * @see IWaveServicePublic#registerRecipe(WaveRecipe)
+          */
+         public boolean registerRecipe(WaveRecipe recipe) {
+             return false;
+         }
+
+         /**
+          * requestRecipe
+          *
+          * @see IWaveServicePublic#requestRecipe(String)
+          */
+         public WaveRecipe requestRecipe(String recipeUID) {
+             return null;
+         }
+
+         /**
+          * registerRecipeOutputListener
+          *
+          * @see IWaveServicePublic#registerRecipeOutputListener(WaveRecipeOutputListener, boolean)
+          */
+         public boolean registerRecipeOutputListener(IWaveRecipeOutputListener listener, boolean includeSensorData) {
+             return false;
+         }
+     };
+     
 }

@@ -78,16 +78,18 @@ WAVE UI - List of authorized recipes - and linked apps and destinations, which u
 
 WAVE - Logic for sensors
        Logic for sync
+           - includes logic for establishing forwdarding channels
        Logic for recipes
-       Interface for WAVE UI - Get recipe list
-                               Auth/deauth recipe
+       Interface for WAVE UI - get recipe list
+                               auth/deauth recipe
+                               auth/deauth forwarding channel
                                get sync status
                                *set sync settings
                                *get sensor list (all *w/active indications)
+                               emergency channel list
        Interface for WAVE Apps - Publish Recipe
                                  Register/request recipe(s) (should trigger switch to WAVE UI)
-                                 Get sensor data (push and/or pull?)
-                                 Push recipe data
+                                 get recipe data
                                  Push notification? (at varying priority/latency?)
                                  Get notification?
 
@@ -99,3 +101,106 @@ WAVE - Logic for sensors
        because we really ought to authenticate the UI app then. We should use a
        LocalBinder
 
+       How do we publish a recipe?  We want to provide a way to authenticate
+       recipes. If the recipe lives in an app, it's actual binary must be
+       authenticated, which means it should be a compiled class which is
+       checksummed and loaded.  If recipes are server based only, then we
+       could just say that a trusted host distributes trusted recipes.
+
+       Probably should deliver recipe as a compiled class, although we would
+       want to protect wave's memory from that class.
+
+       Basically this gives us in-wave and out-wave recipes. In wave recipes
+       compute inside of wave, out recipes outside of it. They should be
+       distributed as archives, for which there is a signature. The archive
+       would include 1 or 2 parts. The first part is the public part,
+       indicating data/recipe rates/precision, etc., the second is the
+       optional compiled class for local computation. There must be a defined
+       way to calculate a signature for that archive that can be verified via
+       public/private key. Need a way to identify a recipe uniquely.
+
+       Why do we need the compiled part? Just let the app do it?. A compiled
+       part would let us make sure than an app only gets recipe output, that
+       would be good. But we have to decide on how tightly to control that
+       compiled component. So what about recipes that need offsite processing?
+       Let's not go directly from the phone then. So how do we use the phone
+       as a secure interface to manage recipes activated for remote web
+       devices? The real management of recipes would come at the PHR. The
+       phone would just be a place where those could be manipulated.  We still
+       need local recipes on the phone, though.  In fact, we need local
+       recipes in general, for the devices that execute a recipe, but then a
+       compact way of representing these on the phone or web for management.
+       
+       Still need a way to handle phone collected, but off phone processed
+       recipes.  That would be a multi-device recipe.  Should we have a master
+       and slave recipes? A hierarchy of recipes? Or just one recipe that
+       involves multiple devices. In that case, why not manage all recipes
+       from the PHR? Need a way to identify device/sensor pairs then, a way to
+       advertise devices.
+
+       How to handle failover message forwarding from the phone then? It would
+       only work with local recipes anyway, so maybe we don't need to control
+       that.  It could just be a phone convenience provided by WAVE.
+
+       Should a phone advertise sensors delivered over internet?  Or sensors
+       and an internet link?  The user's PHR should be able to examine a graph
+       of recipes, so maybe we don't have multi-device recipes.  That saves us
+       from assuming that the links between multiple devices in a multi-device
+       recipe are adequately secure.
+
+       Do we have a special multi-device exception for the subject's devices
+       and the PHR? Do we act as if the subject's devices and the PHR are one
+       logical unit? On one hand it makes clear the convention that all
+       outgoing data (from the user's devices) is logged at the PHR, at the
+       cost of breaking the underlying single device per recipe convention. We
+       should probably not break the underlying convention, and just design
+       the PHR interface such that the link is clear. However, if a recipe
+       that uses offsite computation through the PHR, but sensors from the
+       phone, how do we manage this? Do we use 2 recipes? Do we call data
+       forwarding from the phone not a recipe, do we view the PHR and phone as
+       one unit with one recipe? Maybe we need to elevate the PHR as a logical
+       unit, as the "hub" for recipes. In this case, all recipes would exist
+       at the PHR level, just with portions implemented at different devices.
+       Maybe we need to answer this question: Does it matter if the user is
+       aware of distributed computing of data within their own info space as a
+       privacy benefit?
+
+       What is the basic that we can start from, that demonstrates the tech?
+       Recipes that exist on the phone, and are synched to the PHR. PHR shows
+       active recipes, and is used for data log and forward. It is assumed
+       that all data flows through the PHR unless an exception occurs. We need
+       a way to reason about these exceptions. They should flow through wave,
+       and so they will be logged for later sync with the PHR as exception
+       events. The initial type would be PHR unreachable exceptions (urgent
+       message exceptions would be later introduced), which are triggered
+       based on a need to meet a certain recipe output delivery latency. So,
+       we add that recipes now need to include a maximum delivery latency. The
+       phone should give an overview of it's emergency channels in the wave
+       ui. A recipe which needs partial calculation at the PHR will be split
+       in two pieces. Recipe output is uniquely identified by the unique
+       recipe ID and by the recipe's output streams, and so this allows two
+       recipes to be distributed as a pair.
+
+       So what are the basic blocks here? The recipe, which is single device
+       and specifies inputs, outputs, granularity table, output max latency.
+       Wave on the phone needs to list recipes, and alternate/emergency
+       channels.
+       
+       "Channels" - transmits sensor data from one device to another.  Useful
+       for example, when a recipe on the PHR needs data from the phone.  It is
+       characterized by sensors, rates, endpoints, and some measure of its
+       security. Two levels of security may be misleading as users may think
+       of them as "secure" and "unsecure", but the idea would be that an
+       encrypted, authenticated link between smartphone and PHR would be of
+       high security, while SMS would be less secure.
+
+       Recipe Objects: need RecipeUID, factory ability for in and out
+       "packets" of data. Need public XML component, optional private compiled
+       class.  
+
+       WaveRecipeOutputSample should have a priority
+
+       WaveService should be bound by clients
+       
+       A remaining question - what about destinations within android client apps?
+       
