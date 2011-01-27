@@ -11,6 +11,12 @@ package edu.berkeley.calfitwave.waverecipe;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * WaveRecipeOutput
+ *
+ * Meant to encapsulate the computed output from a recipe, so that it can be
+ * sent out to the Wave Client app authorized for that recipe.
+ */
 public final class WaveRecipeOutput implements Parcelable {
     
     public int describeContents() {

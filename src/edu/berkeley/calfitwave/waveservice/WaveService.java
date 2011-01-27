@@ -8,6 +8,17 @@ import android.util.Log;
 
 import edu.berkeley.calfitwave.waverecipe.*;
 
+/**
+ * WaveService
+ * 
+ * This is the primary Wave component, the Wave Service.  It encapsulates all
+ * of the main functionality of the wave system, managing sensors, recipes,
+ * and synchronization.
+ *
+ * It provides two primary interfaces, a public interface via AIDL for Wave
+ * Client applications, and a private local interface for the WaveUI
+ * Application.
+ */
 public class WaveService extends Service {
     
     @Override

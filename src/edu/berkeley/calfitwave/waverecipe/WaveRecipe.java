@@ -11,8 +11,19 @@ package edu.berkeley.calfitwave.waverecipe;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * WaveRecipe
+ * 
+ * In memory representation of the recipe as provided by an authority.
+ */
 public class WaveRecipe implements Parcelable {
     
+    
+    
+    
+    /**
+     * Parcelable Methods
+     */
     public int describeContents() {
         return 0;
     }

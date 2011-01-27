@@ -8,6 +8,12 @@
 
 package edu.berkeley.calfitwave.waveservice;
 
+/**
+ * WaveSyncStatus
+ *
+ * Represents the state of synchronization of the data on this device and some
+ * remote repository.
+ */
 public class WaveSyncStatus {
     
 }

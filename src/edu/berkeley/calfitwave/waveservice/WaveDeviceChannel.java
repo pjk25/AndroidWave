@@ -8,6 +8,11 @@
 
 package edu.berkeley.calfitwave.waveservice;
 
+/**
+ * WaveDeviceChannel
+ * 
+ * Represents a data channel available to the device, such as IP, SMS, etc.
+ */
 public class WaveDeviceChannel {
     
 }
