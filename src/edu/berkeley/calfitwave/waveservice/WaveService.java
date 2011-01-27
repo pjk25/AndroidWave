@@ -52,39 +52,15 @@ public class WaveService extends Service {
      */
     
     /**
-     * deviceRecipes
+     * deviceRecipeAuthorizations
      * 
      * Get an array of all recipes in-use as well as locally installed/stored
      * recipes. @see edu.berkeley.calfitwave.waverecipe.WaveRecipe
      */
-    WaveRecipe[] deviceRecipes() {
+    WaveRecipeAuthorization[] deviceRecipeAuthorizations() {
         return null;
     }
     
-    /**
-     * recipeStatus
-     * 
-     * @see edu.berkeley.calfitwave.waverecipe.WaveRecipeStatus
-     */
-    WaveRecipeStatus recipeStatus(WaveRecipe recipe) {
-        return null;
-    }
-    
-    /**
-     * changeRecipeStatus
-     */
-    boolean changeRecipeStatus(WaveRecipe recipe, WaveRecipeStatus status) {
-        return false;
-    }
-    
-    /**
-     * syncStatus
-     *
-     * @see WaveSyncStatus
-     */
-    WaveSyncStatus syncStatus() {
-        return null;
-    }
     
     /**
      * deviceChannels
@@ -115,7 +91,7 @@ public class WaveService extends Service {
           *
           * @see IWaveServicePublic#requestRecipe(String)
           */
-         public WaveRecipe requestRecipe(String recipeUID) {
+         public WaveRecipeAuthorization requestRecipe(String recipeUID) {
              return null;
          }
 
