@@ -1,4 +1,4 @@
-package edu.berkeley.calfitwave.waveservice.saxobjects;
+package edu.berkeley.androidwave.waveservice.saxobjects;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;

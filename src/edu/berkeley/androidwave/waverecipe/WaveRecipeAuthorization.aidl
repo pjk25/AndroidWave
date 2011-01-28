@@ -6,6 +6,6 @@
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.calfitwave.waverecipe;
+package edu.berkeley.androidwave.waverecipe;
 
 parcelable WaveRecipeAuthorization;

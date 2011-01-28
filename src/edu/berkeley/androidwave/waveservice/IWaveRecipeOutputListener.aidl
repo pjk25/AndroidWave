@@ -6,11 +6,11 @@
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.calfitwave.waveservice;
+package edu.berkeley.androidwave.waveservice;
 
 //parcelable WaveRecipeOutput;
 
-import edu.berkeley.calfitwave.waverecipe.WaveRecipeOutput;
+import edu.berkeley.androidwave.waverecipe.WaveRecipeOutput;
 
 oneway interface IWaveRecipeOutputListener {
     

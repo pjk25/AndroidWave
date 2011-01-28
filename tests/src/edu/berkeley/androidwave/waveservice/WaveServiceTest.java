@@ -6,7 +6,7 @@
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.calfitwave.waveservice;
+package edu.berkeley.androidwave.waveservice;
 
 import android.content.Intent;
 import android.os.IBinder;
@@ -20,8 +20,8 @@ import android.test.suitebuilder.annotation.SmallTest;
  * 
  * To run this test, you can type:
  * adb shell am instrument -w \
- *   -e class edu.berkeley.calfitwave.waveservice.WaveServiceTest \
- *   edu.berkeley.calfitwave.tests/android.test.InstrumentationTestRunner
+ *   -e class edu.berkeley.androidwave.waveservice.WaveServiceTest \
+ *   edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 public class WaveServiceTest extends ServiceTestCase<WaveService> {
     

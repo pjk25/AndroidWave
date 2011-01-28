@@ -1,4 +1,4 @@
-package edu.berkeley.calfitwave.waveui;
+package edu.berkeley.androidwave.waveui;
 
 import android.test.ActivityInstrumentationTestCase2;
 
@@ -8,12 +8,12 @@ import android.test.ActivityInstrumentationTestCase2;
  * how to write and extend Application tests.
  * <p/>
  * To run this test, you can type:
- * adb shell am instrument -w -e class edu.berkeley.calfitwave.waveui.CalFitWaveActivityTest edu.berkeley.calfitwave.tests/android.test.InstrumentationTestRunner
+ * adb shell am instrument -w -e class edu.berkeley.androidwave.waveui.AndroidWaveActivityTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
-public class CalFitWaveActivityTest extends ActivityInstrumentationTestCase2<CalFitWaveActivity> {
+public class AndroidWaveActivityTest extends ActivityInstrumentationTestCase2<AndroidWaveActivity> {
 
-    public CalFitWaveActivityTest() {
-        super("edu.berkeley.calfitwave.waveui", CalFitWaveActivity.class);
+    public AndroidWaveActivityTest() {
+        super("edu.berkeley.androidwave.waveui", AndroidWaveActivity.class);
     }
 
     /**

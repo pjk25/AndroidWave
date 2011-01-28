@@ -1,4 +1,4 @@
-package edu.berkeley.calfitwave;
+package edu.berkeley.androidwave;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

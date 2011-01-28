@@ -1,4 +1,4 @@
-package edu.berkeley.calfitwave.waveservice.saxobjects;
+package edu.berkeley.androidwave.waveservice.saxobjects;
 
 import junit.framework.Assert;
 import android.test.InstrumentationTestCase;
@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
  * app's assets
  * 
  * to run:
- * adb shell am instrument -w -e class edu.berkeley.calfitwave.waveservice.saxobjects.RailsXmlObjectTest edu.berkeley.calfitwave.tests/android.test.InstrumentationTestRunner
+ * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.saxobjects.RailsXmlObjectTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 
 public abstract class RailsXmlObjectTest extends InstrumentationTestCase {

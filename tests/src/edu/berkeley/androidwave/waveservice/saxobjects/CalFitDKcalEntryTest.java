@@ -1,11 +1,11 @@
-package edu.berkeley.calfitwave.waveservice.saxobjects;
+package edu.berkeley.androidwave.waveservice.saxobjects;
 
 import junit.framework.Assert;
 import java.io.InputStream;
 
 /**
  * to run:
- * adb shell am instrument -w -e class edu.berkeley.calfitwave.waveservice.saxobjects.CalFitDKcalEntryTest edu.berkeley.calfitwave.tests/android.test.InstrumentationTestRunner
+ * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.saxobjects.CalFitDKcalEntryTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 
 public class CalFitDKcalEntryTest extends RailsXmlObjectTest {

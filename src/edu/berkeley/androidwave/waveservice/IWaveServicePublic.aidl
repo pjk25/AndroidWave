@@ -6,10 +6,10 @@
 //  Copyright 2010 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.calfitwave.waveservice;
+package edu.berkeley.androidwave.waveservice;
 
-import edu.berkeley.calfitwave.waverecipe.WaveRecipeAuthorization;
-import edu.berkeley.calfitwave.waveservice.IWaveRecipeOutputListener;
+import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
+import edu.berkeley.androidwave.waveservice.IWaveRecipeOutputListener;
 
 interface IWaveServicePublic {
     

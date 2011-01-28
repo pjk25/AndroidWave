@@ -6,7 +6,7 @@
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.calfitwave.waveservice;
+package edu.berkeley.androidwave.waveservice;
 
 /**
  * WaveSyncStatus

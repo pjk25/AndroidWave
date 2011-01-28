@@ -1,4 +1,4 @@
-package edu.berkeley.calfitwave.waveservice;
+package edu.berkeley.androidwave.waveservice;
 
 import android.app.Service;
 import android.content.Intent;
@@ -6,7 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import edu.berkeley.calfitwave.waverecipe.*;
+import edu.berkeley.androidwave.waverecipe.*;
 
 /**
  * WaveService
@@ -55,7 +55,7 @@ public class WaveService extends Service {
      * deviceRecipeAuthorizations
      * 
      * Get an array of all recipes in-use as well as locally installed/stored
-     * recipes. @see edu.berkeley.calfitwave.waverecipe.WaveRecipe
+     * recipes. @see edu.berkeley.androidwave.waverecipe.WaveRecipe
      */
     WaveRecipeAuthorization[] deviceRecipeAuthorizations() {
         return null;
