@@ -8,8 +8,6 @@
 
 package edu.berkeley.androidwave.waveservice;
 
-//parcelable WaveRecipeOutput;
-
 import edu.berkeley.androidwave.waverecipe.WaveRecipeOutput;
 
 oneway interface IWaveRecipeOutputListener {
