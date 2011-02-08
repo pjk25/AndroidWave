@@ -8,8 +8,10 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
+import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
+
 import android.test.InstrumentationTestCase;
-//import android.test.MoreAsserts;
+import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 
 /**
@@ -32,7 +34,15 @@ import android.test.suitebuilder.annotation.SmallTest;
  */
 public class WaveRecipeTest extends InstrumentationTestCase {
     
-    protected void setUp() {}
+    WaveRecipe recipeOne;
+    
+    protected void setUp()
+        throws InvalidSignatureException {
+            
+        // build an instance from the fixture for other tests
+        String fixturePath = "fixtures/waverecipes/recipeone.waverecipe";
+        recipeOne = WaveRecipe.createFromDisk(fixturePath);
+    }
     
     /**
      * testRetrieveRecipe
@@ -41,31 +51,25 @@ public class WaveRecipeTest extends InstrumentationTestCase {
      * running recipe server for this.
      */
     public void testCreateFromID() {
-        Assert.fail("test not written yet");
+        fail("test not written yet");
         
         String recipeID = "";
         int version = 0;
         
         WaveRecipe testRecipe = WaveRecipe.createFromID(recipeID, version);
         
-        Assert.assertNotNull(testRecipe);
+        assertNotNull(testRecipe);
     }
     
-    /**
-     * testCreateFromDisk
-     * 
-     * Make sure than we can construct a recipe from it's on disk
-     * representation.  Superceeded by {@link labeltestRetrieveRecipe}
-     */
-    public void testCreateFromDisk() {
-        Assert.fail("test not written yet");
+    public void testPreconditions() {
+        // test the values in the recipeOne fixture
+        assertEqual("getID should match that of recipe xml", recipeOne.getID(), "edu.berkeley.waverecipe.AccelerometerMagnitude");
+        assertEqual("getVersion should be the timestamp of the recipe's signature", recipeOne.getVersion(), "some version that I don't know yet");
         
-        String assetPath = "fixtures/waverecipes/recipeone.waverecipe"
+        assertEqual("check name", recipeOne.getName(), "Accelerometer Magnitude");
+        assertEqual("check description", recipeOne.getDescription(), "Measures intensity of motion of your device.  Representative of your activity level.");
         
-        // InputStream is = getInstrumentation().getContext().getAssets().open(assetPath);
+        fail("remaining recipeOne fixture tests not written");
     }
     
-    // public void testGetUID() {
-    //     String uid = 
-    // }
 }

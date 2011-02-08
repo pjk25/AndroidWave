@@ -8,8 +8,6 @@
 
 package edu.berkeley.androidwave.waverecipe.waverecipealgorithm;
 
-import edu.berkeley.androidwave.waverecipe.WaveRecipeData;
-
 public interface WaveRecipeAlgorithmListener {
     public void handleRecipeData(WaveRecipeData data);
 }

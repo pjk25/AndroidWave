@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recipe id="edu.berkeley.waverecipe.AccelerometerMagnitude">
+    <name>Accelerometer Magnitude</name>
+    <description>
+        Measures intensity of motion of your device.  Representative of your
+        activity level.
+    </description>
+    <sensors>
+        <accelerometer ref-id="input_accelerometer" channels="3"></accelerometer>
+        <!-- Calibration information can be included within the sensor tags -->
+    </sensors>
+    <output>
+        <accelerometer ref-id="output_magnitude" channels="1">
+            <calibration inherit="input_accelerometer" />
+        </accelerometer>
+    </output>
+    <granularity-table type="continuous">
+        <rate inherit="input_accelerometer"></rate>
+        <precision inherit="input_accelerometer"></precision><!-- need to confirm accuracy of this in the case of vector magnitude -->
+    </granularity-table>
+    <!-- a discreet type table is also available -->
+    <!-- <granularity-table>
+            <entry>
+                <input ref-id="input_accelerometer" rate="10Hz" precision=".009m/s^2"/>
+                <output ref-id="output_magnitude" rate="10Hz" precision=".009m/s^2" />
+            </entry>
+        </granularity-table> -->
+    <algorithm>
+        <class interface="WaveRecipeAlgorithm" name="edu.berkeley.androidwave.waverecipesample.AccelerometerMagnitude" />
+    </algorithm>
+</recipe>
+

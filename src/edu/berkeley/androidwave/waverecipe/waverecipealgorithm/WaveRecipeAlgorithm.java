@@ -6,7 +6,7 @@
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waverecipe;
+package edu.berkeley.androidwave.waverecipe.waverecipealgorithm;
 
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 
