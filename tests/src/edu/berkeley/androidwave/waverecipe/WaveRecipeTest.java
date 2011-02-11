@@ -10,6 +10,14 @@ package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
 
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import android.content.Context;
 import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -30,18 +38,41 @@ import android.test.suitebuilder.annotation.SmallTest;
  * app's assets
  * 
  * to run:
- * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.WaveRecipeTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
+ * adb shell am instrument -w -e class edu.berkeley.androidwave.waverecipe.WaveRecipeTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 public class WaveRecipeTest extends InstrumentationTestCase {
     
     WaveRecipe recipeOne;
     
+    private void copyAssetToInternal(String source, String dest)
+        throws IOException {
+        
+        Context targetContext = getInstrumentation().getTargetContext();
+        String[] destComponents = dest.split("/", 2);
+        if (destComponents.length > 0) {
+            targetContext.getDir(destComponents[0], Context.MODE_PRIVATE);
+        }
+        InputStream is = getInstrumentation().getContext().getAssets().open(source);
+        OutputStream os = targetContext.openFileOutput(dest, Context.MODE_PRIVATE);
+        
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = is.read(buf)) > 0) {
+            os.write(buf, 0, len);
+        }
+        is.close();
+        os.close();
+    }
+    
     protected void setUp()
-        throws InvalidSignatureException {
-            
+        throws InvalidSignatureException, IOException {
+        
         // build an instance from the fixture for other tests
-        String fixturePath = "fixtures/waverecipes/recipeone.waverecipe";
-        recipeOne = WaveRecipe.createFromDisk(fixturePath);
+        // first copy the fixture to the recipes cache
+        String cachePath = "waverecipes/recipeone.waverecipe";
+        copyAssetToInternal("fixtures/waverecipes/recipeone.waverecipe", cachePath);
+        MoreAsserts.assertContentsInAnyOrder("fixture should have been copied to cache", Arrays.asList(getInstrumentation().getTargetContext().fileList()), cachePath);
+        recipeOne = WaveRecipe.createFromDisk(cachePath);
     }
     
     /**
@@ -61,13 +92,17 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         assertNotNull(testRecipe);
     }
     
-    public void testPreconditions() {
+    public void testPreconditions()
+        throws ParseException {
         // test the values in the recipeOne fixture
-        assertEqual("getID should match that of recipe xml", recipeOne.getID(), "edu.berkeley.waverecipe.AccelerometerMagnitude");
-        assertEqual("getVersion should be the timestamp of the recipe's signature", recipeOne.getVersion(), "some version that I don't know yet");
+        assertEquals("getID should match that of recipe xml", recipeOne.getID(), "edu.berkeley.waverecipe.AccelerometerMagnitude");
         
-        assertEqual("check name", recipeOne.getName(), "Accelerometer Magnitude");
-        assertEqual("check description", recipeOne.getDescription(), "Measures intensity of motion of your device.  Representative of your activity level.");
+        Date versionDate = DateFormat.getDateInstance().parse("2011-01-09T19:20:30.45-08:00");
+        assertEquals("getVersion should be the timestamp of the recipe's signature", recipeOne.getVersion(), versionDate);
+        
+        assertEquals("check name", recipeOne.getName(), "Accelerometer Magnitude");
+        
+        assertEquals("check description", recipeOne.getDescription(), "Measures intensity of motion of your device.  Representative of your activity level.");
         
         fail("remaining recipeOne fixture tests not written");
     }

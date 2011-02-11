@@ -10,6 +10,7 @@ package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
 
+import java.util.Date;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -34,14 +35,18 @@ import android.os.Parcelable;
  */
 public class WaveRecipe implements Parcelable {
     
+    protected String recipeId;
+    protected Date version;
+    protected String name;
+    protected String description;
+    
     /**
      * createFromUID
      * 
      * This should check for a cached version of the recipe, downloading it if
      * necessary, then instantiating from the downloaded version.
      */
-    public static WaveRecipe createFromID(String recipeID, int version)
-        throws InvalidSignatureException {
+    public static WaveRecipe createFromID(String recipeID, int version) {
         // null implementation
         return null;
     }
@@ -54,6 +59,9 @@ public class WaveRecipe implements Parcelable {
      */
     protected static WaveRecipe createFromDisk(String recipePath)
         throws InvalidSignatureException {
+        
+        
+        
         // null implementation
         return null;
     }
@@ -68,6 +76,34 @@ public class WaveRecipe implements Parcelable {
         throws InvalidSignatureException {
         // null implementation
         return false;
+    }
+    
+    /**
+     * getID
+     */
+    public String getID() {
+        return recipeId;
+    }
+    
+    /**
+     * getVersion
+     */
+    public Date getVersion() {
+        return version;
+    }
+    
+    /**
+     * getName
+     */
+    public String getName() {
+        return name;
+    }
+    
+    /**
+     * getDescription
+     */
+    public String getDescription() {
+        return description;
     }
     
     /**

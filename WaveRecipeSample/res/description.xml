@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<recipe id="edu.berkeley.waverecipe.AccelerometerMagnitude">
+<recipe id="edu.berkeley.waverecipe.AccelerometerMagnitude" version="2011-01-09T19:20:30.45-08:00" >
     <name>Accelerometer Magnitude</name>
     <description>
         Measures intensity of motion of your device.  Representative of your
