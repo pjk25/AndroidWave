@@ -8,8 +8,9 @@
 
 package edu.berkeley.androidwave.waverecipesample;
 
-import edu.berkeley.androidwave.waverecipe.WaveRecipeAlgorithm;
-import edu.berkeley.androidwave.waverecipe.WaveRecipeAlgorithmListener;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithmListener;
+import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 
 public class AccelerometerMagnitudeAlgorithm implements WaveRecipeAlgorithm {
     
