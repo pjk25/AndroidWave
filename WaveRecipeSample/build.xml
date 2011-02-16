@@ -64,6 +64,10 @@
     -->
     <setup import="false" />
     
+    <!-- http://code.google.com/p/android/issues/detail?id=13024 -->
+    <path id="android.libraries.src"><path refid="project.libraries.src" /></path>
+    <path id="android.libraries.jars"><path refid="project.libraries.jars" /></path>
+
     <!--
         This rules file is meant to be imported by the custom Ant task:
             com.android.ant.AndroidInitTask
@@ -92,6 +96,12 @@
     <!-- Properties -->
 
     <property name="android.tools.dir" location="${sdk.dir}/tools" />
+    <!-- Name of the application package extracted from manifest file -->
+    <xpath input="AndroidManifest.xml" expression="/manifest/@package"
+                output="manifest.package" />
+    <!-- Value of the debuggable attribute (Application node) extracted from manifest file -->
+    <xpath input="AndroidManifest.xml" expression="/manifest/application/@android:debuggable"
+	            output="manifest.debuggable" default="false"/>
 
     <!-- Input directories -->
     <property name="source.dir" value="src" />
@@ -121,15 +131,15 @@
 
     <!-- The final package to generate -->
     <property name="out.debug.unaligned.package"
-                  location="${out.absolute.dir}/${ant.project.name}-debug-unaligned.apk" />
+                  location="${out.absolute.dir}/${ant.project.name}-debug-unaligned.waverecipe" />
     <property name="out.debug.package"
-                  location="${out.absolute.dir}/${ant.project.name}-debug.apk" />
+                  location="${out.absolute.dir}/${ant.project.name}-debug.waverecipe" />
     <property name="out.unsigned.package"
-                  location="${out.absolute.dir}/${ant.project.name}-unsigned.apk" />
+                  location="${out.absolute.dir}/${ant.project.name}-unsigned.waverecipe" />
     <property name="out.unaligned.package"
-                  location="${out.absolute.dir}/${ant.project.name}-unaligned.apk" />
+                  location="${out.absolute.dir}/${ant.project.name}-unaligned.waverecipe" />
     <property name="out.release.package"
-                  location="${out.absolute.dir}/${ant.project.name}-release.apk" />
+                  location="${out.absolute.dir}/${ant.project.name}-release.waverecipe" />
 
     <!-- Verbosity -->
     <property name="verbose" value="false" />
@@ -139,7 +149,7 @@
     <condition property="verbosity" value="verbose" else="quiet">
         <istrue value="${verbose}" />
     </condition>
-    <!-- This is needed to switch verbosity of zipalign and aapt. Depends exclusively on 'verbose'
+    <!-- This is needed to switch verbosity of zipalign. Depends exclusively on 'verbose'
          -->
     <condition property="v.option" value="-v" else="">
         <istrue value="${verbose}" />
@@ -150,7 +160,18 @@
     </condition>
 
     <!-- Tools -->
+    <condition property="exe" value=".exe" else=""><os family="windows" /></condition>
+    <property name="adb" location="${android.tools.dir}/adb${exe}" />
     <property name="zipalign" location="${android.tools.dir}/zipalign${exe}" />
+
+    <!-- Emma configuration -->
+    <property name="emma.dir" value="${sdk.dir}/tools/lib" />
+        <path id="emma.lib">
+            <pathelement location="${emma.dir}/emma.jar" />
+            <pathelement location="${emma.dir}/emma_ant.jar" />
+        </path>
+    <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
+    <!-- End of emma configuration -->
 
     <!-- Macros -->
 
@@ -160,8 +181,7 @@
        <element name="external-libs" optional="yes" />
        <element name="extra-parameters" optional="yes" />
        <sequential>
-         <echo>Converting compiled files and external libraries into ${intermediate.dex.file}...
-         </echo>
+         <echo>Converting compiled files and external libraries into ${intermediate.dex.file}...</echo>
          <apply executable="${dx}" failonerror="true" parallel="true">
              <arg value="--dex" />
              <arg value="--output=${intermediate.dex.file}" />
@@ -169,6 +189,7 @@
              <arg line="${verbose.option}" />
              <arg path="${out.classes.absolute.dir}" />
              <fileset dir="${external.libs.absolute.dir}" includes="*.jar" />
+             <path refid="android.libraries.jars" />
              <external-libs />
          </apply>
        </sequential>
@@ -176,7 +197,7 @@
 
     <!-- This is macro that enable passing variable list of external jar files to ApkBuilder
          Example of use:
-         <package-helper>
+         <package-helper sign.package="true">
              <extra-jars>
                 <jarfolder path="my_jars" />
                 <jarfile path="foo/bar.jar" />
@@ -191,11 +212,15 @@
                     outfolder="${out.absolute.dir}"
                     basename="${ant.project.name}"
                     signed="@{sign.package}"
+                    debug="${manifest.debuggable}"
                     verbose="${verbose}">
                 <file path="${intermediate.dex.file}" />
                 <sourcefolder path="${source.absolute.dir}" />
-                <nativefolder path="${native.libs.absolute.dir}" />
+                <sourcefolder refid="android.libraries.src" />
                 <jarfolder path="${external.libs.absolute.dir}" />
+                <jarfolder refid="android.libraries.libs" />
+                <nativefolder path="${native.libs.absolute.dir}" />
+                <nativefolder refid="android.libraries.libs" />
                 <extra-jars/>
             </apkbuilder>
         </sequential>
@@ -218,12 +243,12 @@
         </sequential>
     </macrodef>
 
-
     <!-- Rules -->
     
     <!-- Creates the output directories if they don't exist yet. -->
     <target name="-dirs">
         <echo>Creating output directories if needed...</echo>
+        <mkdir dir="${resource.absolute.dir}" />
         <mkdir dir="${external.libs.absolute.dir}" />
         <mkdir dir="${out.absolute.dir}" />
         <mkdir dir="${out.classes.absolute.dir}" />
@@ -238,14 +263,21 @@
                            value="${tested.project.absolute.dir}/bin/classes" else=".">
             <isset property="tested.project.absolute.dir" />
         </condition>
+        <condition property="extensible.libs.classpath"
+                           value="${tested.project.absolute.dir}/libs" else="./libs">
+            <isset property="tested.project.absolute.dir" />
+        </condition>
         <javac encoding="ascii" target="1.5" debug="true" extdirs=""
                 destdir="${out.classes.absolute.dir}"
                 bootclasspathref="android.target.classpath"
-                verbose="${verbose}" classpath="${extensible.classpath}">
+                verbose="${verbose}" classpath="${extensible.classpath}"
+                classpathref="android.libraries.jars">
             <src path="${source.absolute.dir}" />
             <!-- <src path="${gen.absolute.dir}" /> -->
+            <src refid="android.libraries.src" />
             <classpath>
                 <fileset dir="${external.libs.absolute.dir}" includes="*.jar" />
+                <fileset dir="${extensible.libs.classpath}" includes="*.jar" />
             </classpath>
         </javac>
     </target>
@@ -265,11 +297,14 @@
         <aaptexec executable="${aapt}"
                 command="package"
                 manifest="AndroidManifest.xml"
-                resources="${resource.absolute.dir}"
                 assets="${asset.absolute.dir}"
                 androidjar="${android.jar}"
-                outfolder="${out.absolute.dir}"
-                basename="${ant.project.name}" />
+                apkfolder="${out.absolute.dir}"
+                apkbasename="${ant.project.name}">
+            <res path="${resource.absolute.dir}" />
+            <!-- <nocompress /> forces no compression on any files in assets or res/raw -->
+            <!-- <nocompress extension="xml" /> forces no compression on specific file extensions in assets and res/raw -->
+        </aaptexec>
     </target>
 
     <!-- Packages the application and sign it with a debug key. -->
@@ -433,11 +468,11 @@
         <echo>   debug:     Builds the application and signs it with a debug key.</echo>
         <echo>   release:   Builds the application. The generated apk file must be</echo>
         <echo>              signed before it is published.</echo>
-        <echo>   install:   Installs/reinstalls the debug package onto a running</echo>
-        <echo>              emulator or device.</echo>
-        <echo>              If the application was previously installed, the</echo>
-        <echo>              signatures must match.</echo>
-        <echo>   uninstall: Uninstalls the application from a running emulator or</echo>
-        <echo>              device.</echo>
+        <!-- <echo>   install:   Installs/reinstalls the debug package onto a running</echo>
+                <echo>              emulator or device.</echo>
+                <echo>              If the application was previously installed, the</echo>
+                <echo>              signatures must match.</echo>
+                <echo>   uninstall: Uninstalls the application from a running emulator or</echo>
+                <echo>              device.</echo> -->
     </target>
 </project>
