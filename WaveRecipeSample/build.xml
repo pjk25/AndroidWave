@@ -79,6 +79,20 @@
                below to <setup import="false" />.
              - customize to your needs.
     -->
+    
+    <property name="out.dir" value="bin" />
+    <property name="out.absolute.dir" location="${out.dir}" />
+    <property name="out.debug.package"
+                  location="${out.absolute.dir}/${ant.project.name}-debug.apk" />
+    <property name="test.asset.fixture.recipes.dir" value="../tests/assets/fixtures/waverecipes" />
+    
+    <target name="install" depends="debug"
+                description="UCB Use. Copies the debug apk to the test projet." >
+        <echo>Copying debug package to test project fixtures...</echo>
+        <mkdir dir="${test.asset.fixture.recipes.dir}" />
+        <copy file="${out.debug.package}" tofile="${test.asset.fixture.recipes.dir}/one.waverecipe" />
+    </target>
+    
     <setup />
 
     <!-- http://code.google.com/p/android/issues/detail?id=13024 -->

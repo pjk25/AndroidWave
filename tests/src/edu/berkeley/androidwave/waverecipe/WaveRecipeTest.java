@@ -69,8 +69,8 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         
         // build an instance from the fixture for other tests
         // first copy the fixture to the recipes cache
-        String cachePath = "waverecipes/recipeone.waverecipe";
-        copyAssetToInternal("fixtures/waverecipes/recipeone.waverecipe", cachePath);
+        String cachePath = "waverecipes/one.waverecipe";
+        copyAssetToInternal("fixtures/waverecipes/one.waverecipe", cachePath);
         MoreAsserts.assertContentsInAnyOrder("fixture should have been copied to cache", Arrays.asList(getInstrumentation().getTargetContext().fileList()), cachePath);
         recipeOne = WaveRecipe.createFromDisk(cachePath);
     }
