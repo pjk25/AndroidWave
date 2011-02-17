@@ -1,0 +1,1 @@
+../../../../../../../src/edu/berkeley/androidwave/waveservice/sensorengine/WaveSensorData.aidl
