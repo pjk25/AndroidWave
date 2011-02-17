@@ -8,18 +8,30 @@
 
 package edu.berkeley.androidwave.waverecipesample;
 
-import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
-import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithmListener;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.IWaveRecipeAlgorithm;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.IWaveRecipeAlgorithmListener;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 
-public class AccelerometerMagnitudeAlgorithm extends Service implements WaveRecipeAlgorithm {
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+
+public class AccelerometerMagnitudeAlgorithm extends Service {
     
-    public boolean setWaveRecipeAlgorithmListener(WaveRecipeAlgorithmListener listener) {
-        // null implementation
-        return false;
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
     }
     
-    public void ingestSensorData(WaveSensorData sensorData) {
-        // null implementation
-    }
+    private final IWaveRecipeAlgorithm.Stub mBinder = new IWaveRecipeAlgorithm.Stub() {
+        
+        public boolean setWaveRecipeAlgorithmListener(IWaveRecipeAlgorithmListener listener) {
+            // null implementation
+            return false;
+        }
+
+        public void ingestSensorData(WaveSensorData sensorData) {
+            // null implementation
+        }
+    };
 }
