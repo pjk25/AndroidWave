@@ -10,9 +10,7 @@ package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
 
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Date;
 import java.text.DateFormat;
@@ -44,16 +42,34 @@ public class WaveRecipeTest extends InstrumentationTestCase {
     
     WaveRecipe recipeOne;
     
-    private void copyAssetToInternal(String source, String dest)
+    /**
+     * copyAssetToInternal
+     *
+     * used for copying fixtures to app storage to simulate downloaded data
+     * only tested with two component destination paths
+     */
+    private File copyAssetToInternal(String source, String dest)
         throws IOException {
+        
+        File targetFile = null;
+        
+        InputStream is = getInstrumentation().getContext().getAssets().open(source);
         
         Context targetContext = getInstrumentation().getTargetContext();
         String[] destComponents = dest.split("/", 2);
-        if (destComponents.length > 0) {
-            targetContext.getDir(destComponents[0], Context.MODE_PRIVATE);
+        OutputStream os = null;
+        if (destComponents.length == 0) {
+            // System.out.println("copyAssetToInternal -> creating "+dest);
+            os = targetContext.openFileOutput(dest, Context.MODE_PRIVATE);
+        } else {
+            File dir = targetContext.getDir(destComponents[0], Context.MODE_PRIVATE);
+            // System.out.println("copyAssetToInternal -> created "+dir);
+            destComponents = dest.split("/");
+            // System.out.println("copyAssetToInternal -> destComponents "+Arrays.toString(destComponents));
+            targetFile = new File(dir, destComponents[destComponents.length-1]);
+            // System.out.println("copyAssetToInternal -> targetFile = "+targetFile);
+            os = new FileOutputStream(targetFile);
         }
-        InputStream is = getInstrumentation().getContext().getAssets().open(source);
-        OutputStream os = targetContext.openFileOutput(dest, Context.MODE_PRIVATE);
         
         byte[] buf = new byte[1024];
         int len;
@@ -62,6 +78,8 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         }
         is.close();
         os.close();
+        
+        return targetFile;
     }
     
     protected void setUp()
@@ -69,10 +87,8 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         
         // build an instance from the fixture for other tests
         // first copy the fixture to the recipes cache
-        String cachePath = "waverecipes/one.waverecipe";
-        copyAssetToInternal("fixtures/waverecipes/one.waverecipe", cachePath);
-        MoreAsserts.assertContentsInAnyOrder("fixture should have been copied to cache", Arrays.asList(getInstrumentation().getTargetContext().fileList()), cachePath);
-        recipeOne = WaveRecipe.createFromDisk(cachePath);
+        File targetFile = copyAssetToInternal("fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        recipeOne = WaveRecipe.createFromDisk(targetFile.getPath());
     }
     
     /**
