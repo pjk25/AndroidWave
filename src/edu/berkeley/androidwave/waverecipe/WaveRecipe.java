@@ -55,12 +55,23 @@ public class WaveRecipe implements Parcelable {
      * createFromDisk
      *
      * instantiate and return a WaveRecipe from an on disk location.  Should
-     * throw an exception if the .waverecipe jar signature is invalid.
+     * throw an exception if the .waverecipe signature is invalid.
      */
     protected static WaveRecipe createFromDisk(String recipePath)
         throws InvalidSignatureException {
         
+        // recipePath should point to an apk.  We need to examine the
+        // signature of the apk somehow
         
+        // this loads the classes present in the recipe
+        dalvik.system.PathClassLoader recipeClassLoader =
+            new dalvik.system.PathClassLoader(recipePath, ClassLoader.getSystemClassLoader());
+        
+        try {
+            Class<?> handler = Class.forName(handlerClassName, true, recipeClassLoader);
+        } catch (ClassNotFoundException cnfe) {
+            
+        }
         
         // null implementation
         return null;
