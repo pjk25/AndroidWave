@@ -83,7 +83,7 @@ public class WaveRecipeTest extends InstrumentationTestCase {
     }
     
     protected void setUp()
-        throws InvalidSignatureException, IOException {
+        throws Exception {
         
         // build an instance from the fixture for other tests
         // first copy the fixture to the recipes cache

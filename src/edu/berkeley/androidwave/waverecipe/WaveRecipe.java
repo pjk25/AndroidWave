@@ -9,10 +9,16 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 
+import java.io.*;
+import java.security.cert.Certificate;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.jar.*;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Xml;
 
 /**
  * WaveRecipe
@@ -34,6 +40,8 @@ import android.os.Parcelable;
  * http://download.oracle.com/javase/1.3/docs/tooldocs/win32/jarsigner.html
  */
 public class WaveRecipe implements Parcelable {
+    
+    private static final String DESCRIPTION_XML_PATH = "assets/description.xml";
     
     protected String recipeId;
     protected Date version;
@@ -58,17 +66,30 @@ public class WaveRecipe implements Parcelable {
      * throw an exception if the .waverecipe signature is invalid.
      */
     protected static WaveRecipe createFromDisk(String recipePath)
-        throws InvalidSignatureException {
+        throws Exception {
         
         // recipePath should point to an apk.  We need to examine the
         // signature of the apk somehow
         
-        // this loads the classes present in the recipe
-        dalvik.system.PathClassLoader recipeClassLoader =
+        // for now we just see if it has a signature
+        JarFile recipeApk = new JarFile(recipePath, true);
+        if (recipeApk == null) {
+            throw new InvalidSignatureException();
+        }
+        
+        // Create a loader for this apk
+        dalvik.system.PathClassLoader recipePathClassLoader =
             new dalvik.system.PathClassLoader(recipePath, ClassLoader.getSystemClassLoader());
         
+        // try to load the description.xml
+        InputStream descriptionInputStream = recipePathClassLoader.getResourceAsStream(DESCRIPTION_XML_PATH);
+        //Xml.parse(descriptionInputStream, UTF_8, myContentHandler);
+        
+        String implementationClassName = "";
+        
+        // try to load the WaveRecipeAlgorithm implementation
         try {
-            Class<?> handler = Class.forName(handlerClassName, true, recipeClassLoader);
+            Class<?> implementationClass = Class.forName(implementationClassName, true, recipePathClassLoader);
         } catch (ClassNotFoundException cnfe) {
             
         }
