@@ -8,17 +8,22 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
-import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
+import edu.berkeley.androidwave.waveexception.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 
-import java.io.*;
-import java.security.cert.Certificate;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.jar.*;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Xml;
+import java.io.InputStream;
+import java.security.cert.Certificate;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.jar.JarFile;
+import org.xml.sax.SAXException;
+import org.xml.sax.Attributes;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * WaveRecipe
@@ -77,15 +82,18 @@ public class WaveRecipe implements Parcelable {
             throw new InvalidSignatureException();
         }
         
+        WaveRecipe recipe = new WaveRecipe();
+        
         // Create a loader for this apk
         dalvik.system.PathClassLoader recipePathClassLoader =
             new dalvik.system.PathClassLoader(recipePath, ClassLoader.getSystemClassLoader());
         
         // try to load the description.xml
         InputStream descriptionInputStream = recipePathClassLoader.getResourceAsStream(DESCRIPTION_XML_PATH);
-        //Xml.parse(descriptionInputStream, UTF_8, myContentHandler);
+        WaveRecipeXmlContentHandler contentHandler = new WaveRecipeXmlContentHandler(recipe);
+        Xml.parse(descriptionInputStream, Xml.Encoding.UTF_8, contentHandler);
         
-        String implementationClassName = "";
+        String implementationClassName = contentHandler.getAlgorithmClassName();
         
         // try to load the WaveRecipeAlgorithm implementation
         try {
@@ -108,6 +116,19 @@ public class WaveRecipe implements Parcelable {
         throws InvalidSignatureException {
         // null implementation
         return false;
+    }
+    
+    /**
+     * -------------------------- Instance Methods ---------------------------
+     */
+    
+    /**
+     * WaveRecipe
+     * 
+     * Constructor
+     */
+    public WaveRecipe() {
+        // initialize any complex fields
     }
     
     /**
@@ -161,5 +182,139 @@ public class WaveRecipe implements Parcelable {
     
     private WaveRecipe(Parcel in) {
         
+    }
+}
+
+
+class WaveRecipeXmlContentHandler extends DefaultHandler {
+    private WaveRecipe recipe;
+    protected String algorithmClassName;
+    
+    private String text;
+    boolean inRecipe = false;
+    
+    public enum SubTag { NONE, SENSORS, OUTPUT, TABLE, ALG };
+    SubTag stag = SubTag.NONE;
+    
+    protected static Date dateFromXmlString(String s) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
+        return formatter.parse(s,new ParsePosition(0));
+    }
+    
+    public WaveRecipeXmlContentHandler(WaveRecipe r) {
+        recipe = r;
+    }
+    
+    public String getAlgorithmClassName() {
+        return algorithmClassName;
+    }
+    
+    /**
+     * ContentHandler methods
+     */
+    @Override
+    public void startDocument() throws SAXException {
+        algorithmClassName = null;
+    }
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes atts)
+            throws SAXException {
+        
+        System.out.println(String.format("startElement(%s, %s, %s, %s)", uri, localName, qName, atts));
+        
+        if (inRecipe) {
+            if (localName.equalsIgnoreCase("recipe")) {
+                throw new SAXException("Nested recipe - " + qName);
+            } else if (stag == SubTag.NONE) {
+                if (localName.equalsIgnoreCase("name")) {
+                    // wait for tag close
+                } else if (localName.equalsIgnoreCase("description")) {
+                    // wait for tag close
+                } else if (localName.equalsIgnoreCase("sensors")) {
+                    stag = SubTag.SENSORS;
+                } else if (localName.equalsIgnoreCase("output")) {
+                    stag = SubTag.OUTPUT;
+                } else if (localName.equalsIgnoreCase("granularity-table")) {
+                    stag = SubTag.TABLE;
+                } else if (localName.equalsIgnoreCase("algorithm")) {
+                    stag = SubTag.ALG;
+                } else {
+                    throw new SAXException("Unexpected tag " + qName);
+                }
+            } else if (stag == SubTag.SENSORS) {
+                if (localName.equalsIgnoreCase("accelerometer")) {
+                    // TODO: parse sensor tag
+                } else {
+                    throw new SAXException("Unexpected sensor tag " + qName);
+                }
+            }
+        } else {
+            if (localName.equalsIgnoreCase("recipe")) {
+                recipe.recipeId = atts.getValue("id");
+                recipe.version = dateFromXmlString(atts.getValue("version"));
+                inRecipe = true;
+            } else {
+                throw new SAXException("Root element "+localName+" is not a recipe");
+            }
+        }
+    }
+
+    @Override
+    public void characters(char[] ch, int start, int length)
+            throws SAXException {
+        /* Gets called every time in between an opening tag and
+         * a closing tag if characters are encountered. */
+        text = new String(ch, start, length);
+    }
+
+    @Override
+    public void endElement(String uri, String localName, String qName)
+            throws SAXException {
+        System.out.println(String.format("endElement(%s, %s, %s)", uri, localName, qName));
+        // Gets called every time a closing tag is encountered.
+        if (inRecipe) {
+            if (stag == SubTag.NONE) {
+                if (localName.equalsIgnoreCase("recipe")) {
+                    inRecipe = false;
+                } else if (localName.equalsIgnoreCase("name")) {
+                    recipe.name = text;
+                }
+            } else if (stag == SubTag.SENSORS) {
+                if (localName.equalsIgnoreCase("sensors")) {
+                    stag = SubTag.NONE;
+                } else if (localName.equalsIgnoreCase("accelerometer")) {
+                    // should create an accelerometer object for the recipe
+                } else {
+                    throw new SAXException("Bad structure");
+                }
+            } else if (stag == SubTag.OUTPUT) {
+                if (localName.equalsIgnoreCase("output")) {
+                    stag = SubTag.NONE;
+                } else if (localName.equalsIgnoreCase("accelerometer")) {
+                    // should create an accelerometer object for the recipe
+                } else {
+                    // need to handle calibration tags inside
+                    //throw new SAXException("Bad structure");
+                }
+            } else if (stag == SubTag.TABLE) {
+                if (localName.equalsIgnoreCase("granularity-table")) {
+                    stag = SubTag.NONE;
+                }
+            } else if (stag == SubTag.ALG) {
+                if (localName.equalsIgnoreCase("algorithm")) {
+                    stag = SubTag.NONE;
+                }
+            }
+        } else {
+            throw new SAXException("Root element is not a recipe");
+        }
+    }
+
+    @Override
+    public void endDocument() throws SAXException {
+        /* You can perform some action in this method
+         * for example to reset some sort of Collection
+         * or any other variable you want. It gets called
+         * every time a document end is reached. */
     }
 }
