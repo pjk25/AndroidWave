@@ -67,6 +67,10 @@ public class WaveRecipeTest extends InstrumentationTestCase {
             destComponents = dest.split("/");
             // System.out.println("copyAssetToInternal -> destComponents "+Arrays.toString(destComponents));
             targetFile = new File(dir, destComponents[destComponents.length-1]);
+            if (targetFile.exists()) {
+                System.out.println(this.getClass().getSimpleName() + ": copyAssetToInternal->Deleting existing file at "+targetFile);
+                targetFile.delete();
+            }
             // System.out.println("copyAssetToInternal -> targetFile = "+targetFile);
             os = new FileOutputStream(targetFile);
         }

@@ -53,6 +53,8 @@ public class WaveRecipe implements Parcelable {
     protected String name;
     protected String description;
     
+    protected Class<?> algorithmMainClass;
+    
     /**
      * createFromUID
      * 
@@ -97,13 +99,12 @@ public class WaveRecipe implements Parcelable {
         
         // try to load the WaveRecipeAlgorithm implementation
         try {
-            Class<?> implementationClass = Class.forName(implementationClassName, true, recipePathClassLoader);
+            recipe.algorithmMainClass = Class.forName(implementationClassName, true, recipePathClassLoader);
         } catch (ClassNotFoundException cnfe) {
-            
+            throw new Exception("Could not find main recipe class "+implementationClassName);
         }
         
-        // null implementation
-        return null;
+        return recipe;
     }
     
     /**
@@ -160,6 +161,14 @@ public class WaveRecipe implements Parcelable {
     }
     
     /**
+     * toString
+     */
+    @Override
+    public String toString() {
+        return String.format("%s(%s-%s)", this.getClass().getSimpleName(), recipeId, version);
+    }
+    
+    /**
      * Parcelable Methods
      */
     public int describeContents() {
@@ -191,14 +200,19 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     protected String algorithmClassName;
     
     private String text;
-    boolean inRecipe = false;
+    boolean inRecipe;
     
     public enum SubTag { NONE, SENSORS, OUTPUT, TABLE, ALG };
     SubTag stag = SubTag.NONE;
     
-    protected static Date dateFromXmlString(String s) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
-        return formatter.parse(s,new ParsePosition(0));
+    protected static Date dateFromXmlString(String s)
+        throws SAXException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        Date d = formatter.parse(s,new ParsePosition(0));
+        if (d == null) {
+            throw new SAXException("Error parsing date \""+s+"\"");
+        }
+        return d;
     }
     
     public WaveRecipeXmlContentHandler(WaveRecipe r) {
@@ -214,6 +228,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
      */
     @Override
     public void startDocument() throws SAXException {
+        inRecipe = false;
         algorithmClassName = null;
     }
     @Override
@@ -238,14 +253,20 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     stag = SubTag.TABLE;
                 } else if (localName.equalsIgnoreCase("algorithm")) {
                     stag = SubTag.ALG;
-                } else {
-                    throw new SAXException("Unexpected tag " + qName);
                 }
             } else if (stag == SubTag.SENSORS) {
                 if (localName.equalsIgnoreCase("accelerometer")) {
                     // TODO: parse sensor tag
-                } else {
-                    throw new SAXException("Unexpected sensor tag " + qName);
+                }
+            } else if (stag == SubTag.OUTPUT) {
+                
+            } else if (stag == SubTag.TABLE) {
+                
+            } else if (stag == SubTag.ALG) {
+                if (localName.equalsIgnoreCase("class")) {
+                    if (atts.getValue("interface").equals("WaveRecipeAlgorithm")) {
+                        algorithmClassName = atts.getValue("name");
+                    }
                 }
             }
         } else {

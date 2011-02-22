@@ -26,7 +26,7 @@
             </entry>
         </granularity-table> -->
     <algorithm>
-        <class interface="WaveRecipeAlgorithm" name="edu.berkeley.androidwave.waverecipesample.AccelerometerMagnitude" />
+        <class interface="WaveRecipeAlgorithm" name="edu.berkeley.androidwave.waverecipesample.AccelerometerMagnitudeAlgorithm" />
     </algorithm>
 </recipe>
 
