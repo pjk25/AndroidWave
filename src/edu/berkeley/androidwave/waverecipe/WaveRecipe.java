@@ -202,6 +202,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     protected String algorithmClassName;
     
     private String text;
+    protected String textBuffer;
     boolean inRecipe;
     
     public enum SubTag { NONE, SENSORS, OUTPUT, TABLE, ALG };
@@ -209,12 +210,17 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     
     protected static Date dateFromXmlString(String s)
         throws SAXException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
         Date d = formatter.parse(s,new ParsePosition(0));
         if (d == null) {
             throw new SAXException("Error parsing date \""+s+"\"");
         }
         return d;
+    }
+    
+    protected static String cleanDescriptionText(String s) {
+        String result = s.replace('\n', ' ').replaceAll("  ", " ").trim();
+        return result;
     }
     
     public WaveRecipeXmlContentHandler(WaveRecipe r) {
@@ -237,7 +243,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes atts)
             throws SAXException {
         
-        System.out.println(String.format("startElement(%s, %s, %s, %s)", uri, localName, qName, atts));
+        //System.out.println(String.format("startElement(%s, %s, %s, %s)", uri, localName, qName, atts));
         
         if (inRecipe) {
             if (localName.equalsIgnoreCase("recipe")) {
@@ -246,7 +252,8 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 if (localName.equalsIgnoreCase("name")) {
                     // wait for tag close
                 } else if (localName.equalsIgnoreCase("description")) {
-                    // wait for tag close
+                    // clear the textBuffer to capture multiple lines
+                    textBuffer = "";
                 } else if (localName.equalsIgnoreCase("sensors")) {
                     stag = SubTag.SENSORS;
                 } else if (localName.equalsIgnoreCase("output")) {
@@ -288,12 +295,15 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         /* Gets called every time in between an opening tag and
          * a closing tag if characters are encountered. */
         text = new String(ch, start, length);
+        //System.out.println(String.format("WaveRecipe->characters(...%s..., %d, %d)", text, start, length));
+        textBuffer += (textBuffer == "" ? "" : " ") + text.trim();
+        //System.out.println(textBuffer);
     }
 
     @Override
     public void endElement(String uri, String localName, String qName)
             throws SAXException {
-        System.out.println(String.format("endElement(%s, %s, %s)", uri, localName, qName));
+        //System.out.println(String.format("endElement(%s, %s, %s)", uri, localName, qName));
         // Gets called every time a closing tag is encountered.
         if (inRecipe) {
             if (stag == SubTag.NONE) {
@@ -301,6 +311,11 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     inRecipe = false;
                 } else if (localName.equalsIgnoreCase("name")) {
                     recipe.name = text;
+                } else if (localName.equalsIgnoreCase("description")) {
+                    // clean up the text buffer before storing as the description
+                    recipe.description = cleanDescriptionText(textBuffer);
+                    textBuffer = "";
+                    System.out.println("Description assigned as \""+recipe.description+"\".");
                 }
             } else if (stag == SubTag.SENSORS) {
                 if (localName.equalsIgnoreCase("sensors")) {

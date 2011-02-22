@@ -13,8 +13,8 @@ import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Date;
-import java.text.DateFormat;
-import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import android.content.Context;
 import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
@@ -68,8 +68,12 @@ public class WaveRecipeTest extends InstrumentationTestCase {
             // System.out.println("copyAssetToInternal -> destComponents "+Arrays.toString(destComponents));
             targetFile = new File(dir, destComponents[destComponents.length-1]);
             if (targetFile.exists()) {
-                System.out.println(this.getClass().getSimpleName() + ": copyAssetToInternal->Deleting existing file at "+targetFile);
-                targetFile.delete();
+                System.out.print(this.getClass().getSimpleName() + ": copyAssetToInternal->Deleting existing file at "+targetFile+"...");
+                if (targetFile.delete()) {
+                    System.out.println(" done.");
+                } else {
+                    System.out.println(" fail.");
+                }
             }
             // System.out.println("copyAssetToInternal -> targetFile = "+targetFile);
             os = new FileOutputStream(targetFile);
@@ -86,13 +90,10 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         return targetFile;
     }
     
-    protected void setUp()
-        throws Exception {
-        
-        // build an instance from the fixture for other tests
-        // first copy the fixture to the recipes cache
-        File targetFile = copyAssetToInternal("fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(targetFile.getPath());
+    protected Date parseDateFromXmlString(String s) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+        Date d = formatter.parse(s,new ParsePosition(0));
+        return d;
     }
     
     /**
@@ -112,17 +113,29 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         //assertNotNull(testRecipe);
     }
     
+    /**
+     * testPreconditions
+     * 
+     * same as testCreateFromDisk, but base functionality, so labeled
+     * testPreconditions
+     */
     public void testPreconditions()
-        throws ParseException {
+        throws Exception {
+        
+        // build an instance from the fixture
+        // first copy the fixture to the recipes cache
+        File targetFile = copyAssetToInternal("fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        recipeOne = WaveRecipe.createFromDisk(targetFile.getPath());
+        
         // test the values in the recipeOne fixture
-        assertEquals("getID should match that of recipe xml", recipeOne.getID(), "edu.berkeley.waverecipe.AccelerometerMagnitude");
+        assertEquals("getID should match that of recipe xml", "edu.berkeley.waverecipe.AccelerometerMagnitude", recipeOne.getID());
         
-        Date versionDate = DateFormat.getDateInstance().parse("2011-01-09T19:20:30.45-08:00");
-        assertEquals("getVersion should be the timestamp of the recipe's signature", recipeOne.getVersion(), versionDate);
+        Date versionDate = parseDateFromXmlString("2011-01-09 19:20:30.45-0800");
+        assertEquals("getVersion should be the timestamp of the recipe's signature", versionDate, recipeOne.getVersion());
         
-        assertEquals("check name", recipeOne.getName(), "Accelerometer Magnitude");
+        assertEquals("check name", "Accelerometer Magnitude", recipeOne.getName());
         
-        assertEquals("check description", recipeOne.getDescription(), "Measures intensity of motion of your device.  Representative of your activity level.");
+        assertEquals("check description", "Measures intensity of motion of your device. Representative of your activity level.", recipeOne.getDescription());
         
         fail("remaining recipeOne fixture tests not written");
     }

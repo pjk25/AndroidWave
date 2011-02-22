@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<recipe id="edu.berkeley.waverecipe.AccelerometerMagnitude" version="2011-01-09T19:20:30.45-08:00" >
+<recipe id="edu.berkeley.waverecipe.AccelerometerMagnitude" version="2011-01-09 19:20:30.45-0800" >
     <name>Accelerometer Magnitude</name>
     <description>
-        Measures intensity of motion of your device.  Representative of your
+        Measures intensity of motion of your device. Representative of your
         activity level.
     </description>
     <sensors>
