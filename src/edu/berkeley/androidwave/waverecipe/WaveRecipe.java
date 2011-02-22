@@ -87,6 +87,8 @@ public class WaveRecipe implements Parcelable {
         WaveRecipe recipe = new WaveRecipe();
         
         // Create a loader for this apk
+        // http://yenliangl.blogspot.com/2009/11/dynamic-loading-of-classes-in-your.html
+        // http://www.mail-archive.com/android-developers@googlegroups.com/msg07714.html
         dalvik.system.PathClassLoader recipePathClassLoader =
             new dalvik.system.PathClassLoader(recipePath, ClassLoader.getSystemClassLoader());
         
