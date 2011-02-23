@@ -9,6 +9,7 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
+import edu.berkeley.androidwave.waveservice.sensorengine.*;
 
 import java.io.*;
 import java.util.Arrays;
@@ -136,6 +137,12 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         assertEquals("check name", "Accelerometer Magnitude", recipeOne.getName());
         
         assertEquals("check description", "Measures intensity of motion of your device. Representative of your activity level.", recipeOne.getDescription());
+        
+        // test the complex fields of the WaveRecipe
+        WaveSensor[] sensors = recipeOne.getSensors();
+        assertEquals("recipeOne has one sensor", 1, sensors.length);
+        WaveSensor theSensor = sensors[0];
+        assertEquals("recipeOne's sensor is an accelerometer", WaveSensor.Type.ACCELEROMETER, theSensor.getType());
         
         fail("remaining recipeOne fixture tests not written");
     }

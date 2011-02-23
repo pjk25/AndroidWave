@@ -6,7 +6,7 @@
         activity level.
     </description>
     <sensors>
-        <accelerometer ref-id="input_accelerometer" channels="3"></accelerometer>
+        <accelerometer ref-id="input_accelerometer"></accelerometer>
         <!-- Calibration information can be included within the sensor tags -->
     </sensors>
     <output>

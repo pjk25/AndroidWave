@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.jar.JarFile;
+import java.util.Vector;
 import org.xml.sax.SAXException;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
@@ -52,6 +53,8 @@ public class WaveRecipe implements Parcelable {
     protected Date version;
     protected String name;
     protected String description;
+    
+    protected WaveSensor[] sensors;
     
     protected Class<?> algorithmMainClass;
     
@@ -163,6 +166,15 @@ public class WaveRecipe implements Parcelable {
     }
     
     /**
+     * getSensors
+     *
+     * {@see WaveSensor}
+     */
+    public WaveSensor[] getSensors() {
+        return sensors;
+    }
+    
+    /**
      * toString
      */
     @Override
@@ -208,6 +220,8 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     public enum SubTag { NONE, SENSORS, OUTPUT, TABLE, ALG };
     SubTag stag = SubTag.NONE;
     
+    Vector<WaveSensor> sensors;
+    
     protected static Date dateFromXmlString(String s)
         throws SAXException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
@@ -238,6 +252,8 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     public void startDocument() throws SAXException {
         inRecipe = false;
         algorithmClassName = null;
+        
+        sensors = new Vector();
     }
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts)
@@ -265,7 +281,8 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 }
             } else if (stag == SubTag.SENSORS) {
                 if (localName.equalsIgnoreCase("accelerometer")) {
-                    // TODO: parse sensor tag
+                    WaveSensor aSensor = new WaveSensor(WaveSensor.Type.ACCELEROMETER);
+                    sensors.add(aSensor);
                 }
             } else if (stag == SubTag.OUTPUT) {
                 
@@ -319,6 +336,8 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 }
             } else if (stag == SubTag.SENSORS) {
                 if (localName.equalsIgnoreCase("sensors")) {
+                    // finalize the sensors array
+                    recipe.sensors = sensors.toArray(new WaveSensor[0]);
                     stag = SubTag.NONE;
                 } else if (localName.equalsIgnoreCase("accelerometer")) {
                     // should create an accelerometer object for the recipe
