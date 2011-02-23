@@ -8,6 +8,8 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
+import java.util.Vector;
+
 /**
  * WaveRecipeOutput
  * 
@@ -17,11 +19,32 @@ public class WaveRecipeOutput {
     
     protected String name;
     
+    protected Vector<WaveRecipeOutputChannel> channels;
+    
     public WaveRecipeOutput(String name) {
         this.name = name;
+        
+        channels = new Vector<WaveRecipeOutputChannel>();
     }
     
+    /**
+     * getName
+     */
     public String getName() {
         return name;
+    }
+    
+    /**
+     * getChannels
+     */
+    public WaveRecipeOutputChannel[] getChannels() {
+        return channels.toArray(new WaveRecipeOutputChannel[0]);
+    }
+
+    /**
+     * addChannel
+     */
+    public boolean addChannel(WaveRecipeOutputChannel c) {
+        return channels.add(c);
     }
 }

@@ -148,6 +148,9 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         assertEquals("recipeOne has one output", 1, recipeOutputs.length);
         WaveRecipeOutput theOutput = recipeOutputs[0];
         assertEquals("recipeOne's output name is ", "AccelerometerMagnitude", theOutput.getName());
+        WaveRecipeOutputChannel[] outputChannels = theOutput.getChannels();
+        assertEquals("AccelerometerMagnitude has one channel", 1, outputChannels.length);
+        assertEquals("that channel is called \"magnitude\"", "magnitude", outputChannels[0].getName());
         
         
         fail("remaining recipeOne fixture tests not written");

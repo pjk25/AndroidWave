@@ -320,6 +320,8 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
             } else if (stag == SubTag.OUTPUTS) {
                 if (localName.equalsIgnoreCase("output")) {
                     currentOutput = new WaveRecipeOutput(atts.getValue("name"));
+                } else if (localName.equalsIgnoreCase("channel")) {
+                    currentOutput.addChannel(new WaveRecipeOutputChannel(atts.getValue("name")));
                 }
             } else if (stag == SubTag.TABLE) {
                 
