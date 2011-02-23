@@ -1,5 +1,5 @@
 // 
-//  WaveRecipeOutput.aidl
+//  WaveRecipeOutputData.aidl
 //  CalFitWaveProject
 //  
 //  Created by Philip Kuryloski on 2011-01-25.
@@ -8,4 +8,4 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
-parcelable WaveRecipeOutput;
+parcelable WaveRecipeOutputData;

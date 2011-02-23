@@ -1,5 +1,5 @@
 // 
-//  WaveRecipeOutputListener.java
+//  WaveRecipeOutputDataListener.java
 //  AndroidWaveProject
 //  
 //  Created by Philip Kuryloski on 2011-02-03.
