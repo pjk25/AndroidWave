@@ -107,7 +107,7 @@ public class WaveRecipe implements Parcelable {
         try {
             recipe.algorithmMainClass = Class.forName(implementationClassName, true, recipePathClassLoader);
         } catch (ClassNotFoundException cnfe) {
-            throw new Exception("Could not find main recipe class "+implementationClassName);
+            throw new Exception("Could not find main recipe class "+implementationClassName+". Permissions for /data/dalvik-cache may be incorrect.");
         }
         
         return recipe;
