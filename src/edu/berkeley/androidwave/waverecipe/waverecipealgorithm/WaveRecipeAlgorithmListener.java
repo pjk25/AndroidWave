@@ -8,6 +8,12 @@
 
 package edu.berkeley.androidwave.waverecipe.waverecipealgorithm;
 
+/**
+ * WaveRecipeAlgorithmListener
+ * 
+ * Describes the receiver of a recipe's output, WaveRecipeOutputData. Provided
+ * as an interface to simply what is presented to the recipe developer.
+ */
 public interface WaveRecipeAlgorithmListener {
-    public void handleRecipeData(WaveRecipeData data);
+    public void handleRecipeData(WaveRecipeOutputData data);
 }

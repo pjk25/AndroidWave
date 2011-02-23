@@ -31,19 +31,11 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  * In memory representation of the recipe as provided by an authority.
  * 
- * Recipes are distributed as jarfiles, as they can be
- * readily signed with the jarsigner application.
- *
- * The structure of a .waverecipe is as follows:
- *          MyRecipe.waverecipe -*- description.xml
- *                               - classes.dex
- *
- * description.xml indicates, among other things, the names of specific
- * classes to be loaded in the classes.dex
- * 
- * http://doandroids.com/blogs/2010/6/10/android-classloader-dynamic-loading-of/
- * http://yenliangl.blogspot.com/2009/11/dynamic-loading-of-classes-in-your.html
- * http://download.oracle.com/javase/1.3/docs/tooldocs/win32/jarsigner.html
+ * Recipes are distributed as signed Android packages (.apk files), leveraging
+ * the existing Android build and packaging system.  A recipe apk, denoted by
+ * the .waverecipe extension, contains assets/description.xml, and
+ * classes.dex.  description.xml contains recipe metadata, including the
+ * fully qualified names of relevent classes contained in classes.dex.
  */
 public class WaveRecipe implements Parcelable {
     

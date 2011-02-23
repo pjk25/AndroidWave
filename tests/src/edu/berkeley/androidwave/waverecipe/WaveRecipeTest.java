@@ -153,7 +153,7 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         assertEquals("that channel is called \"magnitude\"", "magnitude", outputChannels[0].getName());
         
         
-        fail("remaining recipeOne fixture tests not written");
+        fail("remaining recipeOne fixture tests (granularity table parsing, algorithm class loading) not written");
     }
     
 }
