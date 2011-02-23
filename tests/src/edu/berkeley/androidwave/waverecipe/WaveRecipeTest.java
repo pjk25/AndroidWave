@@ -144,6 +144,12 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         WaveSensor theSensor = sensors[0];
         assertEquals("recipeOne's sensor is an accelerometer", WaveSensor.Type.ACCELEROMETER, theSensor.getType());
         
+        WaveRecipeOutput[] recipeOutputs = recipeOne.getRecipeOutputs();
+        assertEquals("recipeOne has one output", 1, recipeOutputs.length);
+        WaveRecipeOutput theOutput = recipeOutputs[0];
+        assertEquals("recipeOne's output name is ", "AccelerometerMagnitude", theOutput.getName());
+        
+        
         fail("remaining recipeOne fixture tests not written");
     }
     

@@ -55,6 +55,7 @@ public class WaveRecipe implements Parcelable {
     protected String description;
     
     protected WaveSensor[] sensors;
+    protected WaveRecipeOutput[] recipeOutputs;
     
     protected Class<?> algorithmMainClass;
     
@@ -167,11 +168,20 @@ public class WaveRecipe implements Parcelable {
     
     /**
      * getSensors
-     *
+     * 
      * {@see WaveSensor}
      */
     public WaveSensor[] getSensors() {
         return sensors;
+    }
+    
+    /**
+     * getRecipeOutputs
+     * 
+     * @see WaveRecipeOutput
+     */
+    public WaveRecipeOutput[] getRecipeOutputs() {
+        return recipeOutputs;
     }
     
     /**
@@ -223,6 +233,9 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     Vector<WaveSensor> sensors;
     protected WaveSensor currentSensor;
     
+    Vector<WaveRecipeOutput> outputs;
+    protected WaveRecipeOutput currentOutput;
+    
     protected static Date dateFromXmlString(String s)
         throws SAXException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
@@ -265,6 +278,9 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         
         sensors = new Vector();
         currentSensor = null;
+        
+        outputs = new Vector();
+        currentOutput = null;
     }
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts)
@@ -302,7 +318,9 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     currentSensor.addChannel(new WaveSensorChannel(atts.getValue("name")));
                 }
             } else if (stag == SubTag.OUTPUTS) {
-                
+                if (localName.equalsIgnoreCase("output")) {
+                    currentOutput = new WaveRecipeOutput(atts.getValue("name"));
+                }
             } else if (stag == SubTag.TABLE) {
                 
             } else if (stag == SubTag.ALG) {
@@ -364,9 +382,11 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
             } else if (stag == SubTag.OUTPUTS) {
                 if (localName.equalsIgnoreCase("outputs")) {
                     // finalize outputs array
+                    recipe.recipeOutputs = outputs.toArray(new WaveRecipeOutput[0]);
                     stag = SubTag.NONE;
                 } else if (localName.equalsIgnoreCase("output")) {
                     // finalize output reference
+                    outputs.add(currentOutput);
                 }
             } else if (stag == SubTag.TABLE) {
                 if (localName.equalsIgnoreCase("granularity-table")) {
