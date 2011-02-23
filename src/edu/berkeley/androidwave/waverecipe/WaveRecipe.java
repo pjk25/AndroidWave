@@ -217,10 +217,11 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     protected String textBuffer;
     boolean inRecipe;
     
-    public enum SubTag { NONE, SENSORS, OUTPUT, TABLE, ALG };
+    public enum SubTag { NONE, SENSORS, OUTPUTS, TABLE, ALG };
     SubTag stag = SubTag.NONE;
     
     Vector<WaveSensor> sensors;
+    protected WaveSensor currentSensor;
     
     protected static Date dateFromXmlString(String s)
         throws SAXException {
@@ -235,6 +236,15 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     protected static String cleanDescriptionText(String s) {
         String result = s.replace('\n', ' ').replaceAll("  ", " ").trim();
         return result;
+    }
+    
+    protected static WaveSensor.Type waveSensorTypeFromString(String s)
+        throws Exception {
+        if (s.equalsIgnoreCase("accelerometer")) {
+            return WaveSensor.Type.ACCELEROMETER;
+        } else {
+            throw new Exception("Unknown sensor type \""+s+"\"");
+        }
     }
     
     public WaveRecipeXmlContentHandler(WaveRecipe r) {
@@ -254,6 +264,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         algorithmClassName = null;
         
         sensors = new Vector();
+        currentSensor = null;
     }
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts)
@@ -272,19 +283,25 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     textBuffer = "";
                 } else if (localName.equalsIgnoreCase("sensors")) {
                     stag = SubTag.SENSORS;
-                } else if (localName.equalsIgnoreCase("output")) {
-                    stag = SubTag.OUTPUT;
+                } else if (localName.equalsIgnoreCase("outputs")) {
+                    stag = SubTag.OUTPUTS;
                 } else if (localName.equalsIgnoreCase("granularity-table")) {
                     stag = SubTag.TABLE;
                 } else if (localName.equalsIgnoreCase("algorithm")) {
                     stag = SubTag.ALG;
                 }
             } else if (stag == SubTag.SENSORS) {
-                if (localName.equalsIgnoreCase("accelerometer")) {
-                    WaveSensor aSensor = new WaveSensor(WaveSensor.Type.ACCELEROMETER);
-                    sensors.add(aSensor);
+                if (localName.equalsIgnoreCase("sensor")) {
+                    try {
+                        WaveSensor.Type t = waveSensorTypeFromString(atts.getValue("type"));
+                        currentSensor = new WaveSensor(t);
+                    } catch (Exception e) {
+                        throw new SAXException(e);
+                    }
+                } else if (localName.equalsIgnoreCase("channel")) {
+                    currentSensor.addChannel(new WaveSensorChannel(atts.getValue("name")));
                 }
-            } else if (stag == SubTag.OUTPUT) {
+            } else if (stag == SubTag.OUTPUTS) {
                 
             } else if (stag == SubTag.TABLE) {
                 
@@ -339,19 +356,17 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     // finalize the sensors array
                     recipe.sensors = sensors.toArray(new WaveSensor[0]);
                     stag = SubTag.NONE;
-                } else if (localName.equalsIgnoreCase("accelerometer")) {
-                    // should create an accelerometer object for the recipe
-                } else {
-                    throw new SAXException("Bad structure");
+                } else if (localName.equalsIgnoreCase("sensor")) {
+                    // we could check that currentSensor is an accelerometer
+                    // here, but it shouldn't be necessary
+                    sensors.add(currentSensor);
                 }
-            } else if (stag == SubTag.OUTPUT) {
-                if (localName.equalsIgnoreCase("output")) {
+            } else if (stag == SubTag.OUTPUTS) {
+                if (localName.equalsIgnoreCase("outputs")) {
+                    // finalize outputs array
                     stag = SubTag.NONE;
-                } else if (localName.equalsIgnoreCase("accelerometer")) {
-                    // should create an accelerometer object for the recipe
-                } else {
-                    // need to handle calibration tags inside
-                    //throw new SAXException("Bad structure");
+                } else if (localName.equalsIgnoreCase("output")) {
+                    // finalize output reference
                 }
             } else if (stag == SubTag.TABLE) {
                 if (localName.equalsIgnoreCase("granularity-table")) {

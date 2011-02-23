@@ -8,6 +8,8 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
+import java.util.Vector;
+
 /**
  * WaveSensor
  *
@@ -22,6 +24,8 @@ public class WaveSensor {
     
     protected Type type;
     
+    protected Vector<WaveSensorChannel> channels;
+    
     public WaveSensor(Type t) {
         type = t;
     }
@@ -31,5 +35,19 @@ public class WaveSensor {
      */
     public Type getType() {
         return type;
+    }
+    
+    /**
+     * getChannels
+     */
+    public WaveSensorChannel[] getChannels() {
+        return channels.toArray(new WaveSensorChannel[0]);
+    }
+    
+    /**
+     * addChannel
+     */
+    public boolean addChannel(WaveSensorChannel c) {
+        return channels.add(c);
     }
 }

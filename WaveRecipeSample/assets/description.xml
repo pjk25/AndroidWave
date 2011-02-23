@@ -6,14 +6,18 @@
         activity level.
     </description>
     <sensors>
-        <accelerometer ref-id="input_accelerometer"></accelerometer>
+        <sensor type="accelerometer" ref-id="input_accelerometer">
+            <!-- <channel name="X" />
+                 <channel name="Y" />
+                 <channel name="Z" /> -->
+        </sensor>
         <!-- Calibration information can be included within the sensor tags -->
     </sensors>
-    <output>
-        <accelerometer ref-id="output_magnitude" channels="1">
-            <calibration inherit="input_accelerometer" />
-        </accelerometer>
-    </output>
+    <outputs>
+        <output name="AccelerometerMagnitude">
+            <channel />
+        </output>
+    </outputs>
     <granularity-table type="continuous">
         <rate inherit="input_accelerometer"></rate>
         <precision inherit="input_accelerometer"></precision><!-- need to confirm accuracy of this in the case of vector magnitude -->
