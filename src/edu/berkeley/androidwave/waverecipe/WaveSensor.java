@@ -28,6 +28,8 @@ public class WaveSensor {
     
     public WaveSensor(Type t) {
         type = t;
+        
+        channels = new Vector<WaveSensorChannel>();
     }
     
     /**
