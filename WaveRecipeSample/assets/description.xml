@@ -6,7 +6,9 @@
         activity level.
     </description>
     <sensors>
-        <sensor type="accelerometer" ref-id="input_accelerometer">
+        <!-- Units specified at the sensor apply to all channels, to support
+             sensors with multiple channels -->
+        <sensor type="accelerometer" units="g" ref-id="input_accelerometer">
             <!-- <channel name="X" />
                  <channel name="Y" />
                  <channel name="Z" /> -->
@@ -15,12 +17,12 @@
     </sensors>
     <outputs>
         <output name="AccelerometerMagnitude">
-            <channel name="magnitude" />
+            <channel name="magnitude" units="g" />
         </output>
     </outputs>
     <granularity-table type="continuous">
-        <rate inherit="input_accelerometer"></rate>
-        <precision inherit="input_accelerometer"></precision><!-- need to confirm accuracy of this in the case of vector magnitude -->
+        <rate>#input_accelerometer</rate><!-- #ref-id references rate information from an incoming sensor-->
+        <precision>#input_accelerometer</precision><!-- need to confirm accuracy of this in the case of vector magnitude -->
     </granularity-table>
     <!-- a discreet type table is also available -->
     <!-- <granularity-table>

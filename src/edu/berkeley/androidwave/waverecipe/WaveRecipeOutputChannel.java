@@ -11,12 +11,18 @@ package edu.berkeley.androidwave.waverecipe;
 public class WaveRecipeOutputChannel {
     
     protected String name;
+    protected String units;
     
-    public WaveRecipeOutputChannel(String name) {
+    public WaveRecipeOutputChannel(String name, String units) {
         this.name = name;
+        this.units = units;
     }
     
     public String getName() {
         return name;
+    }
+    
+    public String getUnits() {
+        return units;
     }
 }

@@ -9,6 +9,7 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.*;
+import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 
 import android.os.Parcel;
@@ -20,6 +21,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.jar.JarFile;
 import java.util.Vector;
 import org.xml.sax.SAXException;
@@ -48,6 +50,8 @@ public class WaveRecipe implements Parcelable {
     
     protected WaveSensor[] sensors;
     protected WaveRecipeOutput[] recipeOutputs;
+    
+    protected GranularityTable granularityTable;
     
     protected Class<?> algorithmMainClass;
     
@@ -177,6 +181,15 @@ public class WaveRecipe implements Parcelable {
     }
     
     /**
+     * getGranularityTable
+     * 
+     * @see GranularityTable
+     */
+    public GranularityTable getGranularityTable() {
+        return granularityTable;
+    }
+    
+    /**
      * toString
      */
     @Override
@@ -222,11 +235,15 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     public enum SubTag { NONE, SENSORS, OUTPUTS, TABLE, ALG };
     SubTag stag = SubTag.NONE;
     
+    HashMap<String, SpecifiesExpectedUnits> referenceMap;
+    
     Vector<WaveSensor> sensors;
     protected WaveSensor currentSensor;
     
     Vector<WaveRecipeOutput> outputs;
     protected WaveRecipeOutput currentOutput;
+    
+    protected GranularityTable granularityTable;
     
     protected static Date dateFromXmlString(String s)
         throws SAXException {
@@ -260,6 +277,10 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         return algorithmClassName;
     }
     
+    protected boolean isContinuousGranularityTable() {
+        return (granularityTable == null ? false : granularityTable.getClass() == ContinuousGranularityTable.class);
+    }
+    
     /**
      * ContentHandler methods
      */
@@ -268,11 +289,15 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         inRecipe = false;
         algorithmClassName = null;
         
+        referenceMap = new HashMap<String, SpecifiesExpectedUnits>();
+        
         sensors = new Vector();
         currentSensor = null;
         
         outputs = new Vector();
         currentOutput = null;
+        
+        granularityTable = null;
     }
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts)
@@ -294,6 +319,14 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 } else if (localName.equalsIgnoreCase("outputs")) {
                     stag = SubTag.OUTPUTS;
                 } else if (localName.equalsIgnoreCase("granularity-table")) {
+                    String tableType = atts.getValue("type");
+                    if (tableType.equalsIgnoreCase("continuous")) {
+                        granularityTable = new ContinuousGranularityTable();
+                    } else if (tableType.equalsIgnoreCase("discreet")) {
+                        granularityTable = new DiscreetGranularityTable();
+                    } else {
+                        throw new SAXException("invalid granularity table type: "+tableType);
+                    }
                     stag = SubTag.TABLE;
                 } else if (localName.equalsIgnoreCase("algorithm")) {
                     stag = SubTag.ALG;
@@ -302,21 +335,31 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 if (localName.equalsIgnoreCase("sensor")) {
                     try {
                         WaveSensor.Type t = waveSensorTypeFromString(atts.getValue("type"));
-                        currentSensor = new WaveSensor(t);
+                        currentSensor = new WaveSensor(t, atts.getValue("units"));
+                        String refId = atts.getValue("ref-id");
+                        if (refId != null) {
+                            referenceMap.put(refId, currentSensor);
+                        }
                     } catch (Exception e) {
                         throw new SAXException(e);
                     }
                 } else if (localName.equalsIgnoreCase("channel")) {
-                    currentSensor.addChannel(new WaveSensorChannel(atts.getValue("name")));
+                    String refId = atts.getValue("ref-id");
+                    WaveSensorChannel currentChannel = new WaveSensorChannel(atts.getValue("name"), atts.getValue("units"));
+                    currentSensor.addChannel(currentChannel);
+                    if (refId != null) {
+                        referenceMap.put(refId, currentChannel);
+                    }
                 }
             } else if (stag == SubTag.OUTPUTS) {
                 if (localName.equalsIgnoreCase("output")) {
                     currentOutput = new WaveRecipeOutput(atts.getValue("name"));
                 } else if (localName.equalsIgnoreCase("channel")) {
-                    currentOutput.addChannel(new WaveRecipeOutputChannel(atts.getValue("name")));
+                    currentOutput.addChannel(new WaveRecipeOutputChannel(atts.getValue("name"), atts.getValue("units")));
                 }
             } else if (stag == SubTag.TABLE) {
-                
+                // the rate and precision tags currently have no attributes,
+                // so we handle them at tag close
             } else if (stag == SubTag.ALG) {
                 if (localName.equalsIgnoreCase("class")) {
                     if (atts.getValue("interface").equals("WaveRecipeAlgorithm")) {
@@ -384,8 +427,23 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 }
             } else if (stag == SubTag.TABLE) {
                 if (localName.equalsIgnoreCase("granularity-table")) {
+                    if (isContinuousGranularityTable()) {
+                        ((ContinuousGranularityTable)granularityTable).setVariableMap(referenceMap);
+                    }
+                    recipe.granularityTable = granularityTable;
                     stag = SubTag.NONE;
+                } else if (localName.equalsIgnoreCase("rate")) {
+                    if (isContinuousGranularityTable()) {
+                        ((ContinuousGranularityTable)granularityTable).setRateFormulaString(text);
+                    }
+                } else if (localName.equalsIgnoreCase("precision")) {
+                    if (isContinuousGranularityTable()) {
+                        ((ContinuousGranularityTable)granularityTable).setPrecisionFormulaString(text);
+                    }
+                } else {
+                    throw new SAXException("Unexpected tag in granularity-table: "+uri);
                 }
+                
             } else if (stag == SubTag.ALG) {
                 if (localName.equalsIgnoreCase("algorithm")) {
                     stag = SubTag.NONE;

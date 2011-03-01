@@ -9,11 +9,13 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
+import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waveservice.sensorengine.*;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import android.content.Context;
@@ -143,6 +145,8 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         assertEquals("recipeOne has one sensor", 1, sensors.length);
         WaveSensor theSensor = sensors[0];
         assertEquals("recipeOne's sensor is an accelerometer", WaveSensor.Type.ACCELEROMETER, theSensor.getType());
+        assertTrue("sensor has units", theSensor.hasExpectedUnits());
+        assertEquals("sensor unit is g", "g", theSensor.getExpectedUnits());
         
         WaveRecipeOutput[] recipeOutputs = recipeOne.getRecipeOutputs();
         assertEquals("recipeOne has one output", 1, recipeOutputs.length);
@@ -151,9 +155,23 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         WaveRecipeOutputChannel[] outputChannels = theOutput.getChannels();
         assertEquals("AccelerometerMagnitude has one channel", 1, outputChannels.length);
         assertEquals("that channel is called \"magnitude\"", "magnitude", outputChannels[0].getName());
+        assertEquals("that channel has units of g", "g", outputChannels[0].getUnits());
+        
+        GranularityTable table = recipeOne.getGranularityTable();
+        assertNotNull(table);
+        assertEquals("GranularityTable is continuous", ContinuousGranularityTable.class, table.getClass());
+        
+        // need to check mappings somehow, lets just try some values
+        HashMap<SpecifiesExpectedUnits, Double> rateMap = new HashMap<SpecifiesExpectedUnits, Double>();
+        rateMap.put(theSensor, 10.0);
+        assertEquals("rate out equals rate in", 10.0, ((ContinuousGranularityTable)table).rateForSensorRates(rateMap));
+        
+        HashMap<SpecifiesExpectedUnits, Double> precisionMap = new HashMap<SpecifiesExpectedUnits, Double>();
+        precisionMap.put(theSensor, 0.01);
+        assertEquals("precision out equals precision in", 0.01, ((ContinuousGranularityTable)table).precisionForSensorPrecisions(precisionMap));
         
         
-        fail("remaining recipeOne fixture tests (granularity table parsing, algorithm class loading) not written");
+        fail("remaining recipeOne fixture tests (algorithm class loading) not written");
     }
     
 }
