@@ -86,6 +86,25 @@
                   location="${out.absolute.dir}/${ant.project.name}-debug.apk" />
     <property name="test.asset.fixture.recipes.dir" value="${test.project.dir}/assets/fixtures/waverecipes" />
     
+    
+    <!-- Custom Pre-Dex target -->
+    <!-- Removes duplicate classes from the dex that already exist in AndroidWave -->
+    <target name="-pre-dex" depends="compile">
+        <echo>Removing extraneous classes before building .dex...</echo>
+        <delete includeemptydirs="true">
+            <fileset dir="${out.classes.absolute.dir}">
+                <include name="edu/berkeley/androidwave/waverecipe/**" />
+                <include name="edu/berkeley/androidwave/waveservice/**" />
+            </fileset>
+        </delete>
+    </target>
+    
+    <!-- -dex depends modified to insert -pre-dex -->
+    <target name="-dex" depends="-pre-dex">
+        <dex-helper />
+    </target>
+    
+    <!-- Custom Install target -->
     <target name="install" depends="debug"
                 description="UCB Use. Copies the debug apk to the test projet." >
         <echo>Copying debug package to test project fixtures...</echo>
