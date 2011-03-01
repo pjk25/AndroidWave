@@ -53,7 +53,7 @@ public class WaveRecipe implements Parcelable {
     
     protected GranularityTable granularityTable;
     
-    protected Class<?> algorithmMainClass;
+    protected Class<WaveRecipeAlgorithm> algorithmMainClass;
     
     /**
      * createFromUID
@@ -101,7 +101,7 @@ public class WaveRecipe implements Parcelable {
         
         // try to load the WaveRecipeAlgorithm implementation
         try {
-            recipe.algorithmMainClass = Class.forName(implementationClassName, true, recipePathClassLoader);
+            recipe.algorithmMainClass = (Class<WaveRecipeAlgorithm>)Class.forName(implementationClassName, true, recipePathClassLoader);
         } catch (ClassNotFoundException cnfe) {
             throw new Exception("Could not find main recipe class "+implementationClassName+". Permissions for /data/dalvik-cache may be incorrect.");
         }
