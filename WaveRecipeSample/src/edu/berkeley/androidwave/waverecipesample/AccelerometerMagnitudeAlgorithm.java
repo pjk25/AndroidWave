@@ -12,7 +12,7 @@ import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorit
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithmListener;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 
-public class AccelerometerMagnitudeAlgorithm extends WaveRecipeAlgorithm {
+public class AccelerometerMagnitudeAlgorithm implements WaveRecipeAlgorithm {
     
     public boolean setWaveRecipeAlgorithmListener(WaveRecipeAlgorithmListener listener) {
         // null implementation

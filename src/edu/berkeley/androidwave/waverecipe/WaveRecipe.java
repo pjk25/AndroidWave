@@ -194,11 +194,12 @@ public class WaveRecipe implements Parcelable {
      */
     public WaveRecipeAlgorithm getAlgorithmInstance()
             throws IllegalAccessException, InstantiationException {
-        System.out.println(""+WaveRecipeAlgorithm.class.hashCode());
+        System.out.println(""+WaveRecipeAlgorithm.class+", hashCode="+WaveRecipeAlgorithm.class.hashCode());
         
         Object result = algorithmMainClass.newInstance();
         
-        System.out.println(""+result.getClass().getSuperclass().hashCode());
+        Class[] interfaces = result.getClass().getInterfaces();
+        System.out.println(""+interfaces[0]+", hashCode="+interfaces[0].hashCode());
         
         return (WaveRecipeAlgorithm)result;
     }

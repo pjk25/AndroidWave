@@ -13,13 +13,13 @@ import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 /**
  * WaveRecipeAlgorithm
  *
- * Class describing a WaveRecipeAlgorithm, which provides the
+ * Interface describing a WaveRecipeAlgorithm, which provides the
  * computational component of a WaveRecipe.  Recipe creators must implement
  * this interface, and provide that implementation within their recipe.
  */
-public abstract class WaveRecipeAlgorithm {
+public interface WaveRecipeAlgorithm {
     
-    public abstract boolean setWaveRecipeAlgorithmListener(WaveRecipeAlgorithmListener listener);
+    public boolean setWaveRecipeAlgorithmListener(WaveRecipeAlgorithmListener listener);
     
-    public abstract void ingestSensorData(WaveSensorData sensorData);
+    public void ingestSensorData(WaveSensorData sensorData);
 }
