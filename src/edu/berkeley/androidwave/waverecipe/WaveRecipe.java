@@ -190,6 +190,14 @@ public class WaveRecipe implements Parcelable {
     }
     
     /**
+     * getAlgorithmInstance
+     */
+    public WaveRecipeAlgorithm getAlgorithmInstance()
+            throws IllegalAccessException, InstantiationException {
+        return algorithmMainClass.newInstance();
+    }
+    
+    /**
      * toString
      */
     @Override

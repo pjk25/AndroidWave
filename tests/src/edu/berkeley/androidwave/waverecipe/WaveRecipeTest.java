@@ -10,6 +10,7 @@ package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 import edu.berkeley.androidwave.waveservice.sensorengine.*;
 
 import java.io.*;
@@ -170,8 +171,12 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         precisionMap.put(theSensor, 0.01);
         assertEquals("precision out equals precision in", 0.01, ((ContinuousGranularityTable)table).precisionForSensorPrecisions(precisionMap));
         
-        
-        fail("remaining recipeOne fixture tests (algorithm class loading) not written");
+        // test the algorithm class
+        assertNotNull("algorithmMainClass should not be null", recipeOne.algorithmMainClass);
+        // make an instance
+        Object algorithmInstanceAsObject = recipeOne.getAlgorithmInstance();
+        assertNotNull("algorithmMainClass can be instantiated", algorithmInstanceAsObject);
+        MoreAsserts.assertAssignableFrom(WaveRecipeAlgorithm.class, algorithmInstanceAsObject);
     }
     
 }
