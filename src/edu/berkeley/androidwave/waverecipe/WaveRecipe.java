@@ -418,7 +418,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 // so we handle them at tag close
             } else if (stag == SubTag.ALG) {
                 if (localName.equalsIgnoreCase("service")) {
-                    if (atts.getValue("interface").equals("WaveRecipeAlgorithm")) {
+                    if (atts.getValue("interface").equals("IWaveRecipeAlgorithm")) {
                         algorithmServiceName = atts.getValue("name");
                     }
                 }

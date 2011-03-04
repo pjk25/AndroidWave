@@ -32,7 +32,7 @@
             </entry>
         </granularity-table> -->
     <algorithm>
-        <service interface="WaveRecipeAlgorithm" name="edu.berkeley.androidwave.waverecipesample.AccelerometerMagnitudeAlgorithm" />
+        <service interface="IWaveRecipeAlgorithm" name="edu.berkeley.androidwave.waverecipesample.AccelerometerMagnitudeAlgorithm" />
     </algorithm>
 </recipe>
 
