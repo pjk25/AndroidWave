@@ -10,7 +10,6 @@ package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
-import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 import edu.berkeley.androidwave.waveservice.sensorengine.*;
 
 import java.io.*;
@@ -124,12 +123,12 @@ public class WaveRecipeTest extends InstrumentationTestCase {
      * testPreconditions
      */
     public void testPreconditions()
-        throws Exception {
+            throws Exception {
         
         // build an instance from the fixture
         // first copy the fixture to the recipes cache
         File targetFile = copyAssetToInternal("fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(targetFile.getPath());
+        recipeOne = WaveRecipe.createFromDisk(getInstrumentation().getContext(), targetFile.getPath());
         
         // test the values in the recipeOne fixture
         assertEquals("getID should match that of recipe xml", "edu.berkeley.waverecipe.AccelerometerMagnitude", recipeOne.getID());
@@ -171,12 +170,8 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         precisionMap.put(theSensor, 0.01);
         assertEquals("precision out equals precision in", 0.01, ((ContinuousGranularityTable)table).precisionForSensorPrecisions(precisionMap));
         
-        // test the algorithm class
-        assertNotNull("algorithmMainClass should not be null", recipeOne.algorithmMainClass);
-        // make an instance
-        Object algorithmInstanceAsObject = recipeOne.getAlgorithmInstance();
-        assertNotNull("algorithmMainClass can be instantiated", algorithmInstanceAsObject);
-        MoreAsserts.assertAssignableFrom(WaveRecipeAlgorithm.class, algorithmInstanceAsObject);
+        // check that algorithmServiceName was assigned appropriately (by checking protected field)
+        assertEquals("algorithmServiceName", "edu.berkeley.androidwave.waverecipesample.AccelerometerMagnitudeAlgorithm", recipeOne.algorithmServiceName);
     }
     
 }
