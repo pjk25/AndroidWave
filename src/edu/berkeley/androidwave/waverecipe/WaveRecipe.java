@@ -10,8 +10,14 @@ package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.*;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
-import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.IWaveRecipeAlgorithm;
 
+import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Xml;
@@ -43,6 +49,10 @@ public class WaveRecipe implements Parcelable {
     
     private static final String DESCRIPTION_XML_PATH = "assets/description.xml";
     
+    protected enum AlgorithmServiceState { UNBOUND, BINDING, BOUND };
+    
+    protected Context mContext;
+    
     protected String recipeId;
     protected Date version;
     protected String name;
@@ -53,7 +63,30 @@ public class WaveRecipe implements Parcelable {
     
     protected GranularityTable granularityTable;
     
-    protected Class<WaveRecipeAlgorithm> algorithmMainClass;
+    protected String algorithmServiceName;
+    protected IWaveRecipeAlgorithm algorithmService;
+    protected AlgorithmServiceState mServiceState;
+    
+    /**
+     * --------------------------- Service Field -----------------------------
+     */
+    
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className,
+                IBinder service) {
+            mServiceState = AlgorithmServiceState.BOUND;
+            algorithmService = IWaveRecipeAlgorithm.Stub.asInterface(service);
+        }
+        
+        public void onServiceDisconnected(ComponentName className) {
+            mServiceState = AlgorithmServiceState.UNBOUND;
+            algorithmService = null;
+        }
+    };
+    
+    /**
+     * --------------------------- Static Methods ----------------------------
+     */
     
     /**
      * createFromUID
@@ -72,7 +105,7 @@ public class WaveRecipe implements Parcelable {
      * instantiate and return a WaveRecipe from an on disk location.  Should
      * throw an exception if the .waverecipe signature is invalid.
      */
-    protected static WaveRecipe createFromDisk(String recipePath)
+    protected static WaveRecipe createFromDisk(Context c, String recipePath)
         throws Exception {
         
         // recipePath should point to an apk.  We need to examine the
@@ -84,7 +117,7 @@ public class WaveRecipe implements Parcelable {
             throw new InvalidSignatureException();
         }
         
-        WaveRecipe recipe = new WaveRecipe();
+        WaveRecipe recipe = new WaveRecipe(c);
         
         // Create a loader for this apk
         // http://yenliangl.blogspot.com/2009/11/dynamic-loading-of-classes-in-your.html
@@ -97,14 +130,10 @@ public class WaveRecipe implements Parcelable {
         WaveRecipeXmlContentHandler contentHandler = new WaveRecipeXmlContentHandler(recipe);
         Xml.parse(descriptionInputStream, Xml.Encoding.UTF_8, contentHandler);
         
-        String implementationClassName = contentHandler.getAlgorithmClassName();
-        
-        // try to load the WaveRecipeAlgorithm implementation
-        try {
-            recipe.algorithmMainClass = (Class<WaveRecipeAlgorithm>)Class.forName(implementationClassName, true, recipePathClassLoader);
-        } catch (ClassNotFoundException cnfe) {
-            throw new Exception("Could not find main recipe class "+implementationClassName+". Permissions for /data/dalvik-cache may be incorrect.");
-        }
+        // retain the service name
+        recipe.algorithmServiceName = contentHandler.getAlgorithmServiceName();
+        // TODO: maybe we should try to bind the service here, or make sure
+        // that we can resolve it?
         
         return recipe;
     }
@@ -130,8 +159,8 @@ public class WaveRecipe implements Parcelable {
      * 
      * Constructor
      */
-    public WaveRecipe() {
-        // initialize any complex fields
+    public WaveRecipe(Context c) {
+        mContext = c;
     }
     
     /**
@@ -190,18 +219,30 @@ public class WaveRecipe implements Parcelable {
     }
     
     /**
-     * getAlgorithmInstance
+     * bindAlgorithmService
      */
-    public WaveRecipeAlgorithm getAlgorithmInstance()
-            throws IllegalAccessException, InstantiationException {
-        System.out.println(""+WaveRecipeAlgorithm.class+", hashCode="+WaveRecipeAlgorithm.class.hashCode());
-        
-        Object result = algorithmMainClass.newInstance();
-        
-        Class[] interfaces = result.getClass().getInterfaces();
-        System.out.println(""+interfaces[0]+", hashCode="+interfaces[0].hashCode());
-        
-        return (WaveRecipeAlgorithm)result;
+    public void bindAlgorithmService() {
+        mServiceState = AlgorithmServiceState.BINDING;
+        mContext.bindService(new Intent(algorithmServiceName),
+                mConnection, Context.BIND_AUTO_CREATE);
+        // TODO: engane any callback links
+    }
+    
+    /**
+     * unbindAlgorithmService
+     */
+    public void unbindAlgorithmService() {
+        if (mServiceState == AlgorithmServiceState.BOUND) {
+            // TODO: disengage any callback links that are in place
+            mContext.unbindService(mConnection);
+        }
+    }
+    
+    /**
+     * getAlgorithmService
+     */
+    public IWaveRecipeAlgorithm getAlgorithmService() {
+        return algorithmService;
     }
     
     /**
@@ -241,7 +282,7 @@ public class WaveRecipe implements Parcelable {
 
 class WaveRecipeXmlContentHandler extends DefaultHandler {
     private WaveRecipe recipe;
-    protected String algorithmClassName;
+    protected String algorithmServiceName;
     
     private String text;
     protected String textBuffer;
@@ -288,8 +329,8 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         recipe = r;
     }
     
-    public String getAlgorithmClassName() {
-        return algorithmClassName;
+    public String getAlgorithmServiceName() {
+        return algorithmServiceName;
     }
     
     protected boolean isContinuousGranularityTable() {
@@ -302,7 +343,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     @Override
     public void startDocument() throws SAXException {
         inRecipe = false;
-        algorithmClassName = null;
+        algorithmServiceName = null;
         
         referenceMap = new HashMap<String, SpecifiesExpectedUnits>();
         
@@ -376,9 +417,9 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 // the rate and precision tags currently have no attributes,
                 // so we handle them at tag close
             } else if (stag == SubTag.ALG) {
-                if (localName.equalsIgnoreCase("class")) {
+                if (localName.equalsIgnoreCase("service")) {
                     if (atts.getValue("interface").equals("WaveRecipeAlgorithm")) {
-                        algorithmClassName = atts.getValue("name");
+                        algorithmServiceName = atts.getValue("name");
                     }
                 }
             }
