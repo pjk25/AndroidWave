@@ -116,6 +116,11 @@ public class WaveRecipe implements Parcelable {
         if (recipeApk == null) {
             throw new InvalidSignatureException();
         }
+        /**
+         * To check signatures, try
+         * PackageManager getPackageArchiveInfo
+         * PackageInfo.signatures
+         */
         
         WaveRecipe recipe = new WaveRecipe(c);
         

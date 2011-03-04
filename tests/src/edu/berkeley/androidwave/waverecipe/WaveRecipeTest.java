@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import android.content.Context;
+import android.content.pm.*;
 import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -185,6 +186,13 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         
         // build an instance from the fixture
         recipeOne = WaveRecipe.createFromDisk(getInstrumentation().getContext(), recipeOneFile.getPath());
+        
+        // check which packages are installed and stuff
+        PackageManager pm = getInstrumentation().getContext().getPackageManager();
+        PackageInfo pkgInfo = pm.getPackageInfo("edu.berkeley.androidwave.waverecipesample", PackageManager.GET_SERVICES);
+        for (ServiceInfo sInfo : pkgInfo.services) {
+            System.out.println(""+sInfo);
+        }
         
         // trigger the bind
         recipeOne.bindAlgorithmService();
