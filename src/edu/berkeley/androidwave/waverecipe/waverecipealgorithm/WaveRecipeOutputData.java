@@ -12,12 +12,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * WaveRecipeOutputDataImpl
+ * WaveRecipeOutputData
  *
  * Meant to encapsulate the computed output from a recipe, so that it can be
  * sent out to the Wave Client app authorized for that recipe.
  */
-public final class WaveRecipeOutputDataImpl implements WaveRecipeOutputData, Parcelable {
+public final class WaveRecipeOutputData implements Parcelable {
     
     public int describeContents() {
         return 0;
@@ -27,17 +27,17 @@ public final class WaveRecipeOutputDataImpl implements WaveRecipeOutputData, Par
         
     }
     
-    public static final Parcelable.Creator<WaveRecipeOutputDataImpl> CREATOR = new Parcelable.Creator<WaveRecipeOutputDataImpl>() {
-        public WaveRecipeOutputDataImpl createFromParcel(Parcel in) {
-            return new WaveRecipeOutputDataImpl(in);
+    public static final Parcelable.Creator<WaveRecipeOutputData> CREATOR = new Parcelable.Creator<WaveRecipeOutputData>() {
+        public WaveRecipeOutputData createFromParcel(Parcel in) {
+            return new WaveRecipeOutputData(in);
         }
         
-        public WaveRecipeOutputDataImpl[] newArray(int size) {
-            return new WaveRecipeOutputDataImpl[size];
+        public WaveRecipeOutputData[] newArray(int size) {
+            return new WaveRecipeOutputData[size];
         }
     };
     
-    private WaveRecipeOutputDataImpl(Parcel in) {
+    private WaveRecipeOutputData(Parcel in) {
         
     }
 }

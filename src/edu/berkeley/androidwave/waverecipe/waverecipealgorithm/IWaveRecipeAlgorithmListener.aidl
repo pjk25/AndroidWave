@@ -8,10 +8,10 @@
 
 package edu.berkeley.androidwave.waverecipe.waverecipealgorithm;
 
-import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeData;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeOutputData;
 
-interface IWaveRecipeAlgorithmListener {
+oneway interface IWaveRecipeAlgorithmListener {
     
-    void handleRecipeData(in WaveRecipeData data);
+    void handleRecipeData(in WaveRecipeOutputData data);
     
 }

@@ -8,12 +8,12 @@
 
 package edu.berkeley.androidwave.waveservice;
 
-import edu.berkeley.androidwave.waverecipe.WaveRecipeOutputDataImpl;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeOutputData;
 
 oneway interface IWaveRecipeOutputDataListener {
     
     /**
      * receiveWaveRecipeOutputData
      */
-    void receiveWaveRecipeOutputData(in WaveRecipeOutputDataImpl wrOutput);
+    void receiveWaveRecipeOutputData(in WaveRecipeOutputData wrOutput);
 }
