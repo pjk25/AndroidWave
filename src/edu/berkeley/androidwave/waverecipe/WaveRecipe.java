@@ -11,17 +11,21 @@ package edu.berkeley.androidwave.waverecipe;
 import edu.berkeley.androidwave.waveexception.*;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithmListener;
+import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Xml;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.security.cert.Certificate;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.jar.JarFile;
 import java.util.Vector;
 import org.xml.sax.SAXException;
@@ -193,15 +197,11 @@ public class WaveRecipe implements Parcelable {
      * getAlgorithmInstance
      */
     public WaveRecipeAlgorithm getAlgorithmInstance()
-            throws IllegalAccessException, InstantiationException {
-        System.out.println(""+WaveRecipeAlgorithm.class+", hashCode="+WaveRecipeAlgorithm.class.hashCode());
+            throws Exception {
         
-        Object result = algorithmMainClass.newInstance();
+        WaveRecipeAlgorithmShadow shadow = new WaveRecipeAlgorithmShadow(algorithmMainClass.newInstance());
         
-        Class[] interfaces = result.getClass().getInterfaces();
-        System.out.println(""+interfaces[0]+", hashCode="+interfaces[0].hashCode());
-        
-        return (WaveRecipeAlgorithm)result;
+        return shadow;
     }
     
     /**
@@ -235,6 +235,68 @@ public class WaveRecipe implements Parcelable {
     
     private WaveRecipe(Parcel in) {
         
+    }
+}
+
+
+class WaveRecipeAlgorithmShadow implements WaveRecipeAlgorithm {
+    
+    Object algorithmImpl;
+    
+    Method implSetWaveRecipeAlgorithmListenerMethod;
+    Method implIngestSensorDataMethod;
+    
+    WaveRecipeAlgorithmShadow(Object impl) throws Exception {
+        // make sure that impl implements WaveRecipeAlgorithm
+        
+        // first get the local WaveRecipeAlgorithm Method Names
+        HashSet<String> theseMethods = new HashSet<String>();
+        Method[] methods = WaveRecipeAlgorithm.class.getMethods();
+        for (Method m : methods) {
+            theseMethods.add(m.getName());
+        }
+        
+        // then get those of impl
+        HashSet<String> thoseMethods = new HashSet<String>();
+        Method[] implMethods = impl.getClass().getMethods();
+        for (Method m : implMethods) {
+            String name = m.getName();
+            thoseMethods.add(name);
+            // and cache important methods
+            if (name.equals("setWaveRecipeAlgorithmListener")) {
+                implSetWaveRecipeAlgorithmListenerMethod = m;
+            } else if (name.equals("ingestSensorData")) {
+                implIngestSensorDataMethod = m;
+            }
+        }
+        
+        if (!thoseMethods.containsAll(theseMethods)) {
+            throw new Exception(""+impl+" does not implement WaveRecipeAlgorithm");
+        }
+        
+        algorithmImpl = impl;
+    }
+    
+    /**
+     * There are only two methods to shadow, so this class is currently small
+     */
+    
+    public boolean setWaveRecipeAlgorithmListener(WaveRecipeAlgorithmListener listener) {
+        Object returnVal;
+        try {
+            returnVal = implSetWaveRecipeAlgorithmListenerMethod.invoke(algorithmImpl, listener);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return ((Boolean)returnVal).booleanValue();
+    }
+    
+    public void ingestSensorData(WaveSensorData sensorData) {
+        try {
+            implIngestSensorDataMethod.invoke(algorithmImpl, sensorData);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 
