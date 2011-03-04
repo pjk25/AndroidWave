@@ -44,6 +44,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 public class WaveRecipeTest extends InstrumentationTestCase {
     
     WaveRecipe recipeOne;
+    File recipeOneFile;
     
     /**
      * copyAssetToInternal
@@ -99,6 +100,10 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         return d;
     }
     
+    public void setUp() throws Exception {
+        recipeOneFile = copyAssetToInternal("fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+    }
+    
     /**
      * testRetrieveRecipe
      *
@@ -126,9 +131,7 @@ public class WaveRecipeTest extends InstrumentationTestCase {
             throws Exception {
         
         // build an instance from the fixture
-        // first copy the fixture to the recipes cache
-        File targetFile = copyAssetToInternal("fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(getInstrumentation().getContext(), targetFile.getPath());
+        recipeOne = WaveRecipe.createFromDisk(getInstrumentation().getContext(), recipeOneFile.getPath());
         
         // test the values in the recipeOne fixture
         assertEquals("getID should match that of recipe xml", "edu.berkeley.waverecipe.AccelerometerMagnitude", recipeOne.getID());
@@ -174,4 +177,22 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         assertEquals("algorithmServiceName", "edu.berkeley.androidwave.waverecipesample.AccelerometerMagnitudeAlgorithm", recipeOne.algorithmServiceName);
     }
     
+    /**
+     * testRecipeOneAlgorithmService
+     */
+    public void testRecipeOneAlgorithmService()
+            throws Exception {
+        
+        // build an instance from the fixture
+        recipeOne = WaveRecipe.createFromDisk(getInstrumentation().getContext(), recipeOneFile.getPath());
+        
+        // trigger the bind
+        recipeOne.bindAlgorithmService();
+        
+        assertNotNull("algorithmService should not be null", recipeOne.getAlgorithmService());
+        
+        recipeOne.unbindAlgorithmService();
+        
+        assertNull("algorithmService should be null", recipeOne.getAlgorithmService());
+    }
 }
