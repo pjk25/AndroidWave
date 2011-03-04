@@ -9,7 +9,7 @@
 package edu.berkeley.androidwave.waveservice;
 
 import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
-import edu.berkeley.androidwave.waveservice.IWaveRecipeOutputListener;
+import edu.berkeley.androidwave.waveservice.IWaveRecipeOutputDataListener;
 
 interface IWaveServicePublic {
     
@@ -25,5 +25,5 @@ interface IWaveServicePublic {
     /**
      * Register recipe output listener
      */
-    boolean registerRecipeOutputListener(in IWaveRecipeOutputListener listener, boolean includeSensorData);
+    boolean registerRecipeOutputListener(in IWaveRecipeOutputDataListener listener, boolean includeSensorData);
 }

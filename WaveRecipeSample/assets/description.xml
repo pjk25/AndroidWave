@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<recipe id="edu.berkeley.waverecipe.AccelerometerMagnitude" version="2011-01-09T19:20:30.45-08:00" >
+<recipe id="edu.berkeley.waverecipe.AccelerometerMagnitude" version="2011-01-09 19:20:30.45-0800" >
     <name>Accelerometer Magnitude</name>
     <description>
-        Measures intensity of motion of your device.  Representative of your
+        Measures intensity of motion of your device. Representative of your
         activity level.
     </description>
     <sensors>
-        <accelerometer ref-id="input_accelerometer" channels="3"></accelerometer>
+        <!-- Units specified at the sensor apply to all channels, to support
+             sensors with multiple channels -->
+        <sensor type="accelerometer" units="g" ref-id="input_accelerometer">
+            <!-- <channel name="X" />
+                 <channel name="Y" />
+                 <channel name="Z" /> -->
+        </sensor>
         <!-- Calibration information can be included within the sensor tags -->
     </sensors>
-    <output>
-        <accelerometer ref-id="output_magnitude" channels="1">
-            <calibration inherit="input_accelerometer" />
-        </accelerometer>
-    </output>
+    <outputs>
+        <output name="AccelerometerMagnitude">
+            <channel name="magnitude" units="g" />
+        </output>
+    </outputs>
     <granularity-table type="continuous">
-        <rate inherit="input_accelerometer"></rate>
-        <precision inherit="input_accelerometer"></precision><!-- need to confirm accuracy of this in the case of vector magnitude -->
+        <rate>#input_accelerometer</rate><!-- #ref-id references rate information from an incoming sensor-->
+        <precision>#input_accelerometer</precision><!-- need to confirm accuracy of this in the case of vector magnitude -->
     </granularity-table>
     <!-- a discreet type table is also available -->
     <!-- <granularity-table>
@@ -26,7 +32,7 @@
             </entry>
         </granularity-table> -->
     <algorithm>
-        <class interface="WaveRecipeAlgorithm" name="edu.berkeley.androidwave.waverecipesample.AccelerometerMagnitude" />
+        <class interface="WaveRecipeAlgorithm" name="edu.berkeley.androidwave.waverecipesample.AccelerometerMagnitudeAlgorithm" />
     </algorithm>
 </recipe>
 

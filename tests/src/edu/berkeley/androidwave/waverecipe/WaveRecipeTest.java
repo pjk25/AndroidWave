@@ -9,12 +9,16 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
+import edu.berkeley.androidwave.waverecipe.granularitytable.*;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
+import edu.berkeley.androidwave.waveservice.sensorengine.*;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.Date;
-import java.text.DateFormat;
-import java.text.ParseException;
+import java.util.HashMap;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import android.content.Context;
 import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
@@ -67,6 +71,14 @@ public class WaveRecipeTest extends InstrumentationTestCase {
             destComponents = dest.split("/");
             // System.out.println("copyAssetToInternal -> destComponents "+Arrays.toString(destComponents));
             targetFile = new File(dir, destComponents[destComponents.length-1]);
+            if (targetFile.exists()) {
+                System.out.print(this.getClass().getSimpleName() + ": copyAssetToInternal->Deleting existing file at "+targetFile+"...");
+                if (targetFile.delete()) {
+                    System.out.println(" done.");
+                } else {
+                    System.out.println(" fail.");
+                }
+            }
             // System.out.println("copyAssetToInternal -> targetFile = "+targetFile);
             os = new FileOutputStream(targetFile);
         }
@@ -82,13 +94,10 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         return targetFile;
     }
     
-    protected void setUp()
-        throws InvalidSignatureException, IOException {
-        
-        // build an instance from the fixture for other tests
-        // first copy the fixture to the recipes cache
-        File targetFile = copyAssetToInternal("fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(targetFile.getPath());
+    protected Date parseDateFromXmlString(String s) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+        Date d = formatter.parse(s,new ParsePosition(0));
+        return d;
     }
     
     /**
@@ -108,19 +117,66 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         //assertNotNull(testRecipe);
     }
     
+    /**
+     * testPreconditions
+     * 
+     * same as testCreateFromDisk, but base functionality, so labeled
+     * testPreconditions
+     */
     public void testPreconditions()
-        throws ParseException {
+        throws Exception {
+        
+        // build an instance from the fixture
+        // first copy the fixture to the recipes cache
+        File targetFile = copyAssetToInternal("fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        recipeOne = WaveRecipe.createFromDisk(targetFile.getPath());
+        
         // test the values in the recipeOne fixture
-        assertEquals("getID should match that of recipe xml", recipeOne.getID(), "edu.berkeley.waverecipe.AccelerometerMagnitude");
+        assertEquals("getID should match that of recipe xml", "edu.berkeley.waverecipe.AccelerometerMagnitude", recipeOne.getID());
         
-        Date versionDate = DateFormat.getDateInstance().parse("2011-01-09T19:20:30.45-08:00");
-        assertEquals("getVersion should be the timestamp of the recipe's signature", recipeOne.getVersion(), versionDate);
+        Date versionDate = parseDateFromXmlString("2011-01-09 19:20:30.45-0800");
+        assertEquals("getVersion should be the timestamp of the recipe's signature", versionDate, recipeOne.getVersion());
         
-        assertEquals("check name", recipeOne.getName(), "Accelerometer Magnitude");
+        assertEquals("check name", "Accelerometer Magnitude", recipeOne.getName());
         
-        assertEquals("check description", recipeOne.getDescription(), "Measures intensity of motion of your device.  Representative of your activity level.");
+        assertEquals("check description", "Measures intensity of motion of your device. Representative of your activity level.", recipeOne.getDescription());
         
-        fail("remaining recipeOne fixture tests not written");
+        // test the complex fields of the WaveRecipe
+        WaveSensor[] sensors = recipeOne.getSensors();
+        assertEquals("recipeOne has one sensor", 1, sensors.length);
+        WaveSensor theSensor = sensors[0];
+        assertEquals("recipeOne's sensor is an accelerometer", WaveSensor.Type.ACCELEROMETER, theSensor.getType());
+        assertTrue("sensor has units", theSensor.hasExpectedUnits());
+        assertEquals("sensor unit is g", "g", theSensor.getExpectedUnits());
+        
+        WaveRecipeOutput[] recipeOutputs = recipeOne.getRecipeOutputs();
+        assertEquals("recipeOne has one output", 1, recipeOutputs.length);
+        WaveRecipeOutput theOutput = recipeOutputs[0];
+        assertEquals("recipeOne's output name is ", "AccelerometerMagnitude", theOutput.getName());
+        WaveRecipeOutputChannel[] outputChannels = theOutput.getChannels();
+        assertEquals("AccelerometerMagnitude has one channel", 1, outputChannels.length);
+        assertEquals("that channel is called \"magnitude\"", "magnitude", outputChannels[0].getName());
+        assertEquals("that channel has units of g", "g", outputChannels[0].getUnits());
+        
+        GranularityTable table = recipeOne.getGranularityTable();
+        assertNotNull(table);
+        assertEquals("GranularityTable is continuous", ContinuousGranularityTable.class, table.getClass());
+        
+        // need to check mappings somehow, lets just try some values
+        HashMap<SpecifiesExpectedUnits, Double> rateMap = new HashMap<SpecifiesExpectedUnits, Double>();
+        rateMap.put(theSensor, 10.0);
+        assertEquals("rate out equals rate in", 10.0, ((ContinuousGranularityTable)table).rateForSensorRates(rateMap));
+        
+        HashMap<SpecifiesExpectedUnits, Double> precisionMap = new HashMap<SpecifiesExpectedUnits, Double>();
+        precisionMap.put(theSensor, 0.01);
+        assertEquals("precision out equals precision in", 0.01, ((ContinuousGranularityTable)table).precisionForSensorPrecisions(precisionMap));
+        
+        // test the algorithm class
+        assertNotNull("algorithmMainClass should not be null", recipeOne.algorithmMainClass);
+        // make an instance
+        Object algorithmInstanceAsObject = recipeOne.getAlgorithmInstance();
+        assertNotNull("algorithmMainClass can be instantiated", algorithmInstanceAsObject);
+        MoreAsserts.assertAssignableFrom(WaveRecipeAlgorithm.class, algorithmInstanceAsObject);
     }
     
 }

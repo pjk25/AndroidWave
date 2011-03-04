@@ -186,3 +186,31 @@ WaveService should be bound by clients
 A remaining question - what about destinations within android client apps?
 
 Sensors/devices must also be identified by version (i.e. Shimmer v1/v2)
+
+
+ ================================
+ = New Notes as of 2 March 2011 =
+ ================================
+
+While implementing non-service recipes in the waverecipe_dev branch, I
+inadvertently discovered some interesting points about class loading system.
+We packaged recipes in apks, so we could dynamically load algorithm
+implementations. In order to do so, we duplicated classes (via symbolic link)
+from the main wave project to the WaveRecipeSample project. It turns out that
+when that apk is loaded, duplicate classes are loaded into the wave app, but
+with exactly the same fully qualified name. As a result, we get strange
+casting issues when trying to actually use the dynamically loaded recipes. My
+suspicion was that there were duplicate classes, discovered by examining the
+hashCode of the class objects (which actually represent interfaces anyway).
+
+In order to alleviate this, I tried compiling the WaveRecipeSample and removing
+the duplicate classes before they are bundled into the .dex.  Unfortunately,
+that dex fails to load due to linking errors.
+
+The question now is how can we get around this inheritance boundary, do we
+need to implement the recipe as a service?  Or is there a way to use aidls or
+the like without needing to use separate services?  We could also just make
+"mirror" interfaces in both the waverecipe and waverecipealgorithm classes,
+and access from wave with reflection.  In fact we could do this using the
+existing linked classes, but creating the mirrors might improve clarity over
+the duplicate but not-equal classes created by the linking.

@@ -98,9 +98,9 @@ public class WaveService extends Service {
          /**
           * registerRecipeOutputListener
           *
-          * @see IWaveServicePublic#registerRecipeOutputListener(WaveRecipeOutputListener, boolean)
+          * @see IWaveServicePublic#registerRecipeOutputListener(WaveRecipeOutputDataListener, boolean)
           */
-         public boolean registerRecipeOutputListener(IWaveRecipeOutputListener listener, boolean includeSensorData) {
+         public boolean registerRecipeOutputListener(IWaveRecipeOutputDataListener listener, boolean includeSensorData) {
              return false;
          }
      };

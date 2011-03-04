@@ -1,43 +1,50 @@
 // 
 //  WaveRecipeOutput.java
-//  CalFitWaveProject
+//  AndroidWaveProject
 //  
-//  Created by Philip Kuryloski on 2011-01-24.
+//  Created by Philip Kuryloski on 2011-02-22.
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
 package edu.berkeley.androidwave.waverecipe;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import java.util.Vector;
 
 /**
  * WaveRecipeOutput
- *
- * Meant to encapsulate the computed output from a recipe, so that it can be
- * sent out to the Wave Client app authorized for that recipe.
+ * 
+ * General representation of one output from a WaveRecipe
  */
-public final class WaveRecipeOutput implements Parcelable {
+public class WaveRecipeOutput {
     
-    public int describeContents() {
-        return 0;
+    protected String name;
+    
+    protected Vector<WaveRecipeOutputChannel> channels;
+    
+    public WaveRecipeOutput(String name) {
+        this.name = name;
+        
+        channels = new Vector<WaveRecipeOutputChannel>();
     }
     
-    public void writeToParcel(Parcel out, int flags) {
-        
+    /**
+     * getName
+     */
+    public String getName() {
+        return name;
     }
     
-    public static final Parcelable.Creator<WaveRecipeOutput> CREATOR = new Parcelable.Creator<WaveRecipeOutput>() {
-        public WaveRecipeOutput createFromParcel(Parcel in) {
-            return new WaveRecipeOutput(in);
-        }
-        
-        public WaveRecipeOutput[] newArray(int size) {
-            return new WaveRecipeOutput[size];
-        }
-    };
-    
-    private WaveRecipeOutput(Parcel in) {
-        
+    /**
+     * getChannels
+     */
+    public WaveRecipeOutputChannel[] getChannels() {
+        return channels.toArray(new WaveRecipeOutputChannel[0]);
+    }
+
+    /**
+     * addChannel
+     */
+    public boolean addChannel(WaveRecipeOutputChannel c) {
+        return channels.add(c);
     }
 }

@@ -84,8 +84,9 @@
     <property name="out.absolute.dir" location="${out.dir}" />
     <property name="out.debug.package"
                   location="${out.absolute.dir}/${ant.project.name}-debug.apk" />
-    <property name="test.asset.fixture.recipes.dir" value="../tests/assets/fixtures/waverecipes" />
+    <property name="test.asset.fixture.recipes.dir" value="${test.project.dir}/assets/fixtures/waverecipes" />
     
+    <!-- Custom Install target -->
     <target name="install" depends="debug"
                 description="UCB Use. Copies the debug apk to the test projet." >
         <echo>Copying debug package to test project fixtures...</echo>
