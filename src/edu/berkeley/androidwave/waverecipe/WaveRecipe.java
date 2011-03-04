@@ -223,6 +223,7 @@ public class WaveRecipe implements Parcelable {
      */
     public void bindAlgorithmService() {
         mServiceState = AlgorithmServiceState.BINDING;
+        //mContext.bindService(new Intent(Intent.ACTION_MAIN),
         mContext.bindService(new Intent(algorithmServiceName),
                 mConnection, Context.BIND_AUTO_CREATE);
         // TODO: engane any callback links
@@ -235,6 +236,8 @@ public class WaveRecipe implements Parcelable {
         if (mServiceState == AlgorithmServiceState.BOUND) {
             // TODO: disengage any callback links that are in place
             mContext.unbindService(mConnection);
+            mServiceState = AlgorithmServiceState.UNBOUND;
+            algorithmService = null;
         }
     }
     

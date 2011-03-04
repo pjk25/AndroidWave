@@ -15,7 +15,8 @@
                  android:exported="true"
                  android:name=".AccelerometerMagnitudeAlgorithm">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <!-- <action android:name="android.intent.action.MAIN" /> -->
+                <action android:name="edu.berkeley.androidwave.waverecipesample.AccelerometerMagnitudeAlgorithm" />
             </intent-filter>
         </service>
     </application>

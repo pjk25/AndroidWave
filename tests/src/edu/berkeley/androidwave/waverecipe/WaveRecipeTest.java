@@ -189,10 +189,14 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         // trigger the bind
         recipeOne.bindAlgorithmService();
         
-        assertNotNull("algorithmService should not be null", recipeOne.getAlgorithmService());
+        // let the service start up.
+        // maybe we should use a ServiceTestCase
+        Thread.sleep(1000);
+        
+        assertNotNull("algorithmService should not be null after bind", recipeOne.getAlgorithmService());
         
         recipeOne.unbindAlgorithmService();
         
-        assertNull("algorithmService should be null", recipeOne.getAlgorithmService());
+        assertNull("algorithmService should be null after unbind", recipeOne.getAlgorithmService());
     }
 }
