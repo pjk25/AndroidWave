@@ -124,7 +124,7 @@ public class WaveRecipeTest extends InstrumentationTestCase {
      * testPreconditions
      */
     public void testPreconditions()
-        throws Exception {
+            throws Exception {
         
         // build an instance from the fixture
         // first copy the fixture to the recipes cache
@@ -178,5 +178,4 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         assertNotNull("algorithmMainClass can be instantiated", algorithmInstanceAsObject);
         MoreAsserts.assertAssignableFrom(WaveRecipeAlgorithm.class, algorithmInstanceAsObject);
     }
-    
 }
