@@ -1,5 +1,5 @@
 // 
-//  WaveSensor.java
+//  WaveSensorDescription.java
 //  AndroidWaveProject
 //  
 //  Created by Philip Kuryloski on 2011-02-22.
@@ -8,37 +8,37 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
+import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
+
 import java.util.Vector;
 
 /**
- * WaveSensor
+ * WaveSensorDescription
  *
  * This is a representational sensor object, meaning it does (necessarily)
  * correspond to sensors available on the device.  Its denotes requirements
  * of a sensor that can be met, so may be generic, or very precise, depending
  * on the nature of the algorithm.
  */
-public class WaveSensor implements SpecifiesExpectedUnits {
+public class WaveSensorDescription implements SpecifiesExpectedUnits {
     
-    public enum Type { ACCELEROMETER };
-    
-    protected Type type;
+    protected WaveSensor.Type type;
     
     protected String expectedUnits;
     
-    protected Vector<WaveSensorChannel> channels;
+    protected Vector<WaveSensorChannelDescription> channels;
     
-    public WaveSensor(Type t, String expectedUnits) {
+    public WaveSensorDescription(WaveSensor.Type t, String expectedUnits) {
         type = t;
         this.expectedUnits = expectedUnits;
         
-        channels = new Vector<WaveSensorChannel>();
+        channels = new Vector<WaveSensorChannelDescription>();
     }
     
     /**
      * getType
      */
-    public Type getType() {
+    public WaveSensor.Type getType() {
         return type;
     }
     
@@ -59,14 +59,14 @@ public class WaveSensor implements SpecifiesExpectedUnits {
     /**
      * getChannels
      */
-    public WaveSensorChannel[] getChannels() {
-        return channels.toArray(new WaveSensorChannel[0]);
+    public WaveSensorChannelDescription[] getChannels() {
+        return channels.toArray(new WaveSensorChannelDescription[0]);
     }
     
     /**
      * addChannel
      */
-    public boolean addChannel(WaveSensorChannel c) {
+    public boolean addChannel(WaveSensorChannelDescription c) {
         return channels.add(c);
     }
 }

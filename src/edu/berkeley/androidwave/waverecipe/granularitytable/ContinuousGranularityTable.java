@@ -9,7 +9,7 @@
 package edu.berkeley.androidwave.waverecipe.granularitytable;
 
 import edu.berkeley.androidwave.waverecipe.SpecifiesExpectedUnits;
-import edu.berkeley.androidwave.waverecipe.WaveSensor;
+import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
 import net.smplmathparser.EvaluationTree;
 import net.smplmathparser.MathParser;

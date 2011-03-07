@@ -9,6 +9,7 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
+import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -32,8 +33,8 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     
     HashMap<String, SpecifiesExpectedUnits> referenceMap;
     
-    Vector<WaveSensor> sensors;
-    protected WaveSensor currentSensor;
+    Vector<WaveSensorDescription> sensors;
+    protected WaveSensorDescription currentSensor;
     
     Vector<WaveRecipeOutput> outputs;
     protected WaveRecipeOutput currentOutput;
@@ -130,7 +131,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 if (localName.equalsIgnoreCase("sensor")) {
                     try {
                         WaveSensor.Type t = waveSensorTypeFromString(atts.getValue("type"));
-                        currentSensor = new WaveSensor(t, atts.getValue("units"));
+                        currentSensor = new WaveSensorDescription(t, atts.getValue("units"));
                         String refId = atts.getValue("ref-id");
                         if (refId != null) {
                             referenceMap.put(refId, currentSensor);
@@ -140,7 +141,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     }
                 } else if (localName.equalsIgnoreCase("channel")) {
                     String refId = atts.getValue("ref-id");
-                    WaveSensorChannel currentChannel = new WaveSensorChannel(atts.getValue("name"), atts.getValue("units"));
+                    WaveSensorChannelDescription currentChannel = new WaveSensorChannelDescription(atts.getValue("name"), atts.getValue("units"));
                     currentSensor.addChannel(currentChannel);
                     if (refId != null) {
                         referenceMap.put(refId, currentChannel);
@@ -204,7 +205,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
             } else if (stag == SubTag.SENSORS) {
                 if (localName.equalsIgnoreCase("sensors")) {
                     // finalize the sensors array
-                    recipe.sensors = sensors.toArray(new WaveSensor[0]);
+                    recipe.sensors = sensors.toArray(new WaveSensorDescription[0]);
                     stag = SubTag.NONE;
                 } else if (localName.equalsIgnoreCase("sensor")) {
                     // we could check that currentSensor is an accelerometer

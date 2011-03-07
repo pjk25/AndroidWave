@@ -1,5 +1,5 @@
 // 
-//  WaveSensorChannel.java
+//  WaveSensorChannelDescription.java
 //  AndroidWaveProject
 //  
 //  Created by Philip Kuryloski on 2011-02-22.
@@ -9,21 +9,21 @@
 package edu.berkeley.androidwave.waverecipe;
 
 /**
- * WaveSensorChannel
+ * WaveSensorChannelDescription
  *
  * @see WaveSensor
  */
 
-public class WaveSensorChannel implements SpecifiesExpectedUnits {
+public class WaveSensorChannelDescription implements SpecifiesExpectedUnits {
     
     protected String name;
     protected String expectedUnits;
     
-    public WaveSensorChannel(String name) {
+    public WaveSensorChannelDescription(String name) {
         this(name, null);
     }
     
-    public WaveSensorChannel(String name, String expectedUnits) {
+    public WaveSensorChannelDescription(String name, String expectedUnits) {
         this.name = name;
         this.expectedUnits = expectedUnits;
     }

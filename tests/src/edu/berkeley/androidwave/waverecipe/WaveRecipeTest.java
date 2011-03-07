@@ -142,9 +142,9 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         assertEquals("check description", "Measures intensity of motion of your device. Representative of your activity level.", recipeOne.getDescription());
         
         // test the complex fields of the WaveRecipe
-        WaveSensor[] sensors = recipeOne.getSensors();
+        WaveSensorDescription[] sensors = recipeOne.getSensors();
         assertEquals("recipeOne has one sensor", 1, sensors.length);
-        WaveSensor theSensor = sensors[0];
+        WaveSensorDescription theSensor = sensors[0];
         assertEquals("recipeOne's sensor is an accelerometer", WaveSensor.Type.ACCELEROMETER, theSensor.getType());
         assertTrue("sensor has units", theSensor.hasExpectedUnits());
         assertEquals("sensor unit is g", "g", theSensor.getExpectedUnits());

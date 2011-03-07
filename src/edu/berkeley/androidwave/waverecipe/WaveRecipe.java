@@ -12,6 +12,7 @@ import edu.berkeley.androidwave.waveexception.*;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithmListener;
+import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 
 import android.os.Parcel;
@@ -44,7 +45,7 @@ public class WaveRecipe implements Parcelable {
     protected String name;
     protected String description;
     
-    protected WaveSensor[] sensors;
+    protected WaveSensorDescription[] sensors;
     protected WaveRecipeOutput[] recipeOutputs;
     
     protected GranularityTable granularityTable;
@@ -161,9 +162,9 @@ public class WaveRecipe implements Parcelable {
     /**
      * getSensors
      * 
-     * {@see WaveSensor}
+     * {@see WaveSensorDescription}
      */
-    public WaveSensor[] getSensors() {
+    public WaveSensorDescription[] getSensors() {
         return sensors;
     }
     

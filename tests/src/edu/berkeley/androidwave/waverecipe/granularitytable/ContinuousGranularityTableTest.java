@@ -9,7 +9,8 @@
 package edu.berkeley.androidwave.waverecipe.granularitytable;
 
 import edu.berkeley.androidwave.waverecipe.SpecifiesExpectedUnits;
-import edu.berkeley.androidwave.waverecipe.WaveSensor;
+import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
+import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
 import java.util.HashMap;
 import junit.framework.TestCase;
@@ -27,7 +28,7 @@ public class ContinuousGranularityTableTest extends TestCase {
         ContinuousGranularityTable table = new ContinuousGranularityTable();
         
         // next 4 lines initializes as XML would
-        WaveSensor aSensor = new WaveSensor(WaveSensor.Type.ACCELEROMETER, null);
+        WaveSensorDescription aSensor = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, null);
         
         HashMap<String, SpecifiesExpectedUnits> variableMap = new HashMap<String, SpecifiesExpectedUnits>();
         variableMap.put("input_accel", aSensor);
@@ -52,7 +53,7 @@ public class ContinuousGranularityTableTest extends TestCase {
         ContinuousGranularityTable table = new ContinuousGranularityTable();
         
         // next 4 lines initializes as XML would
-        WaveSensor aSensor = new WaveSensor(WaveSensor.Type.ACCELEROMETER, null);
+        WaveSensorDescription aSensor = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, null);
         
         HashMap<String, SpecifiesExpectedUnits> variableMap = new HashMap<String, SpecifiesExpectedUnits>();
         variableMap.put("input_accel", aSensor);
