@@ -8,6 +8,36 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
+/**
+ * WaveSensorChannel
+ * 
+ * @see WaveSensor
+ */
 public class WaveSensorChannel {
-    // null implementation
+    
+    protected String name;
+    protected String expectedUnits;
+    
+    /**
+     * WaveSensorChannel
+     * 
+     * Constructor
+     */
+    public WaveSensorChannel(String name) {
+        this.name = name;
+    }
+    
+    /**
+     * getName
+     */
+    public String getName() {
+        return name;
+    }
+    
+    /**
+     * getExpectedUnits
+     */
+    public String getExpectedUnits() {
+        return expectedUnits;
+    }
 }

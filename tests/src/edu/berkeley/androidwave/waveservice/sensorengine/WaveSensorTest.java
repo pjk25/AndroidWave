@@ -8,38 +8,59 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
+import android.os.Build;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
 /**
- * WaveSensor unit test
+ * WaveSensor/WaveSensorChannel test
  * 
- * @see WaveSensor
+ * @see WaveSensor, @see WaveSensorChannel
  * 
  * To run this test, you can type:
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 public class WaveSensorTest extends AndroidTestCase {
+    
+    protected WaveSensor fakeAccelerometer;
+    
     @Override
     protected void setUp() {
         // create fixture sensors
+        fakeAccelerometer = new WaveSensor();
+        fakeAccelerometer.type = WaveSensor.Type.ACCELEROMETER;
+        
+        WaveSensorChannel[] channels = { new WaveSensorChannel("X"),
+                                         new WaveSensorChannel("Y"),
+                                         new WaveSensorChannel("Z")};
+        
+        fakeAccelerometer.channels = channels;
     }
     
     @SmallTest
     public void testGetType() throws Exception {
-        fail("test not written yet");
+        assertEquals("fakeAccelerometer has type ACCELEROMETER", WaveSensor.Type.ACCELEROMETER, fakeAccelerometer.getType());
     }
     
     @SmallTest
     public void testGetVersion() throws Exception {
-        fail("test not written yet");
+        
+        String device = Build.DEVICE;
+        String board = Build.BOARD;
+        String model = Build.MODEL;
+        
+        String expectedVersion = device + "_" + board + "_" + model;
+        
+        assertEquals(expectedVersion, fakeAccelerometer.getVersion());
     }
     
     @MediumTest
     public void testGetChannels() throws Exception {
-        fail("test not written yet");
+        WaveSensorChannel[] channels = fakeAccelerometer.getChannels();
+        assertEquals("fakeAccelerometer has 3 channels", 3, channels.length);
+        // channels themselves are tested in WaveSensorChannelTest
     }
     
     /**
