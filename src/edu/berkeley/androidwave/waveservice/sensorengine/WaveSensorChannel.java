@@ -16,7 +16,7 @@ package edu.berkeley.androidwave.waveservice.sensorengine;
 public class WaveSensorChannel {
     
     protected String name;
-    protected String expectedUnits;
+    protected String units;
     
     /**
      * WaveSensorChannel
@@ -37,7 +37,7 @@ public class WaveSensorChannel {
     /**
      * getExpectedUnits
      */
-    public String getExpectedUnits() {
-        return expectedUnits;
+    public String getUnits() {
+        return units;
     }
 }

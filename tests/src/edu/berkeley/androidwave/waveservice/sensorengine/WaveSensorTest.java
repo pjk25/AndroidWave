@@ -10,9 +10,11 @@ package edu.berkeley.androidwave.waveservice.sensorengine;
 
 import android.os.Build;
 import android.test.AndroidTestCase;
+import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import java.util.Set;
 
 /**
  * WaveSensor/WaveSensorChannel test
@@ -29,8 +31,7 @@ public class WaveSensorTest extends AndroidTestCase {
     @Override
     protected void setUp() {
         // create fixture sensors
-        fakeAccelerometer = new WaveSensor();
-        fakeAccelerometer.type = WaveSensor.Type.ACCELEROMETER;
+        fakeAccelerometer = new WaveSensor(WaveSensor.Type.ACCELEROMETER);
         
         WaveSensorChannel[] channels = { new WaveSensorChannel("X"),
                                          new WaveSensorChannel("Y"),
@@ -66,13 +67,50 @@ public class WaveSensorTest extends AndroidTestCase {
     /**
      * Static Method Tests
      */
-    @LargeTest
-    public void testGetAllSensors() throws Exception {
-        fail("test not written yet");
-    }
     
+    /**
+     * testGetAvailableLocalSensors
+     * 
+     * getAvailableLocalSensors should return a list of WaveSensor instances
+     * representing the sensors physically present on the device.  This
+     * typically includes, at a minumum, accelerometer, magnetometer, and GPS
+     */
     @LargeTest
-    public void testGetAvailableSensors() throws Exception {
-        fail("test not written yet");
+    public void testGetAvailableLocalSensors() throws Exception {
+        
+        Set<WaveSensor> localSensors = WaveSensor.getAvailableLocalSensors(getContext());
+        
+        assertNotNull("getAvailableLocalSensors() should not return null", localSensors);
+        
+        //assertEquals("Should have 3 available sensors", 3, localSensors.size());
+        
+        // there should be accelerometer, magnetometer, and location
+        WaveSensor accelSensor = null;
+        WaveSensor magSensor = null;
+        WaveSensor locSensor = null;
+        for (WaveSensor s : localSensors) {
+            if (s.getType() == WaveSensor.Type.ACCELEROMETER) {
+                accelSensor = s;
+            } else if (s.getType() == WaveSensor.Type.MAGNETOMETER) {
+                magSensor = s;
+            } else if (s.getType() == WaveSensor.Type.LOCATION) {
+                locSensor = s;
+            }
+        }
+        
+        // accelerometer
+        assertNotNull("should have accelerometer", accelSensor);
+        WaveSensorChannel[] accelChannels = accelSensor.getChannels();
+        assertNotNull(accelChannels);
+        assertEquals("Accelerometer has 3 channels", 3, accelChannels.length);
+        
+        // magnetometer
+        assertNull("emulated device has no magnetometer", magSensor);
+        // WaveSensorChannel[] magChannels = magSensor.getChannels();
+        // assertNotNull(magChannels);
+        // assertEquals("Magnetometer has 3 channels", 3, magChannels.length);
+        
+        // location
+        assertNotNull("should have location", locSensor);
     }
 } 
