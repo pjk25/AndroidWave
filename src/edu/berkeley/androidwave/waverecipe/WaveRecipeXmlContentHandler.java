@@ -11,6 +11,7 @@ package edu.berkeley.androidwave.waverecipe;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
+import android.util.Log;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -99,7 +100,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes atts)
             throws SAXException {
         
-        //System.out.println(String.format("startElement(%s, %s, %s, %s)", uri, localName, qName, atts));
+        //Log.d(getClass().getSimpleName(), String.format("startElement(%s, %s, %s, %s)", uri, localName, qName, atts));
         
         if (inRecipe) {
             if (localName.equalsIgnoreCase("recipe")) {
@@ -180,15 +181,15 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         /* Gets called every time in between an opening tag and
          * a closing tag if characters are encountered. */
         text = new String(ch, start, length);
-        //System.out.println(String.format("WaveRecipe->characters(...%s..., %d, %d)", text, start, length));
+        //Log.d(getClass().getSimpleName(), String.format("WaveRecipe->characters(...%s..., %d, %d)", text, start, length));
         textBuffer += (textBuffer == "" ? "" : " ") + text.trim();
-        //System.out.println(textBuffer);
+        //Log.d(getClass().getSimpleName(), textBuffer);
     }
 
     @Override
     public void endElement(String uri, String localName, String qName)
             throws SAXException {
-        //System.out.println(String.format("endElement(%s, %s, %s)", uri, localName, qName));
+        //Log.d(getClass().getSimpleName(), String.format("endElement(%s, %s, %s)", uri, localName, qName));
         // Gets called every time a closing tag is encountered.
         if (inRecipe) {
             if (stag == SubTag.NONE) {
@@ -200,7 +201,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     // clean up the text buffer before storing as the description
                     recipe.description = cleanDescriptionText(textBuffer);
                     textBuffer = "";
-                    System.out.println("Description assigned as \""+recipe.description+"\".");
+                    Log.d(getClass().getSimpleName(), "Description assigned as \""+recipe.description+"\".");
                 }
             } else if (stag == SubTag.SENSORS) {
                 if (localName.equalsIgnoreCase("sensors")) {

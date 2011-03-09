@@ -11,6 +11,8 @@ package edu.berkeley.androidwave.waverecipe.granularitytable;
 import edu.berkeley.androidwave.waverecipe.SpecifiesExpectedUnits;
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
+import android.util.Log;
+
 import net.smplmathparser.EvaluationTree;
 import net.smplmathparser.MathParser;
 import net.smplmathparser.MathParserException;
@@ -76,10 +78,10 @@ public class ContinuousGranularityTable extends GranularityTable {
         try {
             result = mathHelper(rateFormulaString, rateMap);
         } catch (Exception e) {
-            System.out.println("Hit exception while evaluating sensor rates...");
-            System.out.println("\""+rateFormulaString+"\"");
-            System.out.println(variableMap);
-            System.out.println(rateMap);
+            Log.d(getClass().getSimpleName(), "Hit exception while evaluating sensor rates...");
+            Log.d(getClass().getSimpleName(), "\"" + rateFormulaString + "\"");
+            Log.d(getClass().getSimpleName(), "" + variableMap);
+            Log.d(getClass().getSimpleName(), "" + rateMap);
             throw e;
         }
         return result;
@@ -95,10 +97,10 @@ public class ContinuousGranularityTable extends GranularityTable {
         try {
             result = mathHelper(precisionFormulaString, precisionMap);
         } catch (Exception e) {
-            System.out.println("Hit exception while evaluating sensor precisions...");
-            System.out.println("\""+precisionFormulaString+"\"");
-            System.out.println(variableMap);
-            System.out.println(precisionMap);
+            Log.d(getClass().getSimpleName(), "Hit exception while evaluating sensor precisions...");
+            Log.d(getClass().getSimpleName(), "\"" + precisionFormulaString + "\"");
+            Log.d(getClass().getSimpleName(), "" + variableMap);
+            Log.d(getClass().getSimpleName(), "" + precisionMap);
             throw e;
         }
         return result;
