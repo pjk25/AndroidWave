@@ -20,17 +20,27 @@ import java.util.Set;
 /**
  * SensorEngineTest
  * 
+ * @see SensorEngine
  * 
+ * To run this test, you can type:
+ * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.sensorengine.SensorEngineTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 public class SensorEngineTest extends AndroidTestCase {
     
+    SensorEngine sensorEngineInstance;
+    
+    public void setUp() throws Exception {
+        SensorEngine.init(getContext());
+        sensorEngineInstance = SensorEngine.getInstance();
+    }
+    
     @MediumTest
-    public void testAvailableSensorsMatchingWaveSensorDescription() {
+    public void testAvailableSensorsMatchingWaveSensorDescription() throws Exception {
         // we will test a sensorDescription that does not specify channels,
         // like the AccelerometerMagnitudeRecipe, to test imprecise matching
-        WaveSensorDescription sensorDescription = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "m/s^2");
+        WaveSensorDescription sensorDescription = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "-m/s^2");
         
-        Set<WaveSensor> matchingSensorSet = SensorEngine.availableSensorsMatchingWaveSensorDescription(sensorDescription);
+        Set<WaveSensor> matchingSensorSet = sensorEngineInstance.availableSensorsMatchingWaveSensorDescription(sensorDescription);
         
         assertEquals("there should be 1 matching sensor", 1, matchingSensorSet.size());
         WaveSensor theMatchingSensor = matchingSensorSet.iterator().next();

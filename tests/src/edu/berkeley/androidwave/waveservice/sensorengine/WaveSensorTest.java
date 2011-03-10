@@ -57,6 +57,17 @@ public class WaveSensorTest extends AndroidTestCase {
         assertEquals(expectedVersion, fakeAccelerometer.getVersion());
     }
     
+    /**
+     * testHasChannels
+     * 
+     * By definition, a WaveSensor has at least one channel
+     */
+    @MediumTest
+    public void testHasChannels() throws Exception {
+        assertNotNull(fakeAccelerometer.getChannels());
+        assertTrue(fakeAccelerometer.getChannels().length >= 1);
+    }
+    
     @MediumTest
     public void testGetChannels() throws Exception {
         WaveSensorChannel[] channels = fakeAccelerometer.getChannels();

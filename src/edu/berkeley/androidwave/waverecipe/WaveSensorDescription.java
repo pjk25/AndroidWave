@@ -57,6 +57,13 @@ public class WaveSensorDescription implements SpecifiesExpectedUnits {
     }
     
     /**
+     * hasChannels
+     */
+    public boolean hasChannels() {
+        return (channels.size() > 0);
+    }
+    
+    /**
      * getChannels
      */
     public WaveSensorChannelDescription[] getChannels() {
