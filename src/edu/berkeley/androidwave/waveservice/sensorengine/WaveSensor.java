@@ -147,4 +147,9 @@ public class WaveSensor {
         
         return availableLocalSensors;
     }
+    
+    public static Set<WaveSensor> getAvailableLocalSensor(Context context, WaveSensor.Type type) {
+        // null implementation
+        return null;
+    }
 }

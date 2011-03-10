@@ -75,4 +75,14 @@ public class SensorEngine {
         
         return matchingSensors;
     }
+    
+    /**
+     * startSensor
+     * 
+     * starts a sensor targeting a given sampling rate
+     */
+    public boolean startSensor(WaveSensor sensor, double rate) {
+        // null implementation
+        return false;
+    }
 }

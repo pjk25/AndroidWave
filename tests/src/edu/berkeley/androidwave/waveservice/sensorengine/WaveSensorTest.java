@@ -132,7 +132,7 @@ public class WaveSensorTest extends AndroidTestCase {
         
         assertNotNull("getAvailableLocalSensors() should not return null", localSensors);
         
-        //assertEquals("Should have 3 available sensors", 3, localSensors.size());
+        assertEquals("Emulator should have 2 available sensors", 2, localSensors.size());
         
         // there should be accelerometer, magnetometer, and location
         WaveSensor accelSensor = null;
@@ -162,5 +162,22 @@ public class WaveSensorTest extends AndroidTestCase {
         
         // location
         assertNotNull("should have location", locSensor);
+    }
+    
+    /**
+     * testGetAvailableLocalSensor
+     * 
+     * similar to {@link WaveSensorTest testGetAvailableLocalSensors}, but
+     * retreiving only one type of sensor
+     */
+    @LargeTest
+    public void testGetAvailableLocalSensor() throws Exception {
+        Set<WaveSensor> localSensors = WaveSensor.getAvailableLocalSensor(getContext(), WaveSensor.Type.ACCELEROMETER);
+        
+        assertNotNull("getAvailableLocalSensor() should not return null", localSensors);
+        
+        for (WaveSensor s : localSensors) {
+            assertEquals(WaveSensor.Type.ACCELEROMETER, s.getType());
+        }
     }
 } 

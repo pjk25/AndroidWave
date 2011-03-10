@@ -34,6 +34,11 @@ public class SensorEngineTest extends AndroidTestCase {
         sensorEngineInstance = SensorEngine.getInstance();
     }
     
+    /**
+     * testAvailableSensorsMatchingWaveSensorDescription
+     * 
+     * @see SensorEngine#availableSensorsMatchingWaveSensorDescription
+     */
     @MediumTest
     public void testAvailableSensorsMatchingWaveSensorDescription() throws Exception {
         // we will test a sensorDescription that does not specify channels,
@@ -46,5 +51,24 @@ public class SensorEngineTest extends AndroidTestCase {
         WaveSensor theMatchingSensor = matchingSensorSet.iterator().next();
         
         assertEquals("and it should be an accelerometer", WaveSensor.Type.ACCELEROMETER, theMatchingSensor.getType());
+    }
+    
+    /**
+     * testStartSensor
+     * 
+     * @see SensorEngine#startSensor
+     */
+    @MediumTest
+    public void testStartSensor() throws Exception {
+        
+        Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensor(getContext(), WaveSensor.Type.ACCELEROMETER);
+        assertTrue(accelSensors.size() > 0);
+        
+        WaveSensor accelSensor = accelSensors.iterator().next();
+        
+        // start an accelerometer at 5.0Hz minimum
+        assertTrue(sensorEngineInstance.startSensor(accelSensor, 5.0));
+        
+        fail("test not finished yet");
     }
 }
