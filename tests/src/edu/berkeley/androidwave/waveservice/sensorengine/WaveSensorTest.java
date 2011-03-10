@@ -58,6 +58,40 @@ public class WaveSensorTest extends AndroidTestCase {
     }
     
     /**
+     * testGetHighestAvailablePrecision
+     * 
+     * highest precision and highest sampling frequency are currently hard
+     * coded estimates
+     */
+    @SmallTest
+    public void testGetMaximumAvailablePrecision() throws Exception {
+        /**
+         * generic_unknown_sdk corresponds to the emulator.  It is asserted
+         * here to ensure that this test fails on an actual device, until we
+         * known accurate precision values for other devices
+         */ 
+        assertEquals("accel version", "generic_unknown_sdk", fakeAccelerometer.getVersion());
+        assertEquals("max accelerometer precision", (9.81/1024.0), fakeAccelerometer.getMaximumAvailablePrecision());
+    }
+    
+    /**
+     * testGetHighestAvailableSamplingFrequency
+     * 
+     * highest precision and highest sampling frequency are currently hard
+     * coded estimates
+     */
+    @SmallTest
+    public void testGetMaximumAvailableSamplingFrequency() throws Exception {
+        /**
+         * generic_unknown_sdk corresponds to the emulator.  It is asserted
+         * here to ensure that this test fails on an actual device, until we
+         * known accurate precision values for other devices
+         */ 
+        assertEquals("accel version", "generic_unknown_sdk", fakeAccelerometer.getVersion());
+        assertEquals("max accel sampling frequency", 10.0, fakeAccelerometer.getMaximumAvailableSamplingFrequency());
+    }
+    
+    /**
      * testHasChannels
      * 
      * By definition, a WaveSensor has at least one channel
@@ -68,6 +102,11 @@ public class WaveSensorTest extends AndroidTestCase {
         assertTrue(fakeAccelerometer.getChannels().length >= 1);
     }
     
+    /**
+     * testGetChannels
+     * 
+     * Channels accessor test
+     */
     @MediumTest
     public void testGetChannels() throws Exception {
         WaveSensorChannel[] channels = fakeAccelerometer.getChannels();

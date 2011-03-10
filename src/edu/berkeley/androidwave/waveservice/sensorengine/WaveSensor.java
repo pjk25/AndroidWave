@@ -53,6 +53,25 @@ public class WaveSensor {
     }
     
     /**
+     * getMaximumAvailablePrecision
+     * 
+     * currently hard coded.  Might need a lookup table based on device
+     * model
+     */
+    public double getMaximumAvailablePrecision() {
+        // assume sensor reports binary thousands of a g
+        return (9.81/1024.0);
+    }
+    
+    /**
+     * getMaximumAvailableSamplingFrequency
+     */
+    public double getMaximumAvailableSamplingFrequency() {
+        // assume 10Hz
+        return 10.0;
+    }
+    
+    /**
      * getChannels
      * 
      * @see WaveSensorChannel
