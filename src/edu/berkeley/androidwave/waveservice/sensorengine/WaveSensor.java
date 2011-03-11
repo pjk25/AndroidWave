@@ -23,6 +23,7 @@ public class WaveSensor {
     
     public enum Type { ACCELEROMETER, MAGNETOMETER, LOCATION };
     
+    protected static Context mContext;
     protected static Set<WaveSensor> availableLocalSensors = null;
     
     protected Type type;
@@ -86,7 +87,9 @@ public class WaveSensor {
     
     public static Set<WaveSensor> getAvailableLocalSensors(Context context) {
         
-        if (availableLocalSensors == null) {
+        if ((availableLocalSensors == null) || (context != mContext)) {
+            Log.d("WaveSensor", "cache miss on getAvailableLocalSensors");
+            mContext = context;
             Set<WaveSensor> sensors = new HashSet<WaveSensor>();
             
             SensorManager sensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
@@ -148,8 +151,22 @@ public class WaveSensor {
         return availableLocalSensors;
     }
     
+    /**
+     * getAvailableLocalSensor
+     * 
+     * Similar to @see #getAvailableLocalSensors, but filters by sensor type
+     */
     public static Set<WaveSensor> getAvailableLocalSensor(Context context, WaveSensor.Type type) {
-        // null implementation
-        return null;
+        
+        Set<WaveSensor> availableLocalSensors = getAvailableLocalSensors(context);
+        Set<WaveSensor> resultSet = new HashSet<WaveSensor>();
+        
+        for (WaveSensor s : availableLocalSensors) {
+            if (s.getType() == type) {
+                resultSet.add(s);
+            }
+        }
+        
+        return resultSet;
     }
 }

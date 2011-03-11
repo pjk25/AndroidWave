@@ -54,21 +54,29 @@ public class SensorEngineTest extends AndroidTestCase {
     }
     
     /**
-     * testStartSensor
+     * testStartAndStopAndroidWaveSensor
      * 
-     * @see SensorEngine#startSensor
+     * @see SensorEngine#startAndroidWaveSensor
+     * @see SensorEngine#stopAndroidWaveSensor
      */
     @MediumTest
-    public void testStartSensor() throws Exception {
+    public void testStartAndStopAndroidWaveSensor() throws Exception {
         
         Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensor(getContext(), WaveSensor.Type.ACCELEROMETER);
         assertTrue(accelSensors.size() > 0);
         
-        WaveSensor accelSensor = accelSensors.iterator().next();
+        AndroidWaveSensor accelSensor = (AndroidWaveSensor)accelSensors.iterator().next();
         
         // start an accelerometer at 5.0Hz minimum
-        assertTrue(sensorEngineInstance.startSensor(accelSensor, 5.0));
+        sensorEngineInstance.startAndroidWaveSensor(accelSensor, 5.0);
+        assertTrue(sensorEngineInstance.runningSensors.containsKey(accelSensor));
+        assertEquals(sensorEngineInstance.runningSensors.get(accelSensor).doubleValue(), 5.0);
         
-        fail("test not finished yet");
+        // stop
+        assertTrue(sensorEngineInstance.stopAndroidWaveSensor(accelSensor));
+        assertFalse(sensorEngineInstance.runningSensors.containsKey(accelSensor));
+        
+        // re-stop fails
+        assertFalse(sensorEngineInstance.stopAndroidWaveSensor(accelSensor));
     }
 }

@@ -11,17 +11,31 @@ package edu.berkeley.androidwave.waveservice.sensorengine;
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SensorEngine {
+public class SensorEngine implements SensorEventListener {
     
     protected static SensorEngine theInstance;
     
     protected Context mContext;
     
+    protected SensorManager mSensorManager;
+    
+    protected HashMap<WaveSensor, Double> runningSensors;   // <- note not synchronized
+    
+    /**
+     * Private Constructor for Singleton
+     */
     private SensorEngine(Context c) {
         mContext = c;
+        mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
+        runningSensors = new HashMap<WaveSensor, Double>();
     }
     
     public static void init(Context c) {
@@ -77,12 +91,40 @@ public class SensorEngine {
     }
     
     /**
-     * startSensor
+     * startAndroidWaveSensor
      * 
-     * starts a sensor targeting a given sampling rate
+     * starts a sensor targeting a given sampling rate.  No scheduleing is
+     * done here to support multiple recipes directly (hence a protected
+     * method).  Not synchronized because it is not a public method.
      */
-    public boolean startSensor(WaveSensor sensor, double rate) {
+    protected void startAndroidWaveSensor(AndroidWaveSensor sensor, double rate) {
+        mSensorManager.registerListener(this, sensor.getAndroidSensor(), SensorManager.SENSOR_DELAY_NORMAL);
+        runningSensors.put(sensor, rate);
+    }
+    
+    /**
+     * stopAndroidWaveSensor
+     * 
+     * @see #startAndroidWaveSensor
+     */
+    protected boolean stopAndroidWaveSensor(AndroidWaveSensor sensor) {
+        if (runningSensors.containsKey(sensor)) {
+            runningSensors.remove(sensor);
+            mSensorManager.unregisterListener(this);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * --------------------- SensorEventListener Methods ---------------------
+     */
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // null implementation
-        return false;
+    }
+    
+    public void onSensorChanged(SensorEvent event) {
+        // null implementation
     }
 }

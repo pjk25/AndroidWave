@@ -33,9 +33,12 @@ public class AndroidWaveSensor extends WaveSensor {
      * should allow identification of sensor hardware
      */
     public String getVersion() {
-        // TODO: initialize androidSensor in tests
         String name = androidSensor.getName();
         String version = "" + androidSensor.getVersion();
         return BASE_VERSION + "_" + name + "_" + version;
+    }
+    
+    public Sensor getAndroidSensor() {
+        return androidSensor;
     }
 }
