@@ -8,13 +8,17 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
+import edu.berkeley.androidwave.TestUtils;
+import edu.berkeley.androidwave.waverecipe.WaveRecipe;
+import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
-import android.test.AndroidTestCase;
+import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import java.io.*;
 import java.util.Set;
 
 /**
@@ -25,12 +29,12 @@ import java.util.Set;
  * To run this test, you can type:
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.sensorengine.SensorEngineTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
-public class SensorEngineTest extends AndroidTestCase {
+public class SensorEngineTest extends InstrumentationTestCase {
     
     SensorEngine sensorEngineInstance;
     
     public void setUp() throws Exception {
-        SensorEngine.init(getContext());
+        SensorEngine.init(getInstrumentation().getContext());
         sensorEngineInstance = SensorEngine.getInstance();
     }
     
@@ -62,7 +66,7 @@ public class SensorEngineTest extends AndroidTestCase {
     @MediumTest
     public void testStartAndStopAndroidWaveSensor() throws Exception {
         
-        Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensor(getContext(), WaveSensor.Type.ACCELEROMETER);
+        Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensor(getInstrumentation().getContext(), WaveSensor.Type.ACCELEROMETER);
         assertTrue(accelSensors.size() > 0);
         
         AndroidWaveSensor accelSensor = (AndroidWaveSensor)accelSensors.iterator().next();
@@ -78,5 +82,20 @@ public class SensorEngineTest extends AndroidTestCase {
         
         // re-stop fails
         assertFalse(sensorEngineInstance.stopAndroidWaveSensor(accelSensor));
+    }
+    
+    /**
+     * testScheduleWaveRecipeAuthorization
+     * 
+     * This is the big one, where the sensor engine fulfils sensing needs for
+     * a recipe authorization
+     */
+    @LargeTest
+    public void testScheduleWaveRecipeAuthorization() throws Exception {
+        
+        File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        WaveRecipe recipe = WaveRecipe.createFromDisk(targetFile.getPath());
+        
+        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
     }
 }

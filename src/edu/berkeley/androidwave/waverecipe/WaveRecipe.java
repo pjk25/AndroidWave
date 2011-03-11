@@ -69,7 +69,7 @@ public class WaveRecipe implements Parcelable {
      * instantiate and return a WaveRecipe from an on disk location.  Should
      * throw an exception if the .waverecipe signature is invalid.
      */
-    protected static WaveRecipe createFromDisk(String recipePath)
+    public static WaveRecipe createFromDisk(String recipePath)
         throws Exception {
         
         // recipePath should point to an apk.  We need to examine the

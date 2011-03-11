@@ -19,6 +19,11 @@ import android.os.Parcelable;
  * recipe.
  */
 public class WaveRecipeAuthorization implements Parcelable {
+    
+    public WaveRecipeAuthorization(WaveRecipe recipe) {
+        throw new RuntimeException("not implemented yet");
+    }
+    
     /**
      * Parcelable Methods
      */

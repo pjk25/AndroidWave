@@ -8,6 +8,7 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
+import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
@@ -46,54 +47,6 @@ public class WaveRecipeTest extends InstrumentationTestCase {
     
     WaveRecipe recipeOne;
     
-    /**
-     * copyAssetToInternal
-     *
-     * used for copying fixtures to app storage to simulate downloaded data
-     * only tested with two component destination paths
-     */
-    private File copyAssetToInternal(String source, String dest)
-        throws IOException {
-        
-        File targetFile = null;
-        
-        InputStream is = getInstrumentation().getContext().getAssets().open(source);
-        
-        Context targetContext = getInstrumentation().getTargetContext();
-        String[] destComponents = dest.split("/", 2);
-        OutputStream os = null;
-        if (destComponents.length == 0) {
-            // System.out.println("copyAssetToInternal -> creating "+dest);
-            os = targetContext.openFileOutput(dest, Context.MODE_PRIVATE);
-        } else {
-            File dir = targetContext.getDir(destComponents[0], Context.MODE_PRIVATE);
-            // System.out.println("copyAssetToInternal -> created "+dir);
-            destComponents = dest.split("/");
-            // System.out.println("copyAssetToInternal -> destComponents "+Arrays.toString(destComponents));
-            targetFile = new File(dir, destComponents[destComponents.length-1]);
-            if (targetFile.exists()) {
-                System.out.print(this.getClass().getSimpleName() + ": copyAssetToInternal->Deleting existing file at "+targetFile+"...");
-                if (targetFile.delete()) {
-                    System.out.println(" done.");
-                } else {
-                    System.out.println(" fail.");
-                }
-            }
-            // System.out.println("copyAssetToInternal -> targetFile = "+targetFile);
-            os = new FileOutputStream(targetFile);
-        }
-        
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = is.read(buf)) > 0) {
-            os.write(buf, 0, len);
-        }
-        is.close();
-        os.close();
-        
-        return targetFile;
-    }
-    
     protected Date parseDateFromXmlString(String s) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
         Date d = formatter.parse(s,new ParsePosition(0));
@@ -128,7 +81,7 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         
         // build an instance from the fixture
         // first copy the fixture to the recipes cache
-        File targetFile = copyAssetToInternal("fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
         recipeOne = WaveRecipe.createFromDisk(targetFile.getPath());
         
         // test the values in the recipeOne fixture
