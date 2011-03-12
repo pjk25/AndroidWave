@@ -94,7 +94,7 @@ public class SensorEngineTest extends InstrumentationTestCase {
     public void testScheduleWaveRecipeAuthorization() throws Exception {
         
         File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        WaveRecipe recipe = WaveRecipe.createFromDisk(targetFile.getPath());
+        WaveRecipe recipe = WaveRecipe.createFromDisk(getInstrumentation().getTargetContext(), targetFile.getPath());
         
         WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
     }

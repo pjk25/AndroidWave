@@ -82,7 +82,7 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         // build an instance from the fixture
         // first copy the fixture to the recipes cache
         File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(targetFile.getPath());
+        recipeOne = WaveRecipe.createFromDisk(getInstrumentation().getTargetContext(), targetFile.getPath());
         
         // test the values in the recipeOne fixture
         assertEquals("getID should match that of recipe xml", "edu.berkeley.waverecipe.AccelerometerMagnitude", recipeOne.getID());
@@ -130,5 +130,7 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         Object algorithmInstanceAsObject = recipeOne.getAlgorithmInstance();
         assertNotNull("algorithmMainClass can be instantiated", algorithmInstanceAsObject);
         MoreAsserts.assertAssignableFrom(WaveRecipeAlgorithm.class, algorithmInstanceAsObject);
+        
+        fail("we are not testing package signatures fully yet.");
     }
 }

@@ -15,8 +15,11 @@ import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorit
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 
+import android.content.Context;
+import android.content.pm.*;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 import android.util.Xml;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -69,7 +72,7 @@ public class WaveRecipe implements Parcelable {
      * instantiate and return a WaveRecipe from an on disk location.  Should
      * throw an exception if the .waverecipe signature is invalid.
      */
-    public static WaveRecipe createFromDisk(String recipePath)
+    public static WaveRecipe createFromDisk(Context context, String recipePath)
         throws Exception {
         
         // recipePath should point to an apk.  We need to examine the
@@ -80,6 +83,19 @@ public class WaveRecipe implements Parcelable {
         if (recipeApk == null) {
             throw new InvalidSignatureException();
         }
+        
+        /*
+        // Use the packagemanager to inspect the apk signature
+        PackageInfo recipePackageInfo = context.getPackageManager().getPackageArchiveInfo(recipePath, PackageManager.GET_SIGNATURES);
+        Signature[] recipeSignatures = recipePackageInfo.signatures;
+        Log.d("WaveRecipe", "Loading recipe at "+recipePath);
+        if (recipeSignatures == null || recipeSignatures.length == 0) {
+            throw new InvalidSignatureException();
+        }
+        for (Signature sig : recipeSignatures) {
+            Log.d("WaveRecipe", "\t"+sig);
+        }
+         */
         
         WaveRecipe recipe = new WaveRecipe();
         

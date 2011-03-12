@@ -26,7 +26,7 @@ public class WaveRecipeAuthorizationTest extends InstrumentationTestCase {
     
     public void testConstructor() throws Exception {
         File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        WaveRecipe recipe = WaveRecipe.createFromDisk(targetFile.getPath());
+        WaveRecipe recipe = WaveRecipe.createFromDisk(getInstrumentation().getContext(), targetFile.getPath());
         
         WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
         assertNotNull(auth);
