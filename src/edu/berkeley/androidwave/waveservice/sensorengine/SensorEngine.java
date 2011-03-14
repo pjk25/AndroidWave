@@ -8,6 +8,8 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
+import edu.berkeley.androidwave.waverecipe.WaveRecipe;
+import edu.berkeley.androidwave.waverecipe.WaveRecipeLocalDeviceSupportInfo;
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
 import android.content.Context;
@@ -115,6 +117,16 @@ public class SensorEngine implements SensorEventListener {
         } else {
             return false;
         }
+    }
+    
+    /**
+     * supportInfoForRecipe
+     * 
+     * provides information about the sensors which this device offers to
+     * support a given recipe.
+     */
+    protected WaveRecipeLocalDeviceSupportInfo supportInfoForRecipe(WaveRecipe recipe) {
+        return null;
     }
     
     /**

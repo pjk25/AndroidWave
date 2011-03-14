@@ -9,9 +9,7 @@
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
 import edu.berkeley.androidwave.TestUtils;
-import edu.berkeley.androidwave.waverecipe.WaveRecipe;
-import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
-import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
+import edu.berkeley.androidwave.waverecipe.*;
 
 import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
@@ -82,6 +80,27 @@ public class SensorEngineTest extends InstrumentationTestCase {
         
         // re-stop fails
         assertFalse(sensorEngineInstance.stopAndroidWaveSensor(accelSensor));
+    }
+    
+    /**
+     * testSupportInfoForRecipe
+     * 
+     * @see SensorEngine#supportInfoForRecipe
+     */
+    @LargeTest
+    public void testSupportInfoForRecipe() throws Exception {
+        
+        File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        WaveRecipe recipe = WaveRecipe.createFromDisk(getInstrumentation().getTargetContext(), targetFile.getPath());
+        
+        fail("test not yet written");
+        /**
+         * we would like SensorEngine.waveRecipeCanBeSatisfied to report
+         * the maximum precision and rate available for the inputs it
+         * describes.  One should then be able to generate an authorization
+         * object based on that recipe and those values.
+         */
+        WaveRecipeLocalDeviceSupportInfo supportInfo = sensorEngineInstance.supportInfoForRecipe(recipe);
     }
     
     /**
