@@ -8,6 +8,7 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
+import android.content.pm.Signature;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -20,8 +21,13 @@ import android.os.Parcelable;
  */
 public class WaveRecipeAuthorization implements Parcelable {
     
+    protected WaveRecipe recipe;
+    
+    protected String recipeClientName;
+    protected Signature[] recipeClientSignatures;
+    
     public WaveRecipeAuthorization(WaveRecipe recipe) {
-        throw new RuntimeException("not implemented yet");
+        this.recipe = recipe;
     }
     
     /**

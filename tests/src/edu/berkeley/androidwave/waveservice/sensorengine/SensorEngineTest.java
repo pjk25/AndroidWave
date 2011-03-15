@@ -93,7 +93,6 @@ public class SensorEngineTest extends InstrumentationTestCase {
         File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
         WaveRecipe recipe = WaveRecipe.createFromDisk(getInstrumentation().getTargetContext(), targetFile.getPath());
         
-        fail("test not yet written");
         /**
          * we would like SensorEngine.waveRecipeCanBeSatisfied to report
          * the maximum precision and rate available for the inputs it
@@ -101,6 +100,7 @@ public class SensorEngineTest extends InstrumentationTestCase {
          * object based on that recipe and those values.
          */
         WaveRecipeLocalDeviceSupportInfo supportInfo = sensorEngineInstance.supportInfoForRecipe(recipe);
+        fail("test not finished yet");
     }
     
     /**

@@ -17,6 +17,9 @@ import android.test.InstrumentationTestCase;
  * WaveRecipeAuthorizationTest
  * 
  * Unit test for the WaveRecipeAuthorization class
+ * 
+ * to run:
+ * adb shell am instrument -w -e class edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorizationTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 public class WaveRecipeAuthorizationTest extends InstrumentationTestCase {
     
@@ -30,5 +33,10 @@ public class WaveRecipeAuthorizationTest extends InstrumentationTestCase {
         
         WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
         assertNotNull(auth);
+    }
+    
+    
+    public void testParcelable() throws Exception {
+        fail("test not writen yet");
     }
 }
