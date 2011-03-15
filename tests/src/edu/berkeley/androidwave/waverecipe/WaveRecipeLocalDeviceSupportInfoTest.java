@@ -24,25 +24,25 @@ import java.util.HashMap;
 public class WaveRecipeLocalDeviceSupportInfoTest extends AndroidTestCase {
     
     /**
-     * testIsSupported
+     * testNewInstanceIsSupportedReturnsFalse
      * 
-     * simple indcation of yes/no for the ability of the device to feed a
-     * given recipe at at least one rate
+     * A newly created instance should not indicate support in it's default
+     * state
      */
     @SmallTest
-    public void testIsSupported() {
-        WaveRecipeLocalDeviceSupportInfo info = new WaveRecipeLocalDeviceSupportInfo();
-        assertFalse(info.isSupported());
+    public void testNewInstanceIsSupportedReturnsFalse() {
+        WaveRecipeLocalDeviceSupportInfo newInfo = new WaveRecipeLocalDeviceSupportInfo();
+        assertFalse(newInfo.isSupported());
     }
     
     /**
-     * testDescriptionMaps
+     * testDescriptionMapsInitialState
      * 
      * test the getter methods for the HashMaps linking sensor descriptions
      * used by the recipe to their maximum available rates and precisions
      */
     @SmallTest
-    public void testDescriptionMaps() {
+    public void testDescriptionMapsInitialState() {
         WaveRecipeLocalDeviceSupportInfo info = new WaveRecipeLocalDeviceSupportInfo();
         
         HashMap descriptionMap;

@@ -17,12 +17,16 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import java.io.*;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * SensorEngineTest
  * 
  * @see SensorEngine
+ * 
+ * This has become sort of an integration test, as it tests interaction
+ * between the SensorEngine and WaveRecipe
  * 
  * To run this test, you can type:
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.sensorengine.SensorEngineTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
@@ -85,7 +89,11 @@ public class SensorEngineTest extends InstrumentationTestCase {
     /**
      * testSupportInfoForRecipe
      * 
+     * also tests isSupported in WaveRecipeLocalDeviceSupportInfo, as this
+     * requires use of a recipe and is a sort of integration test
+     * 
      * @see SensorEngine#supportInfoForRecipe
+     * @see WaveRecipeLocalDeviceSupportInfo#isSupported
      */
     @LargeTest
     public void testSupportInfoForRecipe() throws Exception {
@@ -100,7 +108,38 @@ public class SensorEngineTest extends InstrumentationTestCase {
          * object based on that recipe and those values.
          */
         WaveRecipeLocalDeviceSupportInfo supportInfo = sensorEngineInstance.supportInfoForRecipe(recipe);
-        fail("test not finished yet");
+        assertNotNull(supportInfo);
+        
+        // fixtures are such that the recipe can be supported
+        assertTrue(supportInfo.isSupported());
+        
+        // and further validate that
+        Map<WaveSensorDescription, Double> rateMap = supportInfo.getSensorDescriptionMaxRateMap();
+        Map<WaveSensorDescription, Double> precisionMap = supportInfo.getSensorDescriptionMaxPrecisionMap();
+        Map<WaveSensorChannelDescription, Double> channelRateMap = supportInfo.getSensorChannelDescriptionMaxRateMap();
+        Map<WaveSensorChannelDescription, Double> channelPrecisionMap = supportInfo.getSensorChannelDescriptionMaxPrecisionMap();
+        
+        for (WaveSensorDescription wsd : recipe.getSensors()) {
+            if (wsd.hasChannels()) {
+                // each sensor for that recipe should have rate and precision info
+                // for each channel
+                for (WaveSensorChannelDescription channelDesc : wsd.getChannels()) {
+                    assertTrue(channelRateMap.containsKey(channelDesc));
+                    assertTrue(channelPrecisionMap.containsKey(channelDesc));
+                }
+            } else {
+                // if the recipe sensor specifies no channels, then the
+                // slowest and least precise channel info is used in proxy for
+                // that sensor
+                assertTrue(rateMap.containsKey(wsd));
+                assertTrue(precisionMap.containsKey(wsd));
+            }
+        }
+        
+        // TODO: we could test the exact values in the maps, but since we have
+        // not determined them yet (as they are a consequence of hardware),
+        // we cannot write that test yet
+        //fail("no test of exact map values");
     }
     
     /**

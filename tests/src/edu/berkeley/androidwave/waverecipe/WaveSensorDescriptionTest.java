@@ -29,4 +29,10 @@ public class WaveSensorDescriptionTest extends AndroidTestCase {
         
         assertFalse(wsd.hasChannels());
     }
+    
+    public void testWaveSensorDescriptionGetChannelsNotNull() {
+        WaveSensorDescription wsd = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "m/s^2");
+        
+        assertNotNull(wsd.getChannels());
+    }
 }
