@@ -10,7 +10,11 @@ package edu.berkeley.androidwave;
 
 import android.app.Instrumentation;
 import android.content.Context;
+//import android.test.MoreAsserts;
 import java.io.*;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import junit.framework.Assert;
 
 public class TestUtils {
     
@@ -62,4 +66,33 @@ public class TestUtils {
         return targetFile;
     }
     
+    public static String[] arrayToStringArray(Object[] objects) {
+        String[] strings = new String[objects.length];
+        for (int i=0; i<objects.length; i++) {
+            strings[i] = objects[i].toString();
+        }
+        return strings;
+    }
+    
+    /**
+     * Asserts that a given object instance {@code actualObject} responds to
+     * an expected method signature {@code expectedMethodSignature}
+     * 
+     * For method signature syntax, @see Method#toString
+     * Use of Method#toGenericString, which might result in simpler syntax,
+     * appears to cause a result similar to this known bug:
+     * http://code.google.com/p/android/issues/detail?id=6636
+     * present in the old API levels.
+     */
+    public static void assertHasMethod(String expectedMethodSignature, Object actualObject) {
+        Method[] methods = actualObject.getClass().getMethods();
+        String[] methodSignatures = TestUtils.arrayToStringArray(methods);
+        /*
+        String[] methodSignatures = new String[methods.length];
+        for (int i=0; i<methods.length; i++) {
+            methodSignatures[i] = methods[i].toGenericString();
+        }
+         */
+        Assert.assertTrue("Expected "+expectedMethodSignature+" method in class "+actualObject.getClass(), Arrays.asList(methodSignatures).contains(expectedMethodSignature));
+    }
 }
