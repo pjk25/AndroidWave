@@ -8,6 +8,9 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
+import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
+import edu.berkeley.androidwave.waverecipe.WaveSensorChannelDescription;
+
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -15,6 +18,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.util.Log;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -91,6 +95,45 @@ public class WaveSensor {
     }
     
     /**
+     * return the names of this sensor's channels as an ArrayList
+     */
+    private ArrayList<String> getChannelNamesArrayList() {
+        WaveSensorChannel[] theseChannels = this.getChannels();
+        ArrayList<String> theseChannelNames = new ArrayList<String>(theseChannels.length);
+        for (int i=0; i<theseChannels.length; i++) {
+            theseChannelNames.add(theseChannels[i].getName());
+        }
+        return theseChannelNames;
+    }
+    
+    /**
+     * indicates if this wavesensor is in fact a "match" for a
+     * {@code WaveSensorDescription} object used in a WaveRecipe
+     */
+    public boolean matchesWaveSensorDescription(WaveSensorDescription wsd) {
+        boolean doesMatch = true;
+        
+        doesMatch &= (this.getType() == wsd.getType()); // "==" is okay because we are comparing enums
+        if (wsd.hasExpectedUnits()) {
+            doesMatch &= (this.getUnits().equals(wsd.getExpectedUnits()));
+        }
+        
+        if (wsd.hasChannels()) {
+            // construct an ArrayList of the wsd's channels
+            WaveSensorChannelDescription[] wsdChannels = wsd.getChannels();
+            ArrayList<String> wsdChannelNames = new ArrayList<String>(wsdChannels.length);
+            for (int i=0; i<wsdChannels.length; i++) {
+                wsdChannelNames.add(wsdChannels[i].getName());
+            }
+            
+            // available channel names should be a superset of the description
+            // channel names
+            doesMatch &= (this.getChannelNamesArrayList().containsAll(wsdChannelNames));
+        }
+        return doesMatch;
+    }
+    
+    /**
      * --------------------------- Static Methods ---------------------------
      */
     
@@ -161,6 +204,11 @@ public class WaveSensor {
         
         Set<WaveSensor> availableLocalSensors = getAvailableLocalSensors(context);
         Set<WaveSensor> resultSet = new HashSet<WaveSensor>();
+        
+        /**
+         * TODO: consider optimizing this implementation by building a Map
+         * which caches Sets of sensors by type for quick retrieval
+         */
         
         for (WaveSensor s : availableLocalSensors) {
             if (s.getType() == type) {

@@ -9,6 +9,8 @@
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
 import edu.berkeley.androidwave.TestUtils;
+import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
+import edu.berkeley.androidwave.waverecipe.WaveSensorChannelDescription;
 
 import android.os.Build;
 import android.test.AndroidTestCase;
@@ -128,6 +130,30 @@ public class WaveSensorTest extends AndroidTestCase {
         WaveSensorChannel[] channels = fakeAccelerometer.getChannels();
         assertEquals("fakeAccelerometer has 3 channels", 3, channels.length);
         // channels themselves are tested in WaveSensorChannelTest
+    }
+    
+    /**
+     * testMatchesWaveSensorDescription
+     */
+    @MediumTest
+    public void testMatchesWaveSensorDescription() {
+        TestUtils.assertHasMethod("public boolean edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor.matchesWaveSensorDescription(edu.berkeley.androidwave.waverecipe.WaveSensorDescription)", fakeAccelerometer);
+        
+        // contsruct a matching WaveSensorDescription
+        WaveSensorDescription matchingWsd = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "-m/s^2");
+        // check matches without channels
+        assertTrue(fakeAccelerometer.matchesWaveSensorDescription(matchingWsd));
+        // check matches with channels
+        matchingWsd.addChannel(new WaveSensorChannelDescription("X"));
+        matchingWsd.addChannel(new WaveSensorChannelDescription("Y"));
+        matchingWsd.addChannel(new WaveSensorChannelDescription("Z"));
+        assertTrue(fakeAccelerometer.matchesWaveSensorDescription(matchingWsd));
+        
+        // construct a non-matching WaveSensorDescription
+        WaveSensorDescription wsd = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "g");
+        assertFalse(fakeAccelerometer.matchesWaveSensorDescription(wsd));
+        wsd = new WaveSensorDescription(WaveSensor.Type.MAGNETOMETER, "uT");
+        assertFalse(fakeAccelerometer.matchesWaveSensorDescription(wsd));
     }
     
     /**
