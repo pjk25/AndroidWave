@@ -23,14 +23,9 @@ public class WaveSensorChannelTest extends AndroidTestCase {
     
     public void setUp() {
         xChannel = new WaveSensorChannel("X");
-        xChannel.units = "g";
     }
     
     public void testGetName() {
         assertEquals("X", xChannel.getName());
-    }
-    
-    public void testGetUnits() {
-        assertEquals("g", xChannel.getUnits());
     }
 }

@@ -32,7 +32,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     public enum SubTag { NONE, SENSORS, OUTPUTS, TABLE, ALG };
     SubTag stag = SubTag.NONE;
     
-    HashMap<String, SpecifiesExpectedUnits> referenceMap;
+    HashMap<String, Object> referenceMap;
     
     Vector<WaveSensorDescription> sensors;
     protected WaveSensorDescription currentSensor;
@@ -86,7 +86,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         inRecipe = false;
         algorithmClassName = null;
         
-        referenceMap = new HashMap<String, SpecifiesExpectedUnits>();
+        referenceMap = new HashMap<String, Object>();
         
         sensors = new Vector();
         currentSensor = null;
@@ -142,7 +142,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     }
                 } else if (localName.equalsIgnoreCase("channel")) {
                     String refId = atts.getValue("ref-id");
-                    WaveSensorChannelDescription currentChannel = new WaveSensorChannelDescription(atts.getValue("name"), atts.getValue("units"));
+                    WaveSensorChannelDescription currentChannel = new WaveSensorChannelDescription(atts.getValue("name"));
                     currentSensor.addChannel(currentChannel);
                     if (refId != null) {
                         referenceMap.put(refId, currentChannel);
@@ -150,9 +150,9 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 }
             } else if (stag == SubTag.OUTPUTS) {
                 if (localName.equalsIgnoreCase("output")) {
-                    currentOutput = new WaveRecipeOutput(atts.getValue("name"));
+                    currentOutput = new WaveRecipeOutput(atts.getValue("name"), atts.getValue("units"));
                 } else if (localName.equalsIgnoreCase("channel")) {
-                    currentOutput.addChannel(new WaveRecipeOutputChannel(atts.getValue("name"), atts.getValue("units")));
+                    currentOutput.addChannel(new WaveRecipeOutputChannel(atts.getValue("name")));
                 }
             } else if (stag == SubTag.TABLE) {
                 // the rate and precision tags currently have no attributes,

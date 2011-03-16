@@ -23,8 +23,8 @@ public class AndroidWaveSensor extends WaveSensor {
     /**
      * WaveSensor
      */
-    public AndroidWaveSensor(WaveSensor.Type t) {
-        super(t);
+    public AndroidWaveSensor(WaveSensor.Type t, String units) {
+        super(t, units);
     }
 
     /**

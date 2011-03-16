@@ -8,7 +8,6 @@
 
 package edu.berkeley.androidwave.waverecipe.granularitytable;
 
-import edu.berkeley.androidwave.waverecipe.SpecifiesExpectedUnits;
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
 import android.util.Log;
@@ -28,7 +27,7 @@ public class ContinuousGranularityTable extends GranularityTable {
     // precision is in fractions of the natural unit of the sensor
     protected String precisionFormulaString;
     
-    protected HashMap<String, SpecifiesExpectedUnits> variableMap;
+    protected HashMap<String, Object> variableMap;
     
     public void setRateFormulaString(String s) {
         rateFormulaString = s;
@@ -38,14 +37,14 @@ public class ContinuousGranularityTable extends GranularityTable {
         precisionFormulaString = s;
     }
     
-    public void setVariableMap(HashMap<String, SpecifiesExpectedUnits> map) {
+    public void setVariableMap(HashMap<String, Object> map) {
         variableMap = map;
     }
     
     /**
      * mathHelper
      */
-    protected double mathHelper(String formula, HashMap<SpecifiesExpectedUnits, Double> valueMap)
+    protected double mathHelper(String formula, HashMap<Object, Double> valueMap)
             throws Exception {
         String function = "y="+formula;
         MathParser parser = new MathParser();
@@ -53,7 +52,7 @@ public class ContinuousGranularityTable extends GranularityTable {
         
         // Join our two maps for this particular evaluation
         HashMap<String, Double> variableToValueMap = new HashMap<String, Double>();
-        for (Map.Entry<String, SpecifiesExpectedUnits> pair : variableMap.entrySet()) {
+        for (Map.Entry<String, Object> pair : variableMap.entrySet()) {
             variableToValueMap.put("#"+pair.getKey(), valueMap.get(pair.getValue()));
         }
         
@@ -71,7 +70,7 @@ public class ContinuousGranularityTable extends GranularityTable {
      * Determines output rate for the recipe given a map of inputs and rates
      * associated with those inputs
      */
-    public double rateForSensorRates(HashMap<SpecifiesExpectedUnits, Double> rateMap)
+    public double rateForSensorRates(HashMap<Object, Double> rateMap)
             throws Exception {
         
         double result;
@@ -90,7 +89,7 @@ public class ContinuousGranularityTable extends GranularityTable {
     /**
      * precisionForSensorPrecisions
      */
-    public double precisionForSensorPrecisions(HashMap<SpecifiesExpectedUnits, Double> precisionMap)
+    public double precisionForSensorPrecisions(HashMap<Object, Double> precisionMap)
             throws Exception {
         
         double result;

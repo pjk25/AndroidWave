@@ -20,7 +20,7 @@ import java.util.Vector;
  * of a sensor that can be met, so may be generic, or very precise, depending
  * on the nature of the algorithm.
  */
-public class WaveSensorDescription implements SpecifiesExpectedUnits {
+public class WaveSensorDescription {
     
     protected WaveSensor.Type type;
     

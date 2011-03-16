@@ -18,11 +18,13 @@ import java.util.Vector;
 public class WaveRecipeOutput {
     
     protected String name;
+    protected String units;
     
     protected Vector<WaveRecipeOutputChannel> channels;
     
-    public WaveRecipeOutput(String name) {
+    public WaveRecipeOutput(String name, String units) {
         this.name = name;
+        this.units = units;
         
         channels = new Vector<WaveRecipeOutputChannel>();
     }
@@ -32,6 +34,13 @@ public class WaveRecipeOutput {
      */
     public String getName() {
         return name;
+    }
+    
+    /**
+     * getUnits
+     */
+    public String getUnits() {
+        return units;
     }
     
     /**

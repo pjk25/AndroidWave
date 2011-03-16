@@ -27,14 +27,16 @@ public class WaveSensor {
     protected static Set<WaveSensor> availableLocalSensors = null;
     
     protected Type type;
+    protected String units;
     
     protected WaveSensorChannel[] channels;
     
     /**
      * WaveSensor
      */
-    public WaveSensor(Type t) {
+    public WaveSensor(Type t, String units) {
         type = t;
+        this.units = units;
     }
     
     /**
@@ -42,6 +44,13 @@ public class WaveSensor {
      */
     public Type getType() {
         return type;
+    }
+    
+    /**
+     * getUnits
+     */
+    public String getUnits() {
+        return units;
     }
     
     /**
@@ -98,18 +107,14 @@ public class WaveSensor {
             Log.d("WaveSensor", "\tsensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) => "+accelSensor);
             if (accelSensor != null) {
                 // we have an accelerometer
-                AndroidWaveSensor waveAccelSensor = new AndroidWaveSensor(Type.ACCELEROMETER);
+                AndroidWaveSensor waveAccelSensor = new AndroidWaveSensor(Type.ACCELEROMETER, "-m/s^2");
                 waveAccelSensor.androidSensor = accelSensor;
                 // It will always have three channels in the current version
                 // of the Android OS
                 WaveSensorChannel[] channels = new WaveSensorChannel[3];
                 channels[0] = new WaveSensorChannel("x");
-                channels[0].units = "-m/s^2";
                 channels[1] = new WaveSensorChannel("y");
-                channels[1].units = channels[0].units;
                 channels[2] = new WaveSensorChannel("z");
-                channels[2].units = channels[0].units;
-                
                 waveAccelSensor.channels = channels;
                 
                 sensors.add(waveAccelSensor);
@@ -119,17 +124,13 @@ public class WaveSensor {
             Log.d("WaveSensor", "getAvailableLocalSensors:");
             Log.d("WaveSensor", "\tsensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) => "+magSensor);
             if (magSensor != null) {
-                AndroidWaveSensor waveMagSensor = new AndroidWaveSensor(Type.MAGNETOMETER);
+                AndroidWaveSensor waveMagSensor = new AndroidWaveSensor(Type.MAGNETOMETER, "uT"); // micro-Tesla
                 waveMagSensor.androidSensor = magSensor;
                 // Always three channels in current Android OS version
                 WaveSensorChannel[] channels = new WaveSensorChannel[3];
                 channels[0] = new WaveSensorChannel("x");
-                channels[0].units = "uT"; // micro-Tesla
                 channels[1] = new WaveSensorChannel("y");
-                channels[2].units = channels[0].units;
                 channels[3] = new WaveSensorChannel("z");
-                channels[3].units = channels[0].units;
-                
                 waveMagSensor.channels = channels;
                 
                 sensors.add(waveMagSensor);

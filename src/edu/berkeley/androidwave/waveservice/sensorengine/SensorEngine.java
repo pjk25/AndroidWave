@@ -72,15 +72,7 @@ public class SensorEngine implements SensorEventListener {
                     throw new Exception("not implemented yet");
                 } else if (sensorDescription.hasExpectedUnits()) {
                     String expectedUnits = sensorDescription.getExpectedUnits();
-                    // units description is present, so it must match
-                    // this is tricky beacuse WaveSensor have units
-                    // per/channel only
-                    boolean andMatch = true;
-                    // all WaveSensors should have at least one channel
-                    for (WaveSensorChannel waveSensorChannel : candidateSensor.getChannels()) {
-                        andMatch &= waveSensorChannel.units.equals(expectedUnits);
-                    }
-                    if (andMatch) {
+                    if (candidateSensor.getUnits().equals(expectedUnits)) {
                         matchingSensors.add(candidateSensor);
                     }
                 } else {

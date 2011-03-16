@@ -8,6 +8,8 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
+import edu.berkeley.androidwave.TestUtils;
+
 import android.os.Build;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
@@ -31,7 +33,7 @@ public class WaveSensorTest extends AndroidTestCase {
     @Override
     protected void setUp() {
         // create fixture sensors
-        fakeAccelerometer = new WaveSensor(WaveSensor.Type.ACCELEROMETER);
+        fakeAccelerometer = new WaveSensor(WaveSensor.Type.ACCELEROMETER, "-m/s^2");
         
         WaveSensorChannel[] channels = { new WaveSensorChannel("X"),
                                          new WaveSensorChannel("Y"),
@@ -55,6 +57,20 @@ public class WaveSensorTest extends AndroidTestCase {
         String expectedVersion = device + "_" + board + "_" + model;
         
         assertEquals(expectedVersion, fakeAccelerometer.getVersion());
+    }
+    
+    /**
+     * testGetUnits
+     * 
+     * all WaveSensors should specify the unit of their measure (which is by
+     * definition common to all of its channels).
+     */
+    @SmallTest
+    public void testGetUnits() {
+        TestUtils.assertHasMethod("public java.lang.String edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor.getUnits()", fakeAccelerometer);
+        
+        // specific to the fakeAccelerometer fixture
+        assertEquals("-m/s^2", fakeAccelerometer.getUnits());
     }
     
     /**

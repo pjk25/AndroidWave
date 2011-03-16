@@ -14,29 +14,15 @@ package edu.berkeley.androidwave.waverecipe;
  * @see WaveSensor
  */
 
-public class WaveSensorChannelDescription implements SpecifiesExpectedUnits {
+public class WaveSensorChannelDescription {
     
     protected String name;
-    protected String expectedUnits;
     
     public WaveSensorChannelDescription(String name) {
-        this(name, null);
-    }
-    
-    public WaveSensorChannelDescription(String name, String expectedUnits) {
         this.name = name;
-        this.expectedUnits = expectedUnits;
     }
     
     public String getName() {
         return name;
-    }
-    
-    public boolean hasExpectedUnits() {
-        return (expectedUnits != null);
-    }
-    
-    public String getExpectedUnits() {
-        return expectedUnits;
     }
 }

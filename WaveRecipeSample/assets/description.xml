@@ -8,7 +8,7 @@
     <sensors>
         <!-- Units specified at the sensor apply to all channels, to support
              sensors with multiple channels -->
-        <sensor type="accelerometer" units="g" ref-id="input_accelerometer">
+        <sensor type="accelerometer" units="-m/s^2" ref-id="input_accelerometer">
             <!-- <channel name="X" />
                  <channel name="Y" />
                  <channel name="Z" /> -->
@@ -16,8 +16,9 @@
         <!-- Calibration information can be included within the sensor tags -->
     </sensors>
     <outputs>
-        <output name="AccelerometerMagnitude">
-            <channel name="magnitude" units="g" />
+        <output name="AccelerometerMagnitude" units="g">
+            <!-- Any output must describe at least one channel -->
+            <channel name="magnitude" />
         </output>
     </outputs>
     <granularity-table type="continuous">

@@ -100,27 +100,27 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         WaveSensorDescription theSensor = sensors[0];
         assertEquals("recipeOne's sensor is an accelerometer", WaveSensor.Type.ACCELEROMETER, theSensor.getType());
         assertTrue("sensor has units", theSensor.hasExpectedUnits());
-        assertEquals("sensor unit is g", "g", theSensor.getExpectedUnits());
+        assertEquals("sensor unit is", "-m/s^2", theSensor.getExpectedUnits());
         
         WaveRecipeOutput[] recipeOutputs = recipeOne.getRecipeOutputs();
         assertEquals("recipeOne has one output", 1, recipeOutputs.length);
         WaveRecipeOutput theOutput = recipeOutputs[0];
         assertEquals("recipeOne's output name is ", "AccelerometerMagnitude", theOutput.getName());
+        assertEquals("recipeOne's output has units of g", "g", theOutput.getUnits());
         WaveRecipeOutputChannel[] outputChannels = theOutput.getChannels();
         assertEquals("AccelerometerMagnitude has one channel", 1, outputChannels.length);
         assertEquals("that channel is called \"magnitude\"", "magnitude", outputChannels[0].getName());
-        assertEquals("that channel has units of g", "g", outputChannels[0].getUnits());
         
         GranularityTable table = recipeOne.getGranularityTable();
         assertNotNull(table);
         assertEquals("GranularityTable is continuous", ContinuousGranularityTable.class, table.getClass());
         
         // need to check mappings somehow, lets just try some values
-        HashMap<SpecifiesExpectedUnits, Double> rateMap = new HashMap<SpecifiesExpectedUnits, Double>();
+        HashMap<Object, Double> rateMap = new HashMap<Object, Double>();
         rateMap.put(theSensor, 10.0);
         assertEquals("rate out equals rate in", 10.0, ((ContinuousGranularityTable)table).rateForSensorRates(rateMap));
         
-        HashMap<SpecifiesExpectedUnits, Double> precisionMap = new HashMap<SpecifiesExpectedUnits, Double>();
+        HashMap<Object, Double> precisionMap = new HashMap<Object, Double>();
         precisionMap.put(theSensor, 0.01);
         assertEquals("precision out equals precision in", 0.01, ((ContinuousGranularityTable)table).precisionForSensorPrecisions(precisionMap));
         
