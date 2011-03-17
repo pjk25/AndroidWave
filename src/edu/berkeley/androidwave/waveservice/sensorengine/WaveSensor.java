@@ -112,7 +112,11 @@ public class WaveSensor {
      * indicates if this wavesensor is in fact a "match" for a
      * {@code WaveSensorDescription} object used in a WaveRecipe
      */
-    public boolean matchesWaveSensorDescription(WaveSensorDescription wsd) {
+    public boolean matchesWaveSensorDescription(WaveSensorDescription wsd)
+            throws NullPointerException {
+        
+        if (wsd == null) throw new NullPointerException("WaveSensor matching to a null description is undefined");
+        
         boolean doesMatch = true;
         
         doesMatch &= (this.getType() == wsd.getType()); // "==" is okay because we are comparing enums

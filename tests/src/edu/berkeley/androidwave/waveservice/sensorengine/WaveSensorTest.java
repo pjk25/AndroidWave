@@ -158,7 +158,14 @@ public class WaveSensorTest extends AndroidTestCase {
      */
     @MediumTest
     public void testMatchesWaveSensorDescription() {
-        TestUtils.assertHasMethod("public boolean edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor.matchesWaveSensorDescription(edu.berkeley.androidwave.waverecipe.WaveSensorDescription)", fakeAccelerometer);
+        Class[] argClasses = { WaveSensorDescription.class };
+        String sig = TestUtils.methodSignature(WaveSensor.class,
+                                               "public",
+                                               false,
+                                               boolean.class,
+                                               "matchesWaveSensorDescription",
+                                               argClasses);
+        TestUtils.assertHasMethod(sig, true, fakeAccelerometer);
         
         // contsruct a matching WaveSensorDescription
         WaveSensorDescription matchingWsd = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "-m/s^2");
