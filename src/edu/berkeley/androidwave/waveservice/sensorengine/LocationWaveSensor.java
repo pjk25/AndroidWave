@@ -19,6 +19,6 @@ import android.content.Context;
 public class LocationWaveSensor extends WaveSensor {
     
     public LocationWaveSensor(Context c) {
-        super(WaveSensor.Type.LOCATION, null);
+        super(WaveSensor.Type.LOCATION, "");    // TODO: determine units
     }
 }

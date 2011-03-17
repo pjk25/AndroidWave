@@ -44,6 +44,27 @@ public class WaveSensorTest extends AndroidTestCase {
         fakeAccelerometer.channels = channels;
     }
     
+    /**
+     * by definition all WaveSensor instances have a type and associated unit.
+     * Thus, it should not be possible to instantiate a WaveSensor without
+     * them.
+     */
+    @SmallTest
+    public void testNullParamsInConstructorThrowsNullPointerException() {
+        try {
+            new WaveSensor(WaveSensor.Type.MAGNETOMETER, null);
+        } catch (Exception ex) {
+            System.out.println("testNullParamsInConstructorThrowsNullPointerException:\tex => "+ex);
+            assertEquals(NullPointerException.class, ex.getClass());
+        }
+        
+        try {
+            new WaveSensor(null, "-m/s^2");
+        } catch (Exception ex) {
+            assertEquals(NullPointerException.class, ex.getClass());
+        }
+    }
+    
     @SmallTest
     public void testGetType() throws Exception {
         assertEquals("fakeAccelerometer has type ACCELEROMETER", WaveSensor.Type.ACCELEROMETER, fakeAccelerometer.getType());

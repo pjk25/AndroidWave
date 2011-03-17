@@ -38,7 +38,9 @@ public class WaveSensor {
     /**
      * WaveSensor
      */
-    public WaveSensor(Type t, String units) {
+    public WaveSensor(Type t, String units) throws NullPointerException {
+        if (units == null) throw new NullPointerException("WaveSensor cannot be constructed with null units parameter");
+        
         type = t;
         this.units = units;
     }
