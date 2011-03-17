@@ -75,6 +75,56 @@ public class TestUtils {
     }
     
     /**
+     * builds a method signature suitable for use with {@code assertHasMethod}
+     * Use null {@code returnedClass} for void return type.
+     * 
+     * We need everything in the signature to have a fully qualified name,
+     * so this method provides that convenience.
+     */
+    public static String methodSignature(Object target,
+                                         String accessModifier,
+                                         boolean isStatic,
+                                         Class returnedClass,
+                                         String methodName,
+                                         Class[] argClasses,
+                                         Class... thrownClasses)
+                                            throws NullPointerException {
+        
+        if (methodName == null) throw new NullPointerException("methodSignature cannot take a null methodName argument");
+        
+        String sig = (accessModifier == null ? "protected" : accessModifier) + " ";
+        if (isStatic) {
+            sig += "static ";
+        }
+        sig += (returnedClass == null ? "void " : returnedClass.getName()) + " ";
+        
+        sig += (target instanceof Class ? ((Class)target).getName() : target.getClass().getName()) + "." + methodName + "(";
+        
+        if (argClasses != null) {
+            boolean seenOneArg = false;
+            for (int i=0; i<argClasses.length; i++) {
+                sig += (seenOneArg ? ", " : "") + argClasses[i].getName();
+                seenOneArg = true;
+            }
+        }
+        
+        sig += ")";
+        
+        if (thrownClasses != null) {
+            if (thrownClasses.length > 0) {
+                sig += " throws ";
+                boolean seenOneThrows = false;
+                for (int i=0; i<thrownClasses.length; i++) {
+                    sig += (seenOneThrows ? ", " : "") + thrownClasses[i].getName();
+                    seenOneThrows = true;
+                }
+            }
+        }
+        
+        return sig;
+    }
+    
+    /**
      * Asserts that a given object instance {@code actualObject} responds to
      * an expected method signature {@code expectedMethodSignature}
      * 
@@ -85,14 +135,33 @@ public class TestUtils {
      * present in the old API levels.
      */
     public static void assertHasMethod(String expectedMethodSignature, Object actualObject) {
+        assertHasMethod(expectedMethodSignature, false, actualObject);
+    }
+    
+    public static void assertHasMethod(String expectedMethodSignature, boolean ignoreThrowsPortion, Object actualObject) {
         Method[] methods = actualObject.getClass().getMethods();
-        String[] methodSignatures = TestUtils.arrayToStringArray(methods);
-        /*
+        
         String[] methodSignatures = new String[methods.length];
         for (int i=0; i<methods.length; i++) {
-            methodSignatures[i] = methods[i].toGenericString();
+            String sig = methods[i].toString();
+            
+            if (ignoreThrowsPortion) {
+                sig = sig.replaceFirst(" throws .*", "");
+            }
+            
+            methodSignatures[i] = sig;
         }
-         */
-        Assert.assertTrue("Expected "+expectedMethodSignature+" method in class "+actualObject.getClass(), Arrays.asList(methodSignatures).contains(expectedMethodSignature));
+        
+        // pre-check the assert so we can print out extra debug info to the console
+        boolean hasMethod = Arrays.asList(methodSignatures).contains(expectedMethodSignature);
+        if (!hasMethod) {
+            System.out.println("assertHasMethod called on "+actualObject+" which has methods "+(ignoreThrowsPortion ? "(throws portion ignored)" : "")+":");
+            for (int i=0; i<methodSignatures.length; i++) {
+                System.out.println("\t"+methodSignatures[i]);
+            }
+            System.out.println();
+        }
+        
+        Assert.assertTrue("Expected "+expectedMethodSignature+" method in class "+actualObject.getClass(), hasMethod);
     }
 }
