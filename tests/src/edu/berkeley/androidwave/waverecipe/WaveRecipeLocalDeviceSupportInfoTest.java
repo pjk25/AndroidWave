@@ -35,35 +35,5 @@ public class WaveRecipeLocalDeviceSupportInfoTest extends AndroidTestCase {
         assertFalse(newInfo.isSupported());
     }
     
-    /**
-     * testDescriptionMapsInitialState
-     * 
-     * test the getter methods for the HashMaps linking sensor descriptions
-     * used by the recipe to their maximum available rates and precisions
-     */
-    @SmallTest
-    public void testDescriptionMapsInitialState() {
-        WaveRecipeLocalDeviceSupportInfo info = new WaveRecipeLocalDeviceSupportInfo();
-        
-        HashMap descriptionMap;
-        // sensorDescriptionMaxRateMap
-        descriptionMap = info.getSensorDescriptionMaxRateMap();
-        assertNotNull(descriptionMap);
-        assertEquals("sensorDescriptionMaxRateMap size", 0, descriptionMap.size());
-
-        // sensorDescriptionMaxPrecisionMap
-        descriptionMap = info.getSensorDescriptionMaxPrecisionMap();
-        assertNotNull(descriptionMap);
-        assertEquals("sensorDescriptionMaxPrecisionMap size", 0, descriptionMap.size());
-
-        // sensorChannelDescriptionMaxRateMap
-        descriptionMap = info.getSensorChannelDescriptionMaxRateMap();
-        assertNotNull(descriptionMap);
-        assertEquals("sensorChannelDescriptionMaxRateMap size", 0, descriptionMap.size());
-
-        // sensorChannelDescriptionMaxPrecisionMap
-        descriptionMap = info.getSensorChannelDescriptionMaxPrecisionMap();
-        assertNotNull(descriptionMap);
-        assertEquals("sensorChannelDescriptionMaxPrecisionMap size", 0, descriptionMap.size());
-    }
+    
 }

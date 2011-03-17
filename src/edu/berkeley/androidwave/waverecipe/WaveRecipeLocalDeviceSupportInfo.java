@@ -8,44 +8,36 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
+import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
+
 import java.util.HashMap;
 
+/**
+ * WaveRecipeLocalDeviceSupportInfo
+ * 
+ * @see WaveRecipeAuthorization
+ */
 public class WaveRecipeLocalDeviceSupportInfo {
     
     protected boolean supported;
     
-    protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxRateMap;
-    protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxPrecisionMap;
-    
-    protected HashMap<WaveSensorChannelDescription, Double> sensorChannelDescriptionMaxRateMap;
-    protected HashMap<WaveSensorChannelDescription, Double> sensorChannelDescriptionMaxPrecisionMap;
+    protected HashMap<WaveSensorDescription, WaveSensor> descriptionToSensorMap;
     
     public WaveRecipeLocalDeviceSupportInfo() {
         supported = false;
         
-        sensorDescriptionMaxRateMap = new HashMap<WaveSensorDescription, Double>();
-        sensorDescriptionMaxPrecisionMap = new HashMap<WaveSensorDescription, Double>();
-        sensorChannelDescriptionMaxRateMap = new HashMap<WaveSensorChannelDescription, Double>();
-        sensorChannelDescriptionMaxPrecisionMap = new HashMap<WaveSensorChannelDescription, Double>();
+        descriptionToSensorMap = new HashMap<WaveSensorDescription, WaveSensor>();
     }
     
     public boolean isSupported() {
         return supported;
     }
-
-    public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxRateMap() {
-        return sensorDescriptionMaxRateMap;
+    
+    public void setSupported(boolean supported) {
+        this.supported = supported;
     }
     
-    public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxPrecisionMap() {
-        return sensorDescriptionMaxPrecisionMap;
-    }
-    
-    public HashMap<WaveSensorChannelDescription, Double> getSensorChannelDescriptionMaxRateMap() {
-        return sensorChannelDescriptionMaxRateMap;
-    }
-    
-    public HashMap<WaveSensorChannelDescription, Double> getSensorChannelDescriptionMaxPrecisionMap() {
-        return sensorChannelDescriptionMaxPrecisionMap;
+    public HashMap<WaveSensorDescription, WaveSensor> getDescriptionToSensorMap() {
+        return descriptionToSensorMap;
     }
 }

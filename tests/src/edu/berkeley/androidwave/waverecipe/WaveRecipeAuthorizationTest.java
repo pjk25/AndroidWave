@@ -11,7 +11,9 @@ package edu.berkeley.androidwave.waverecipe;
 import edu.berkeley.androidwave.TestUtils;
 
 import java.io.*;
+import java.util.HashMap;
 import android.test.InstrumentationTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 /**
  * WaveRecipeAuthorizationTest
@@ -23,19 +25,56 @@ import android.test.InstrumentationTestCase;
  */
 public class WaveRecipeAuthorizationTest extends InstrumentationTestCase {
     
-    protected void setUp() {
-        
+    WaveRecipe recipeOne;
+    
+    protected void setUp() throws Exception {
+        File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        recipeOne = WaveRecipe.createFromDisk(getInstrumentation().getContext(), targetFile.getPath());
     }
     
+    /**
+     * ensure that a WaveRecipeAuthorization can be constructed with a
+     * {@code WaveRecipe} as a single argument
+     */
+    @SmallTest
     public void testConstructor() throws Exception {
-        File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        WaveRecipe recipe = WaveRecipe.createFromDisk(getInstrumentation().getContext(), targetFile.getPath());
-        
-        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
+        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipeOne);
         assertNotNull(auth);
     }
     
     
+    /**
+     * testDescriptionMapsInitialState
+     * 
+     * test the getter methods for the HashMaps linking sensor descriptions
+     * used by the recipe to their maximum available rates and precisions
+     */
+    @SmallTest
+    public void testDescriptionMapsInitialState() {
+        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipeOne);
+        
+        HashMap descriptionMap;
+        // sensorDescriptionMaxRateMap
+        descriptionMap = auth.getSensorDescriptionMaxRateMap();
+        assertNotNull(descriptionMap);
+        assertEquals("sensorDescriptionMaxRateMap size", 0, descriptionMap.size());
+
+        // sensorDescriptionMaxPrecisionMap
+        descriptionMap = auth.getSensorDescriptionMaxPrecisionMap();
+        assertNotNull(descriptionMap);
+        assertEquals("sensorDescriptionMaxPrecisionMap size", 0, descriptionMap.size());
+
+        // sensorChannelDescriptionMaxRateMap
+        descriptionMap = auth.getSensorChannelDescriptionMaxRateMap();
+        assertNotNull(descriptionMap);
+        assertEquals("sensorChannelDescriptionMaxRateMap size", 0, descriptionMap.size());
+
+        // sensorChannelDescriptionMaxPrecisionMap
+        descriptionMap = auth.getSensorChannelDescriptionMaxPrecisionMap();
+        assertNotNull(descriptionMap);
+        assertEquals("sensorChannelDescriptionMaxPrecisionMap size", 0, descriptionMap.size());
+    }
+
     public void testParcelable() throws Exception {
         fail("test not writen yet");
     }

@@ -24,15 +24,32 @@ import android.test.suitebuilder.annotation.SmallTest;
  */
 public class WaveSensorDescriptionTest extends AndroidTestCase {
     
+    WaveSensorDescription wsd;
+    
+    public void setUp() {
+        wsd = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "m/s^2");
+    }
+    
     public void testNewWaveSensorDescriptionHasNoChannels() {
-        WaveSensorDescription wsd = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "m/s^2");
-        
         assertFalse(wsd.hasChannels());
     }
     
     public void testWaveSensorDescriptionGetChannelsNotNull() {
-        WaveSensorDescription wsd = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "m/s^2");
-        
         assertNotNull(wsd.getChannels());
+    }
+    
+    public void testExpectedUnits() {
+        // fixture specific
+        assertTrue(wsd.hasExpectedUnits());
+        assertNotNull(wsd.getExpectedUnits());
+        
+        // not fixture specific
+        WaveSensorDescription unitlessWsd = new WaveSensorDescription(WaveSensor.Type.MAGNETOMETER, null);
+        assertFalse(unitlessWsd.hasExpectedUnits());
+        assertNull(unitlessWsd.getExpectedUnits());
+    }
+    
+    public void testGetType() {
+        assertEquals(WaveSensor.Type.ACCELEROMETER, wsd.getType());
     }
 }

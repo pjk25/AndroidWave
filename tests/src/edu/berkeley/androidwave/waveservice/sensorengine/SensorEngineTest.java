@@ -68,7 +68,7 @@ public class SensorEngineTest extends InstrumentationTestCase {
     @MediumTest
     public void testStartAndStopAndroidWaveSensor() throws Exception {
         
-        Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensor(getInstrumentation().getContext(), WaveSensor.Type.ACCELEROMETER);
+        Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensors(getInstrumentation().getContext(), WaveSensor.Type.ACCELEROMETER);
         assertTrue(accelSensors.size() > 0);
         
         AndroidWaveSensor accelSensor = (AndroidWaveSensor)accelSensors.iterator().next();
@@ -100,6 +100,7 @@ public class SensorEngineTest extends InstrumentationTestCase {
         
         File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
         WaveRecipe recipe = WaveRecipe.createFromDisk(getInstrumentation().getTargetContext(), targetFile.getPath());
+        assertNotNull(recipe);
         
         /**
          * we would like SensorEngine.waveRecipeCanBeSatisfied to report
@@ -114,32 +115,11 @@ public class SensorEngineTest extends InstrumentationTestCase {
         assertTrue(supportInfo.isSupported());
         
         // and further validate that
-        Map<WaveSensorDescription, Double> rateMap = supportInfo.getSensorDescriptionMaxRateMap();
-        Map<WaveSensorDescription, Double> precisionMap = supportInfo.getSensorDescriptionMaxPrecisionMap();
-        Map<WaveSensorChannelDescription, Double> channelRateMap = supportInfo.getSensorChannelDescriptionMaxRateMap();
-        Map<WaveSensorChannelDescription, Double> channelPrecisionMap = supportInfo.getSensorChannelDescriptionMaxPrecisionMap();
+        Map<WaveSensorDescription, WaveSensor> descriptionToSensorMap = supportInfo.getDescriptionToSensorMap();
         
         for (WaveSensorDescription wsd : recipe.getSensors()) {
-            if (wsd.hasChannels()) {
-                // each sensor for that recipe should have rate and precision info
-                // for each channel
-                for (WaveSensorChannelDescription channelDesc : wsd.getChannels()) {
-                    assertTrue(channelRateMap.containsKey(channelDesc));
-                    assertTrue(channelPrecisionMap.containsKey(channelDesc));
-                }
-            } else {
-                // if the recipe sensor specifies no channels, then the
-                // slowest and least precise channel info is used in proxy for
-                // that sensor
-                assertTrue(rateMap.containsKey(wsd));
-                assertTrue(precisionMap.containsKey(wsd));
-            }
+            assertTrue(descriptionToSensorMap.containsKey(wsd));
         }
-        
-        // TODO: we could test the exact values in the maps, but since we have
-        // not determined them yet (as they are a consequence of hardware),
-        // we cannot write that test yet
-        //fail("no test of exact map values");
     }
     
     /**

@@ -115,10 +115,36 @@ public class SensorEngine implements SensorEventListener {
      * supportInfoForRecipe
      * 
      * provides information about the sensors which this device offers to
-     * support a given recipe.
+     * support a given recipe.  Currently if a device has multiple local
+     * sensors of the same time, there is no particular order or ranking to
+     * that portion of the matching.
+     * 
+     * TODO: Add support for conforming units, as currently they must match
+     *       exactly
      */
     protected WaveRecipeLocalDeviceSupportInfo supportInfoForRecipe(WaveRecipe recipe) {
-        return null;
+        WaveRecipeLocalDeviceSupportInfo supportInfo = new WaveRecipeLocalDeviceSupportInfo();
+        
+        boolean allSensorsSatisfied = true;
+        Set<WaveSensor> availableSensors = WaveSensor.getAvailableLocalSensors(mContext);
+        // this is an inefficient inner loop, but the number of sensors is
+        // expected to be small
+        for (WaveSensorDescription wsd : recipe.getSensors()) {
+            boolean thisSensorSatisfied = false;
+            for (WaveSensor s : availableSensors) {
+                if (s.matchesWaveSensorDescription(wsd)) {
+                    thisSensorSatisfied = true;
+                    // store information for this sensor in the supportInfo
+                    supportInfo.getDescriptionToSensorMap().put(wsd, s);
+                    break;
+                }
+            }
+            allSensorsSatisfied &= thisSensorSatisfied;
+        }
+        
+        supportInfo.setSupported(allSensorsSatisfied);
+        
+        return supportInfo;
     }
     
     /**
