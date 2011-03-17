@@ -200,7 +200,7 @@ public class WaveSensor {
      * 
      * Similar to @see #getAvailableLocalSensors, but filters by sensor type
      */
-    public static Set<WaveSensor> getAvailableLocalSensor(Context context, WaveSensor.Type type) {
+    public static Set<WaveSensor> getAvailableLocalSensors(Context context, WaveSensor.Type type) {
         
         Set<WaveSensor> availableLocalSensors = getAvailableLocalSensors(context);
         Set<WaveSensor> resultSet = new HashSet<WaveSensor>();

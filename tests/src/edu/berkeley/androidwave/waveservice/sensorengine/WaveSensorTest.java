@@ -213,10 +213,10 @@ public class WaveSensorTest extends AndroidTestCase {
      * retreiving only one type of sensor
      */
     @LargeTest
-    public void testGetAvailableLocalSensor() throws Exception {
-        Set<WaveSensor> localSensors = WaveSensor.getAvailableLocalSensor(getContext(), WaveSensor.Type.ACCELEROMETER);
+    public void testGetAvailableLocalSensorsByType() throws Exception {
+        Set<WaveSensor> localSensors = WaveSensor.getAvailableLocalSensors(getContext(), WaveSensor.Type.ACCELEROMETER);
         
-        assertNotNull("getAvailableLocalSensor() should not return null", localSensors);
+        assertNotNull("getAvailableLocalSensors() should not return null", localSensors);
         
         for (WaveSensor s : localSensors) {
             assertEquals(WaveSensor.Type.ACCELEROMETER, s.getType());
