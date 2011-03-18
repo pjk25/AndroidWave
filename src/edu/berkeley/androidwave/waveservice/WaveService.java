@@ -74,31 +74,40 @@ public class WaveService extends Service {
     
     /**
      * WAVESERVICE PUBLIC METHODS
+     * 
+     * @see IWaveServicePublic
      */
-     
      private final IWaveServicePublic.Stub mPublicBinder = new IWaveServicePublic.Stub() {
          /**
           * registerRecipe
-          *
-          * @see IWaveServicePublic#registerRecipe(WaveRecipe)
           */
-         public boolean registerRecipe(WaveRecipe recipe) {
+         public boolean recipeExists(String recipeID) {
+             return false;
+         }
+         
+         /**
+          * isAuthorized
+          */
+         public boolean isAuthorized(String recipeID) {
              return false;
          }
 
          /**
-          * requestRecipe
-          *
-          * @see IWaveServicePublic#requestRecipe(String)
+          * retrieveAuthorization
           */
-         public WaveRecipeAuthorization requestRecipe(String recipeUID) {
+         public WaveRecipeAuthorization retrieveAuthorization(String recipeID) {
+             return null;
+         }
+         
+         /**
+          * getAuthorizationIntent
+          */
+         public Intent getAuthorizationIntent(String recipeID) {
              return null;
          }
 
          /**
           * registerRecipeOutputListener
-          *
-          * @see IWaveServicePublic#registerRecipeOutputListener(WaveRecipeOutputDataListener, boolean)
           */
          public boolean registerRecipeOutputListener(IWaveRecipeOutputDataListener listener, boolean includeSensorData) {
              return false;
