@@ -8,8 +8,11 @@
 
 package edu.berkeley.androidwave.waveservice;
 
+import edu.berkeley.androidwave.waverecipe.WaveRecipeOutputDataImpl;
+
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.test.ServiceTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -19,9 +22,7 @@ import android.test.suitebuilder.annotation.SmallTest;
  * ServiceTestCase} for more information on how to write and extend service tests.
  * 
  * To run this test, you can type:
- * adb shell am instrument -w \
- *   -e class edu.berkeley.androidwave.waveservice.WaveServiceTest \
- *   edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
+ * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.WaveServiceTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 public class WaveServiceTest extends ServiceTestCase<WaveService> {
     
@@ -72,5 +73,37 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         Intent startIntent = new Intent(Intent.ACTION_MAIN);
         startIntent.setClass(getContext(), WaveService.class);
         IBinder service = bindService(startIntent); 
+    }
+    
+    /**
+     * test public interface recipe interaction
+     */
+    @MediumTest
+    public void testPublicBindableMore() throws RemoteException {
+        
+        /**
+         * Simple recipeListener
+         */
+        IWaveRecipeOutputDataListener mListener = new IWaveRecipeOutputDataListener.Stub() {
+            public void receiveWaveRecipeOutputData(WaveRecipeOutputDataImpl wrOutput) {
+                System.out.println("WaveRecipeOutputDataImpl received => "+wrOutput);
+            }
+        };
+        
+        /**
+         * test the remote calls
+         */
+        Intent startIntent = new Intent(Intent.ACTION_MAIN);
+        startIntent.setClass(getContext(), WaveService.class);
+        IBinder service = bindService(startIntent); 
+        
+        IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
+        assertNotNull(mService);
+        
+        // for now just make the remote call, without validating the result
+        mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        mService.isAuthorized("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        mService.getAuthorizationIntent("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        mService.registerRecipeOutputListener(mListener, false);
     }
 }
