@@ -8,11 +8,14 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
-import android.test.AndroidTestCase;
+import edu.berkeley.androidwave.TestUtils;
+
+import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import java.io.*;
 import java.util.HashMap;
 
 /**
@@ -21,7 +24,7 @@ import java.util.HashMap;
  * to run:
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waverecipe.WaveRecipeLocalDeviceSupportInfoTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
-public class WaveRecipeLocalDeviceSupportInfoTest extends AndroidTestCase {
+public class WaveRecipeLocalDeviceSupportInfoTest extends InstrumentationTestCase {
     
     /**
      * testNewInstanceIsSupportedReturnsFalse
@@ -30,10 +33,11 @@ public class WaveRecipeLocalDeviceSupportInfoTest extends AndroidTestCase {
      * state
      */
     @SmallTest
-    public void testNewInstanceIsSupportedReturnsFalse() {
-        WaveRecipeLocalDeviceSupportInfo newInfo = new WaveRecipeLocalDeviceSupportInfo();
+    public void testNewInstanceIsSupportedReturnsFalse() throws Exception {
+        File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        WaveRecipe recipeOne = WaveRecipe.createFromDisk(getInstrumentation().getContext(), targetFile.getPath());
+        
+        WaveRecipeLocalDeviceSupportInfo newInfo = new WaveRecipeLocalDeviceSupportInfo(recipeOne);
         assertFalse(newInfo.isSupported());
     }
-    
-    
 }

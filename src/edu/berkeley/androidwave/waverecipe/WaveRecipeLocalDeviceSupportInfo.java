@@ -19,14 +19,22 @@ import java.util.HashMap;
  */
 public class WaveRecipeLocalDeviceSupportInfo {
     
+    protected WaveRecipe associatedRecipe;
+    
     protected boolean supported;
     
     protected HashMap<WaveSensorDescription, WaveSensor> descriptionToSensorMap;
     
-    public WaveRecipeLocalDeviceSupportInfo() {
+    public WaveRecipeLocalDeviceSupportInfo(WaveRecipe recipe) {
+        associatedRecipe = recipe;
+        
         supported = false;
         
         descriptionToSensorMap = new HashMap<WaveSensorDescription, WaveSensor>();
+    }
+    
+    public WaveRecipe getAssociatedRecipe() {
+        return associatedRecipe;
     }
     
     public boolean isSupported() {
