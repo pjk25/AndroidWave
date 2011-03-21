@@ -122,8 +122,8 @@ public class SensorEngine implements SensorEventListener {
      * TODO: Add support for conforming units, as currently they must match
      *       exactly
      */
-    protected WaveRecipeLocalDeviceSupportInfo supportInfoForRecipe(WaveRecipe recipe) {
-        WaveRecipeLocalDeviceSupportInfo supportInfo = new WaveRecipeLocalDeviceSupportInfo();
+    public WaveRecipeLocalDeviceSupportInfo supportInfoForRecipe(WaveRecipe recipe) {
+        WaveRecipeLocalDeviceSupportInfo supportInfo = new WaveRecipeLocalDeviceSupportInfo(recipe);
         
         boolean allSensorsSatisfied = true;
         Set<WaveSensor> availableSensors = WaveSensor.getAvailableLocalSensors(mContext);

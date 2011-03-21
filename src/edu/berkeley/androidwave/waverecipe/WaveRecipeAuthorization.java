@@ -25,6 +25,8 @@ public class WaveRecipeAuthorization implements Parcelable {
     
     protected WaveRecipe recipe;
     
+    protected WaveRecipeLocalDeviceSupportInfo supportInfo;
+    
     protected String recipeClientName;
     protected Signature[] recipeClientSignatures;
     
@@ -34,8 +36,9 @@ public class WaveRecipeAuthorization implements Parcelable {
     protected HashMap<WaveSensorChannelDescription, Double> sensorChannelDescriptionMaxRateMap;
     protected HashMap<WaveSensorChannelDescription, Double> sensorChannelDescriptionMaxPrecisionMap;
     
-    public WaveRecipeAuthorization(WaveRecipe recipe) {
-        this.recipe = recipe;
+    public WaveRecipeAuthorization(WaveRecipeLocalDeviceSupportInfo supportInfo) {
+        this.supportInfo = supportInfo;
+        this.recipe = supportInfo.getAssociatedRecipe();
 
         sensorDescriptionMaxRateMap = new HashMap<WaveSensorDescription, Double>();
         sensorDescriptionMaxPrecisionMap = new HashMap<WaveSensorDescription, Double>();

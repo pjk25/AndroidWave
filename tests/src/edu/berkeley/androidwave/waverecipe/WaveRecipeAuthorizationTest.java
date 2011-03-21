@@ -9,6 +9,7 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.TestUtils;
+import edu.berkeley.androidwave.waveservice.sensorengine.SensorEngine;
 
 import java.io.*;
 import java.util.HashMap;
@@ -25,20 +26,28 @@ import android.test.suitebuilder.annotation.SmallTest;
  */
 public class WaveRecipeAuthorizationTest extends InstrumentationTestCase {
     
+    SensorEngine sensorEngine;
     WaveRecipe recipeOne;
     
     protected void setUp() throws Exception {
         File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
         recipeOne = WaveRecipe.createFromDisk(getInstrumentation().getContext(), targetFile.getPath());
+        
+        SensorEngine.init(getInstrumentation().getTargetContext());
+        sensorEngine = SensorEngine.getInstance();
     }
     
     /**
      * ensure that a WaveRecipeAuthorization can be constructed with a
-     * {@code WaveRecipe} as a single argument
+     * {@code WaveRecipeLocalDeviceSupportInfo} argument
      */
     @SmallTest
     public void testConstructor() throws Exception {
-        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipeOne);
+        
+        WaveRecipeLocalDeviceSupportInfo supportInfo = sensorEngine.supportInfoForRecipe(recipeOne);
+        assertTrue(supportInfo.isSupported());
+        
+        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(supportInfo);
         assertNotNull(auth);
     }
     
@@ -50,8 +59,11 @@ public class WaveRecipeAuthorizationTest extends InstrumentationTestCase {
      * used by the recipe to their maximum available rates and precisions
      */
     @SmallTest
-    public void testDescriptionMapsInitialState() {
-        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipeOne);
+    public void testDescriptionMapsInitialState() throws Exception {
+        WaveRecipeLocalDeviceSupportInfo supportInfo = sensorEngine.supportInfoForRecipe(recipeOne);
+        assertTrue(supportInfo.isSupported());
+        
+        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(supportInfo);
         
         HashMap descriptionMap;
         // sensorDescriptionMaxRateMap
