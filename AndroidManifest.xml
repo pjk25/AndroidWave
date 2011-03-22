@@ -17,6 +17,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="edu.berkeley.androidwave.intent.action.AUTHORIZE" />
             </intent-filter>
         </activity>
     </application>
