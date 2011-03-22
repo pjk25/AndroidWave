@@ -24,6 +24,7 @@ import edu.berkeley.androidwave.waverecipe.*;
 public class WaveService extends Service {
     
     public static final String ACTION_AUTHORIZE = "edu.berkeley.androidwave.intent.action.AUTHORIZE";
+    public static final String RECIPE_ID_EXTRA = "recipe_id";
     
     @Override
     public IBinder onBind(Intent intent) {
@@ -116,7 +117,9 @@ public class WaveService extends Service {
           * getAuthorizationIntent
           */
          public Intent getAuthorizationIntent(String recipeID) {
-             return null;
+             Intent authIntent = new Intent(ACTION_AUTHORIZE);
+             authIntent.putExtra(RECIPE_ID_EXTRA, recipeID);
+             return authIntent;
          }
 
          /**
