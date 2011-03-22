@@ -23,6 +23,8 @@ import edu.berkeley.androidwave.waverecipe.*;
  */
 public class WaveService extends Service {
     
+    public static final String ACTION_AUTHORIZE = "edu.berkeley.androidwave.intent.action.AUTHORIZE";
+    
     @Override
     public IBinder onBind(Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_MAIN)) {

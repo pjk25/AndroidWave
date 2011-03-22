@@ -153,4 +153,22 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         
         assertFalse(mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude", false));
     }
+    
+    /**
+     * test the getAuthorizationIntent call
+     */
+    @LargeTest
+    public void testGetAuthorizationIntent() throws Exception {
+        Intent startIntent = new Intent(Intent.ACTION_MAIN);
+        startIntent.setClass(getContext(), WaveService.class);
+        IBinder service = bindService(startIntent); 
+        
+        IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
+        
+        Intent authIntent = mService.getAuthorizationIntent("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        
+        assertNotNull(authIntent);
+        assertEquals(WaveService.ACTION_AUTHORIZE, authIntent.getAction());
+        assertEquals("edu.berkeley.waverecipe.AccelerometerMagnitude", authIntent.getStringExtra("recipe_id"));
+    }
 }
