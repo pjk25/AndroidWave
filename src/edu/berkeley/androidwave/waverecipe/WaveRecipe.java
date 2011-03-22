@@ -40,6 +40,8 @@ public class WaveRecipe implements Parcelable {
     
     private static final String DESCRIPTION_XML_PATH = "assets/description.xml";
     
+    public static final String WAVERECIPE_CACHE_DIR = "waverecipes/cache";
+    
     protected String recipeId;
     protected Date version;
     protected String name;
