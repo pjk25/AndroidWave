@@ -33,6 +33,8 @@ import java.io.*;
  */
 public class WaveServiceTest extends ServiceTestCase<WaveService> {
     
+    File cachedRecipe = null;
+    
     public WaveServiceTest() {
         super(WaveService.class);
     }
@@ -44,6 +46,14 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
     
     @Override
     protected void tearDown() throws Exception {
+        if (cachedRecipe != null && cachedRecipe.exists()) {
+            if (cachedRecipe.delete()) {
+                System.out.println("Removed "+cachedRecipe);
+            } else {
+                throw new Exception("Removal of "+cachedRecipe+" failed.");
+            }
+        }
+
         super.tearDown();
     }
 
@@ -113,7 +123,7 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         assertNotNull(mService);
         
         // for now just make the remote call, without validating the result
-        mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude", false);
         mService.isAuthorized("edu.berkeley.waverecipe.AccelerometerMagnitude");
         mService.getAuthorizationIntent("edu.berkeley.waverecipe.AccelerometerMagnitude");
         mService.registerRecipeOutputListener(mListener, false);
@@ -130,17 +140,17 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         
         IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
         
-        assertFalse(mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude"));
+        // we bypass the net download of the recipe and manually cache it
+        cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveRecipe.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
+        System.out.println("cachedRecipe => "+cachedRecipe);
         
-        // now we bypass the net download of the recipe and manually cache it
-        File cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveRecipe.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
+        assertTrue(mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude", false));
         
-        assertTrue(mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude"));
-
-        if (cachedRecipe.delete()) {
-            System.out.println("Removed "+cachedRecipe);
-        } else {
-            throw new Exception("Removal of "+cachedRecipe+" failed.");
+        // now remove it
+        if (!cachedRecipe.delete()) {
+            throw new Exception("could not remove "+cachedRecipe);
         }
+        
+        assertFalse(mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude", false));
     }
 }

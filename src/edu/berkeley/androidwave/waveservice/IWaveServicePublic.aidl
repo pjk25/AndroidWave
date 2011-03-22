@@ -17,9 +17,10 @@ interface IWaveServicePublic {
      * recipeExists
      * 
      * allows a client to check if a recipeID is valid and available to the
-     * device
+     * device. {@code search} indicates if the device may search external
+     * recipe repositories.
      */
-    boolean recipeExists(in String recipeID);
+    boolean recipeExists(in String recipeID, boolean search);
     
     /**
      * isAuthorized

@@ -45,7 +45,7 @@ public class TestUtils {
         InputStream is = testApkContext.getAssets().open(source);
         
         String[] destComponents = dest.split(File.separator);
-        System.out.println("copyTestAssetToInternal -> destComponents = "+java.util.Arrays.toString(destComponents));
+        // System.out.println("copyTestAssetToInternal -> destComponents = "+java.util.Arrays.toString(destComponents));
         OutputStream os = null;
         
         if (destComponents.length == 1) {

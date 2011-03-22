@@ -1,10 +1,12 @@
 package edu.berkeley.androidwave.waveservice;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import java.io.*;
 
 import edu.berkeley.androidwave.waverecipe.*;
 
@@ -81,8 +83,17 @@ public class WaveService extends Service {
          /**
           * registerRecipe
           */
-         public boolean recipeExists(String recipeID) {
-             return false;
+         public boolean recipeExists(String recipeID, boolean search) {
+             // check for the recipe in the cache
+             String[] c = WaveRecipe.WAVERECIPE_CACHE_DIR.split(File.separator, 2);
+             File filesDir = getDir(c[0], Context.MODE_PRIVATE);
+             File recipeFile = new File(filesDir, (c.length == 1 ? "" : c[1] + "/")+recipeID+".waverecipe");
+             Log.d(getClass().getSimpleName(), "Checking for cached recipe at "+recipeFile);
+             boolean cached = recipeFile.exists();
+             if (!cached && search) {
+                // try to download from server
+             }
+             return cached;
          }
          
          /**
