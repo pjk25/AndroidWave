@@ -10,6 +10,7 @@ package edu.berkeley.androidwave;
 
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.pm.PackageManager.NameNotFoundException;
 //import android.test.MoreAsserts;
 import java.io.*;
 import java.lang.reflect.Method;
@@ -19,39 +20,63 @@ import junit.framework.Assert;
 public class TestUtils {
     
     /**
-     * copyAssetToInternal
+     * Joins an array of strings, inserting a separator
+     */
+    public static String unsplit(String[] components, String separator) {
+        String result = "";
+        for (int i=0; i<components.length; i++) {
+            result += components[i] + (i<components.length-1 ? separator : "");
+        }
+        return result;
+    }
+    
+    /**
+     * copyTestAssetToInternal
      *
      * used for copying fixtures to app storage to simulate downloaded data
      * only tested with two component destination paths
      */
-    public static File copyAssetToInternal(Instrumentation instrumentation, String source, String dest)
-        throws IOException {
+    public static File copyTestAssetToInternal(Context targetContext, String source, String dest)
+        throws IOException, NameNotFoundException {
         
         File targetFile = null;
         
-        InputStream is = instrumentation.getContext().getAssets().open(source);
+        Context testApkContext = targetContext.createPackageContext("edu.berkeley.androidwave.tests", Context.CONTEXT_IGNORE_SECURITY);
+        InputStream is = testApkContext.getAssets().open(source);
         
-        Context targetContext = instrumentation.getTargetContext();
-        String[] destComponents = dest.split("/", 2);
+        String[] destComponents = dest.split(File.separator);
+        System.out.println("copyTestAssetToInternal -> destComponents = "+java.util.Arrays.toString(destComponents));
         OutputStream os = null;
-        if (destComponents.length == 0) {
-            // System.out.println("copyAssetToInternal -> creating "+dest);
+        
+        if (destComponents.length == 1) {
+            System.out.println("copyTestAssetToInternal -> creating "+dest);
             os = targetContext.openFileOutput(dest, Context.MODE_PRIVATE);
         } else {
+            // create the destination directory tree
             File dir = targetContext.getDir(destComponents[0], Context.MODE_PRIVATE);
-            // System.out.println("copyAssetToInternal -> created "+dir);
-            destComponents = dest.split("/");
-            // System.out.println("copyAssetToInternal -> destComponents "+Arrays.toString(destComponents));
+            System.out.println("copyTestAssetToInternal -> getDir: "+dir);
+            // create additional sub-dirs as necessary
+            if (destComponents.length > 2) {
+                String[] s = new String[destComponents.length - 2];
+                for (int i=0; i<s.length; i++) {
+                    s[i] = destComponents[i+1];
+                }
+                dir = new File(dir, unsplit(s, File.separator));
+                if (dir.mkdirs()) {
+                    System.out.println("copyTestAssetToInternal -> created: "+dir);
+                }
+            }
+            // create the target file itself
             targetFile = new File(dir, destComponents[destComponents.length-1]);
             if (targetFile.exists()) {
-                System.out.print("TestUtils: copyAssetToInternal->Deleting existing file at "+targetFile+"...");
+                System.out.print("copyTestAssetToInternal->Deleting existing file at "+targetFile+"...");
                 if (targetFile.delete()) {
                     System.out.println(" done.");
                 } else {
                     System.out.println(" fail.");
                 }
             }
-            // System.out.println("copyAssetToInternal -> targetFile = "+targetFile);
+            System.out.println("copyTestAssetToInternal -> targetFile = "+targetFile);
             os = new FileOutputStream(targetFile);
         }
         
