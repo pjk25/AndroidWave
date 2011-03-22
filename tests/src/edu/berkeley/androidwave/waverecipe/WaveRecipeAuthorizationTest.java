@@ -13,7 +13,7 @@ import edu.berkeley.androidwave.waveservice.sensorengine.SensorEngine;
 
 import java.io.*;
 import java.util.HashMap;
-import android.test.InstrumentationTestCase;
+import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
 /**
@@ -24,16 +24,16 @@ import android.test.suitebuilder.annotation.SmallTest;
  * to run:
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorizationTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
-public class WaveRecipeAuthorizationTest extends InstrumentationTestCase {
+public class WaveRecipeAuthorizationTest extends AndroidTestCase {
     
     SensorEngine sensorEngine;
     WaveRecipe recipeOne;
     
     protected void setUp() throws Exception {
-        File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(getInstrumentation().getContext(), targetFile.getPath());
+        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
         
-        SensorEngine.init(getInstrumentation().getTargetContext());
+        SensorEngine.init(getContext());
         sensorEngine = SensorEngine.getInstance();
     }
     

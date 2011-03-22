@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import android.content.Context;
-import android.test.InstrumentationTestCase;
+import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -43,7 +43,7 @@ import android.test.suitebuilder.annotation.SmallTest;
  * to run:
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waverecipe.WaveRecipeTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
-public class WaveRecipeTest extends InstrumentationTestCase {
+public class WaveRecipeTest extends AndroidTestCase {
     
     WaveRecipe recipeOne;
     
@@ -81,8 +81,8 @@ public class WaveRecipeTest extends InstrumentationTestCase {
         
         // build an instance from the fixture
         // first copy the fixture to the recipes cache
-        File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(getInstrumentation().getTargetContext(), targetFile.getPath());
+        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
         
         // test the values in the recipeOne fixture
         assertEquals("getID should match that of recipe xml", "edu.berkeley.waverecipe.AccelerometerMagnitude", recipeOne.getID());

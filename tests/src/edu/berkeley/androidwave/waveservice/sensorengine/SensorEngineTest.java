@@ -11,7 +11,7 @@ package edu.berkeley.androidwave.waveservice.sensorengine;
 import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waverecipe.*;
 
-import android.test.InstrumentationTestCase;
+import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -31,12 +31,12 @@ import java.util.Set;
  * To run this test, you can type:
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.sensorengine.SensorEngineTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
-public class SensorEngineTest extends InstrumentationTestCase {
+public class SensorEngineTest extends AndroidTestCase {
     
     SensorEngine sensorEngineInstance;
     
     public void setUp() throws Exception {
-        SensorEngine.init(getInstrumentation().getContext());
+        SensorEngine.init(getContext());
         sensorEngineInstance = SensorEngine.getInstance();
     }
     
@@ -68,7 +68,7 @@ public class SensorEngineTest extends InstrumentationTestCase {
     @MediumTest
     public void testStartAndStopAndroidWaveSensor() throws Exception {
         
-        Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensors(getInstrumentation().getContext(), WaveSensor.Type.ACCELEROMETER);
+        Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensors(getContext(), WaveSensor.Type.ACCELEROMETER);
         assertTrue(accelSensors.size() > 0);
         
         AndroidWaveSensor accelSensor = (AndroidWaveSensor)accelSensors.iterator().next();
@@ -98,8 +98,8 @@ public class SensorEngineTest extends InstrumentationTestCase {
     @LargeTest
     public void testSupportInfoForRecipe() throws Exception {
         
-        File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        WaveRecipe recipe = WaveRecipe.createFromDisk(getInstrumentation().getTargetContext(), targetFile.getPath());
+        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        WaveRecipe recipe = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
         assertNotNull(recipe);
         
         /**
@@ -131,9 +131,13 @@ public class SensorEngineTest extends InstrumentationTestCase {
     @LargeTest
     public void testScheduleWaveRecipeAuthorization() throws Exception {
         
-        File targetFile = TestUtils.copyAssetToInternal(getInstrumentation(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        WaveRecipe recipe = WaveRecipe.createFromDisk(getInstrumentation().getTargetContext(), targetFile.getPath());
+        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        WaveRecipe recipe = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
         
-        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
+        //WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
+        
+        
+        
+        fail("test not finished yet");
     }
 }
