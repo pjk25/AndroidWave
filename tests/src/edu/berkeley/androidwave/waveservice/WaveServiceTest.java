@@ -10,14 +10,12 @@ package edu.berkeley.androidwave.waveservice;
 
 import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waverecipe.WaveRecipe;
+import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
 import edu.berkeley.androidwave.waverecipe.WaveRecipeOutputDataImpl;
 
-// import android.content.Context;
 import android.content.Intent;
-// import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.IBinder;
 import android.os.RemoteException;
-// import android.test.mock.MockContext;
 import android.test.ServiceTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -152,6 +150,41 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         }
         
         assertFalse(mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude", false));
+    }
+    
+    /**
+     * test the isAuthorized call
+     */
+    @LargeTest
+    public void testIsAuthorized() throws Exception {
+        Intent startIntent = new Intent(Intent.ACTION_MAIN);
+        startIntent.setClass(getContext(), WaveService.class);
+        IBinder service = bindService(startIntent); 
+        
+        IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
+        
+        assertFalse(mService.isAuthorized("edu.berkeley.waverecipe.AccelerometerMagnitude"));
+        
+        // need to simulate auth
+        fail("test not finished");
+    }
+    
+    /**
+     * test the retrieveAuthorization call
+     */
+    @LargeTest
+    public void testRetrieveAuthorization() throws Exception {
+        Intent startIntent = new Intent(Intent.ACTION_MAIN);
+        startIntent.setClass(getContext(), WaveService.class);
+        IBinder service = bindService(startIntent); 
+        
+        IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
+        
+        WaveRecipeAuthorization auth = mService.retrieveAuthorization("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        assertNull("Test is not authorized and should return null", auth);
+        
+        // need to simulate authorization and re-call
+        fail("test not finished");
     }
     
     /**

@@ -41,6 +41,5 @@ public class RecipeAuthorizationActivityTest extends ActivityInstrumentationTest
     public void testActivityTestCaseSetUpProperly() {
         Activity a = getActivity();
         assertNotNull("activity should be launched successfully", a);
-        assertEquals(RecipeAuthorizationActivity.class, a.getClass());
     }
 }

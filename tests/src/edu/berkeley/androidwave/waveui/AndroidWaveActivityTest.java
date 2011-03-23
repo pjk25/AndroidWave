@@ -26,6 +26,5 @@ public class AndroidWaveActivityTest extends ActivityInstrumentationTestCase2<An
     public void testActivityTestCaseSetUpProperly() {
         Activity a = getActivity();
         assertNotNull("activity should be launched successfully", a);
-        assertEquals(AndroidWaveActivity.class, a.getClass());
     }
 }

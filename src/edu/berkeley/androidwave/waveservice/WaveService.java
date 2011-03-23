@@ -95,6 +95,7 @@ public class WaveService extends Service {
              boolean cached = recipeFile.exists();
              if (!cached && search) {
                 // try to download from server
+                throw new RuntimeException("Not implemented yet");
              }
              return cached;
          }
