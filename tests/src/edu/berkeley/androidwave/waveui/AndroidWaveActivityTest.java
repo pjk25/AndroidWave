@@ -2,6 +2,7 @@ package edu.berkeley.androidwave.waveui;
 
 import edu.berkeley.androidwave.waveservice.WaveService;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 
@@ -23,17 +24,8 @@ public class AndroidWaveActivityTest extends ActivityInstrumentationTestCase2<An
      * Verifies that activity under test can be launched.
      */
     public void testActivityTestCaseSetUpProperly() {
-        assertNotNull("activity should be launched successfully", getActivity());
-    }
-
-    /**
-     * makes sure this activity picks up the AUTHORIZE intent
-     */
-    public void testAuthorizeIntent() {
-        Intent i = new Intent(WaveService.ACTION_AUTHORIZE);
-        // NOTE: Activities under test may not be started from within the UI thread. If your test method is annotated with UiThreadTest, then you must call setActivityIntent(Intent) from setUp().
-        setActivityIntent(i);
-        
-        assertNotNull("activity should be launched sucessfully with "+i, getActivity());
+        Activity a = getActivity();
+        assertNotNull("activity should be launched successfully", a);
+        assertEquals(AndroidWaveActivity.class, a.getClass());
     }
 }
