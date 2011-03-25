@@ -43,6 +43,7 @@ public class TestUtils {
         
         Context testApkContext = targetContext.createPackageContext("edu.berkeley.androidwave.tests", Context.CONTEXT_IGNORE_SECURITY);
         InputStream is = testApkContext.getAssets().open(source);
+        System.out.println("copyTestAssetToInternal -> is => "+is);
         
         String[] destComponents = dest.split(File.separator);
         // System.out.println("copyTestAssetToInternal -> destComponents = "+java.util.Arrays.toString(destComponents));

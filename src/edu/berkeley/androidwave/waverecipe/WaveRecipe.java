@@ -20,7 +20,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 import android.util.Xml;
-import java.io.InputStream;
+import java.io.*;
 import java.security.cert.Certificate;
 import java.util.Date;
 import java.util.jar.JarFile;
@@ -60,9 +60,17 @@ public class WaveRecipe implements Parcelable {
      * This should check for a cached version of the recipe, downloading it if
      * necessary, then instantiating from the downloaded version.
      */
-    public static WaveRecipe createFromID(String recipeID, int version) {
-        // null implementation
-        return null;
+    public static WaveRecipe createFromID(Context context, String recipeID, int version)
+            throws Exception {
+        String[] c = WaveRecipe.WAVERECIPE_CACHE_DIR.split(File.separator, 2);
+        File filesDir = context.getDir(c[0], Context.MODE_PRIVATE);
+        File recipeFile = new File(filesDir, (c.length == 1 ? "" : c[1] + "/")+recipeID+".waverecipe");
+        Log.d("WaveRecipe", "Checking for cached recipe at "+recipeFile);
+        if (recipeFile.exists()) {
+            return WaveRecipe.createFromDisk(context, recipeFile.getPath());
+        } else {
+            throw new Exception("Recipe downloading not implemented yet");
+        }
     }
     
     /**
