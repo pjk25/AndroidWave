@@ -201,7 +201,7 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         Intent authIntent = mService.getAuthorizationIntent("edu.berkeley.waverecipe.AccelerometerMagnitude");
         
         assertNotNull(authIntent);
-        assertEquals(WaveService.ACTION_AUTHORIZE, authIntent.getAction());
+        assertEquals(WaveService.ACTION_REQUEST_RECIPE_AUTHORIZE, authIntent.getAction());
         assertEquals("edu.berkeley.waverecipe.AccelerometerMagnitude", authIntent.getStringExtra(WaveService.RECIPE_ID_EXTRA));
     }
 }

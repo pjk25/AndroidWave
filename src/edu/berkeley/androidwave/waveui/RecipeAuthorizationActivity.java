@@ -15,6 +15,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import edu.berkeley.androidwave.R;
@@ -26,6 +28,9 @@ import edu.berkeley.androidwave.R;
  * recipe
  */
 public class RecipeAuthorizationActivity extends Activity {
+    
+    public static final String ACTION_DID_AUTHORIZE = "edu.berkeley.androidwave.intent.action.DID_AUTHORIZE";
+    public static final String ACTION_DID_DENY = "edu.berkeley.androidwave.intent.action.DID_DENY";
     
     protected WaveRecipe theRecipe;
     
@@ -51,6 +56,9 @@ public class RecipeAuthorizationActivity extends Activity {
         recipeSig = (TextView) findViewById(R.id.recipe_sig);
         authButton = (Button) findViewById(R.id.auth_button);
         denyButton = (Button) findViewById(R.id.deny_button);
+        
+        authButton.setOnClickListener(mAuthListener);
+        denyButton.setOnClickListener(mDenyListener);
         
         Intent i = getIntent();
         String recipeId = i.getStringExtra(WaveService.RECIPE_ID_EXTRA);
@@ -79,5 +87,20 @@ public class RecipeAuthorizationActivity extends Activity {
         }
         
         setResult(RESULT_CANCELED);
+        finish();
     }
+    
+    private OnClickListener mAuthListener = new OnClickListener() {
+        public void onClick(View v) {
+            setResult(RESULT_OK, (new Intent()).setAction(ACTION_DID_AUTHORIZE));
+            finish();
+        }
+    };
+    
+    private OnClickListener mDenyListener = new OnClickListener() {
+        public void onClick(View v) {
+            setResult(RESULT_OK, (new Intent()).setAction(ACTION_DID_DENY));
+            finish();
+        }
+    };
 }

@@ -34,7 +34,7 @@ public class RecipeAuthorizationActivityTest extends ActivityInstrumentationTest
     }
     
     public void setUp() {
-        Intent i = new Intent(WaveService.ACTION_AUTHORIZE);
+        Intent i = new Intent(WaveService.ACTION_REQUEST_RECIPE_AUTHORIZE);
         i.putExtra(WaveService.RECIPE_ID_EXTRA, "edu.berkeley.waverecipe.AccelerometerMagnitude");
         
         setActivityIntent(i);   // NOTE: Activities under test may not be started from within the UI thread. If your test method is annotated with UiThreadTest, then you must call setActivityIntent(Intent) from setUp().
@@ -69,8 +69,18 @@ public class RecipeAuthorizationActivityTest extends ActivityInstrumentationTest
         System.out.println("cachedRecipe => "+cachedRecipe);
         assertTrue("recipe is cached", cachedRecipe.exists());
         
-        Activity a = getActivity();
+        RecipeAuthorizationActivity a = getActivity();
         
         assertEquals("Accelerometer Magnitude", a.recipeName.getText());
+        
+        /*
+        a.runOnUiThread(
+            new Runnable() {
+                public void run() {
+                    assertEquals("Accelerometer Magnitude", a.recipeName.getText());
+                } // end of run() method definition
+            } // end of anonymous Runnable object instantiation
+        ); // end of invocation of runOnUiThread
+         */
     }
 }
