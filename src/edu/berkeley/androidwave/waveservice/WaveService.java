@@ -1,5 +1,9 @@
 package edu.berkeley.androidwave.waveservice;
 
+import edu.berkeley.androidwave.waveclient.IWaveServicePublic;
+import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
+import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorization;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;

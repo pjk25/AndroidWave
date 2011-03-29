@@ -9,9 +9,11 @@
 package edu.berkeley.androidwave.waveservice;
 
 import edu.berkeley.androidwave.TestUtils;
+import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
+import edu.berkeley.androidwave.waveclient.IWaveServicePublic;
+import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorization;
+import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDataImpl;
 import edu.berkeley.androidwave.waverecipe.WaveRecipe;
-import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
-import edu.berkeley.androidwave.waverecipe.WaveRecipeOutputDataImpl;
 
 import android.content.Intent;
 import android.os.IBinder;

@@ -6,9 +6,11 @@
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waverecipe;
+package edu.berkeley.androidwave.waveclient;
 
 import edu.berkeley.androidwave.TestUtils;
+import edu.berkeley.androidwave.waverecipe.WaveRecipe;
+import edu.berkeley.androidwave.waverecipe.WaveRecipeLocalDeviceSupportInfo;
 import edu.berkeley.androidwave.waveservice.sensorengine.SensorEngine;
 
 import java.io.*;

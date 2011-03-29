@@ -6,9 +6,9 @@
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waveservice;
+package edu.berkeley.androidwave.waveclient;
 
-import edu.berkeley.androidwave.waverecipe.WaveRecipeOutputDataImpl;
+import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDataImpl;
 
 oneway interface IWaveRecipeOutputDataListener {
     
