@@ -9,6 +9,8 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.*;
+import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
+import edu.berkeley.androidwave.waveclient.WaveSensorChannelDescription;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
@@ -16,8 +18,6 @@ import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 
 import android.content.Context;
 import android.content.pm.*;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 import android.util.Xml;
 import java.io.*;
@@ -36,7 +36,7 @@ import java.util.jar.JarFile;
  * classes.dex.  description.xml contains recipe metadata, including the
  * fully qualified names of relevent classes contained in classes.dex.
  */
-public class WaveRecipe implements Parcelable {
+public class WaveRecipe {
     
     private static final String DESCRIPTION_XML_PATH = "assets/description.xml";
     
@@ -226,30 +226,5 @@ public class WaveRecipe implements Parcelable {
     @Override
     public String toString() {
         return String.format("%s(%s-%s)", this.getClass().getSimpleName(), recipeId, version);
-    }
-    
-    /**
-     * Parcelable Methods
-     */
-    public int describeContents() {
-        return 0;
-    }
-    
-    public void writeToParcel(Parcel dest, int flags) {
-        
-    }
-    
-    public static final Parcelable.Creator<WaveRecipe> CREATOR = new Parcelable.Creator<WaveRecipe>() {
-        public WaveRecipe createFromParcel(Parcel in) {
-            return new WaveRecipe(in);
-        }
-        
-        public WaveRecipe[] newArray(int size) {
-            return new WaveRecipe[size];
-        }
-    };
-    
-    private WaveRecipe(Parcel in) {
-        
     }
 }

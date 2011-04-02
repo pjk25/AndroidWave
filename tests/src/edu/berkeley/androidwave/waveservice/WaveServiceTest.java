@@ -11,7 +11,7 @@ package edu.berkeley.androidwave.waveservice;
 import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
 import edu.berkeley.androidwave.waveclient.IWaveServicePublic;
-import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorization;
+import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
 import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDataImpl;
 import edu.berkeley.androidwave.waverecipe.WaveRecipe;
 
@@ -182,7 +182,7 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         
         IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
         
-        WaveRecipeAuthorization auth = mService.retrieveAuthorization("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        WaveRecipeAuthorizationInfo auth = mService.retrieveAuthorizationInfo("edu.berkeley.waverecipe.AccelerometerMagnitude");
         assertNull("Test is not authorized and should return null", auth);
         
         // need to simulate authorization and re-call

@@ -8,6 +8,8 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
+import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
+
 import android.hardware.Sensor;
 
 /**
@@ -23,7 +25,7 @@ public class AndroidWaveSensor extends WaveSensor {
     /**
      * WaveSensor
      */
-    public AndroidWaveSensor(WaveSensor.Type t, String units) {
+    public AndroidWaveSensor(WaveSensorDescription.Type t, String units) {
         super(t, units);
     }
 

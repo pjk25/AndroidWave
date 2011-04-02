@@ -8,7 +8,7 @@
 
 package edu.berkeley.androidwave.waveclient;
 
-import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorization;
+import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
 import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
 
 interface IWaveServicePublic {
@@ -34,9 +34,10 @@ interface IWaveServicePublic {
      * retreiveAuthorization
      * 
      * allows a client to retrieve details authorization info for a given
-     * recipe
+     * recipe.  AuthorizationInfo is a limited Parcelable form of a
+     * WaveRecipeAuthorization
      */
-    WaveRecipeAuthorization retrieveAuthorization(in String recipeID);
+    WaveRecipeAuthorizationInfo retrieveAuthorizationInfo(in String recipeID);
     
     /**
      * contstructs and appropriate Intent object with which a client can

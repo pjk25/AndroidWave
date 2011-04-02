@@ -8,8 +8,6 @@
 
 package edu.berkeley.androidwave.waveclient;
 
-import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeOutputData;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -19,7 +17,7 @@ import android.os.Parcelable;
  * Meant to encapsulate the computed output from a recipe, so that it can be
  * sent out to the Wave Client app authorized for that recipe.
  */
-public final class WaveRecipeOutputDataImpl implements WaveRecipeOutputData, Parcelable {
+public final class WaveRecipeOutputDataImpl implements Parcelable {
     
     public int describeContents() {
         return 0;

@@ -2,7 +2,7 @@ package edu.berkeley.androidwave.waveservice;
 
 import edu.berkeley.androidwave.waveclient.IWaveServicePublic;
 import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
-import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorization;
+import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
 
 import android.app.Service;
 import android.content.Context;
@@ -114,7 +114,7 @@ public class WaveService extends Service {
          /**
           * retrieveAuthorization
           */
-         public WaveRecipeAuthorization retrieveAuthorization(String recipeID) {
+         public WaveRecipeAuthorizationInfo retrieveAuthorizationInfo(String recipeID) {
              return null;
          }
          

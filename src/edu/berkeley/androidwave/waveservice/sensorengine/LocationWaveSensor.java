@@ -8,6 +8,8 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
+import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
+
 import android.content.Context;
 
 /**
@@ -19,6 +21,6 @@ import android.content.Context;
 public class LocationWaveSensor extends WaveSensor {
     
     public LocationWaveSensor(Context c) {
-        super(WaveSensor.Type.LOCATION, "");    // TODO: determine units
+        super(WaveSensorDescription.Type.LOCATION, "");    // TODO: determine units
     }
 }

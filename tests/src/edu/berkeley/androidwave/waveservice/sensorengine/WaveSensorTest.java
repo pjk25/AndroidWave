@@ -9,8 +9,8 @@
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
 import edu.berkeley.androidwave.TestUtils;
-import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
-import edu.berkeley.androidwave.waverecipe.WaveSensorChannelDescription;
+import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
+import edu.berkeley.androidwave.waveclient.WaveSensorChannelDescription;
 
 import android.os.Build;
 import android.test.AndroidTestCase;
@@ -35,7 +35,7 @@ public class WaveSensorTest extends AndroidTestCase {
     @Override
     protected void setUp() {
         // create fixture sensors
-        fakeAccelerometer = new WaveSensor(WaveSensor.Type.ACCELEROMETER, "-m/s^2");
+        fakeAccelerometer = new WaveSensor(WaveSensorDescription.Type.ACCELEROMETER, "-m/s^2");
         
         WaveSensorChannel[] channels = { new WaveSensorChannel("X"),
                                          new WaveSensorChannel("Y"),
@@ -52,7 +52,7 @@ public class WaveSensorTest extends AndroidTestCase {
     @SmallTest
     public void testNullParamsInConstructorThrowsNullPointerException() {
         try {
-            new WaveSensor(WaveSensor.Type.MAGNETOMETER, null);
+            new WaveSensor(WaveSensorDescription.Type.MAGNETOMETER, null);
         } catch (Exception ex) {
             System.out.println("testNullParamsInConstructorThrowsNullPointerException:\tex => "+ex);
             assertEquals(NullPointerException.class, ex.getClass());
@@ -67,7 +67,7 @@ public class WaveSensorTest extends AndroidTestCase {
     
     @SmallTest
     public void testGetType() throws Exception {
-        assertEquals("fakeAccelerometer has type ACCELEROMETER", WaveSensor.Type.ACCELEROMETER, fakeAccelerometer.getType());
+        assertEquals("fakeAccelerometer has type ACCELEROMETER", WaveSensorDescription.Type.ACCELEROMETER, fakeAccelerometer.getType());
     }
     
     @SmallTest
@@ -168,7 +168,7 @@ public class WaveSensorTest extends AndroidTestCase {
         TestUtils.assertHasMethod(sig, true, fakeAccelerometer);
         
         // contsruct a matching WaveSensorDescription
-        WaveSensorDescription matchingWsd = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "-m/s^2");
+        WaveSensorDescription matchingWsd = new WaveSensorDescription(WaveSensorDescription.Type.ACCELEROMETER, "-m/s^2");
         // check matches without channels
         assertTrue(fakeAccelerometer.matchesWaveSensorDescription(matchingWsd));
         // check matches with channels
@@ -178,9 +178,9 @@ public class WaveSensorTest extends AndroidTestCase {
         assertTrue(fakeAccelerometer.matchesWaveSensorDescription(matchingWsd));
         
         // construct a non-matching WaveSensorDescription
-        WaveSensorDescription wsd = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "g");
+        WaveSensorDescription wsd = new WaveSensorDescription(WaveSensorDescription.Type.ACCELEROMETER, "g");
         assertFalse(fakeAccelerometer.matchesWaveSensorDescription(wsd));
-        wsd = new WaveSensorDescription(WaveSensor.Type.MAGNETOMETER, "uT");
+        wsd = new WaveSensorDescription(WaveSensorDescription.Type.MAGNETOMETER, "uT");
         assertFalse(fakeAccelerometer.matchesWaveSensorDescription(wsd));
     }
     
@@ -209,11 +209,11 @@ public class WaveSensorTest extends AndroidTestCase {
         WaveSensor magSensor = null;
         WaveSensor locSensor = null;
         for (WaveSensor s : localSensors) {
-            if (s.getType() == WaveSensor.Type.ACCELEROMETER) {
+            if (s.getType() == WaveSensorDescription.Type.ACCELEROMETER) {
                 accelSensor = s;
-            } else if (s.getType() == WaveSensor.Type.MAGNETOMETER) {
+            } else if (s.getType() == WaveSensorDescription.Type.MAGNETOMETER) {
                 magSensor = s;
-            } else if (s.getType() == WaveSensor.Type.LOCATION) {
+            } else if (s.getType() == WaveSensorDescription.Type.LOCATION) {
                 locSensor = s;
             }
         }
@@ -242,12 +242,12 @@ public class WaveSensorTest extends AndroidTestCase {
      */
     @LargeTest
     public void testGetAvailableLocalSensorsByType() throws Exception {
-        Set<WaveSensor> localSensors = WaveSensor.getAvailableLocalSensors(getContext(), WaveSensor.Type.ACCELEROMETER);
+        Set<WaveSensor> localSensors = WaveSensor.getAvailableLocalSensors(getContext(), WaveSensorDescription.Type.ACCELEROMETER);
         
         assertNotNull("getAvailableLocalSensors() should not return null", localSensors);
         
         for (WaveSensor s : localSensors) {
-            assertEquals(WaveSensor.Type.ACCELEROMETER, s.getType());
+            assertEquals(WaveSensorDescription.Type.ACCELEROMETER, s.getType());
         }
     }
 } 

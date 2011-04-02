@@ -1,14 +1,12 @@
 // 
-//  WaveRecipeAuthorization.java
-//  CalFitWaveProject
+//  WaveRecipeAuthorizationInfo.java
+//  AndroidWaveProject
 //  
-//  Created by Philip Kuryloski on 2011-01-26.
+//  Created by Philip Kuryloski on 2011-03-28.
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
 package edu.berkeley.androidwave.waveclient;
-
-import edu.berkeley.androidwave.waverecipe.*;
 
 import android.content.pm.Signature;
 import android.os.Parcel;
@@ -19,18 +17,11 @@ import java.util.HashMap;
 /**
  * WaveRecipeAuthorization
  * 
- * An "instance" of a recipe, as used by client applications. It points to the
- * original verified recipe, but allows multiple client apps to use the same
- * recipe.
+ * Pacelable version of {@link edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization}
  */
-public class WaveRecipeAuthorization implements Parcelable {
+public class WaveRecipeAuthorizationInfo implements Parcelable {
     
-    protected WaveRecipe recipe;
-    
-    protected WaveRecipeLocalDeviceSupportInfo supportInfo;
-    
-    protected String recipeClientName;
-    protected Signature[] recipeClientSignatures;
+    protected String recipeId;
     
     protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxRateMap;
     protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxPrecisionMap;
@@ -38,10 +29,7 @@ public class WaveRecipeAuthorization implements Parcelable {
     protected HashMap<WaveSensorChannelDescription, Double> sensorChannelDescriptionMaxRateMap;
     protected HashMap<WaveSensorChannelDescription, Double> sensorChannelDescriptionMaxPrecisionMap;
     
-    public WaveRecipeAuthorization(WaveRecipeLocalDeviceSupportInfo supportInfo) {
-        this.supportInfo = supportInfo;
-        this.recipe = supportInfo.getAssociatedRecipe();
-
+    public WaveRecipeAuthorizationInfo() {
         sensorDescriptionMaxRateMap = new HashMap<WaveSensorDescription, Double>();
         sensorDescriptionMaxPrecisionMap = new HashMap<WaveSensorDescription, Double>();
         sensorChannelDescriptionMaxRateMap = new HashMap<WaveSensorChannelDescription, Double>();
@@ -75,17 +63,17 @@ public class WaveRecipeAuthorization implements Parcelable {
         
     }
     
-    public static final Parcelable.Creator<WaveRecipeAuthorization> CREATOR = new Parcelable.Creator<WaveRecipeAuthorization>() {
-        public WaveRecipeAuthorization createFromParcel(Parcel in) {
-            return new WaveRecipeAuthorization(in);
+    public static final Parcelable.Creator<WaveRecipeAuthorizationInfo> CREATOR = new Parcelable.Creator<WaveRecipeAuthorizationInfo>() {
+        public WaveRecipeAuthorizationInfo createFromParcel(Parcel in) {
+            return new WaveRecipeAuthorizationInfo(in);
         }
         
-        public WaveRecipeAuthorization[] newArray(int size) {
-            return new WaveRecipeAuthorization[size];
+        public WaveRecipeAuthorizationInfo[] newArray(int size) {
+            return new WaveRecipeAuthorizationInfo[size];
         }
     };
     
-    private WaveRecipeAuthorization(Parcel in) {
+    private WaveRecipeAuthorizationInfo(Parcel in) {
         
     }
 }

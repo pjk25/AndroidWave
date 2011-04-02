@@ -8,8 +8,8 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
-import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
-import edu.berkeley.androidwave.waverecipe.WaveSensorChannelDescription;
+import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
+import edu.berkeley.androidwave.waveclient.WaveSensorChannelDescription;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -25,12 +25,10 @@ import java.util.Set;
 public class WaveSensor {
     protected final String BASE_VERSION = Build.DEVICE + "_" + Build.BOARD + "_" + Build.MODEL;
     
-    public enum Type { ACCELEROMETER, MAGNETOMETER, LOCATION };
-    
     protected static Context mContext;
     protected static Set<WaveSensor> availableLocalSensors = null;
     
-    protected Type type;
+    protected WaveSensorDescription.Type type;
     protected String units;
     
     protected WaveSensorChannel[] channels;
@@ -38,7 +36,7 @@ public class WaveSensor {
     /**
      * WaveSensor
      */
-    public WaveSensor(Type t, String units) throws NullPointerException {
+    public WaveSensor(WaveSensorDescription.Type t, String units) throws NullPointerException {
         if (units == null) throw new NullPointerException("WaveSensor cannot be constructed with null units parameter");
         
         type = t;
@@ -48,7 +46,7 @@ public class WaveSensor {
     /**
      * getType
      */
-    public Type getType() {
+    public WaveSensorDescription.Type getType() {
         return type;
     }
     
@@ -156,7 +154,7 @@ public class WaveSensor {
             Log.d("WaveSensor", "\tsensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) => "+accelSensor);
             if (accelSensor != null) {
                 // we have an accelerometer
-                AndroidWaveSensor waveAccelSensor = new AndroidWaveSensor(Type.ACCELEROMETER, "-m/s^2");
+                AndroidWaveSensor waveAccelSensor = new AndroidWaveSensor(WaveSensorDescription.Type.ACCELEROMETER, "-m/s^2");
                 waveAccelSensor.androidSensor = accelSensor;
                 // It will always have three channels in the current version
                 // of the Android OS
@@ -173,7 +171,7 @@ public class WaveSensor {
             Log.d("WaveSensor", "getAvailableLocalSensors:");
             Log.d("WaveSensor", "\tsensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) => "+magSensor);
             if (magSensor != null) {
-                AndroidWaveSensor waveMagSensor = new AndroidWaveSensor(Type.MAGNETOMETER, "uT"); // micro-Tesla
+                AndroidWaveSensor waveMagSensor = new AndroidWaveSensor(WaveSensorDescription.Type.MAGNETOMETER, "uT"); // micro-Tesla
                 waveMagSensor.androidSensor = magSensor;
                 // Always three channels in current Android OS version
                 WaveSensorChannel[] channels = new WaveSensorChannel[3];
@@ -206,7 +204,7 @@ public class WaveSensor {
      * 
      * Similar to @see #getAvailableLocalSensors, but filters by sensor type
      */
-    public static Set<WaveSensor> getAvailableLocalSensors(Context context, WaveSensor.Type type) {
+    public static Set<WaveSensor> getAvailableLocalSensors(Context context, WaveSensorDescription.Type type) {
         
         Set<WaveSensor> availableLocalSensors = getAvailableLocalSensors(context);
         Set<WaveSensor> resultSet = new HashSet<WaveSensor>();

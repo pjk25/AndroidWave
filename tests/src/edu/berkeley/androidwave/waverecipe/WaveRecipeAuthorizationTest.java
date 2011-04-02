@@ -6,11 +6,10 @@
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waveclient;
+package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.TestUtils;
-import edu.berkeley.androidwave.waverecipe.WaveRecipe;
-import edu.berkeley.androidwave.waverecipe.WaveRecipeLocalDeviceSupportInfo;
+import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
 import edu.berkeley.androidwave.waveservice.sensorengine.SensorEngine;
 
 import java.io.*;
@@ -88,8 +87,19 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
         assertNotNull(descriptionMap);
         assertEquals("sensorChannelDescriptionMaxPrecisionMap size", 0, descriptionMap.size());
     }
-
-    public void testParcelable() throws Exception {
-        fail("test not writen yet");
+    
+    /**
+     * test the asInfo method, which produces a WaveRecipeAuthorizationInfo
+     * object.
+     */
+    @SmallTest
+    public void testAsInfo() {
+        WaveRecipeLocalDeviceSupportInfo supportInfo = sensorEngine.supportInfoForRecipe(recipeOne);
+        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(supportInfo);
+        
+        WaveRecipeAuthorizationInfo info = auth.asInfo();
+        assertNotNull(info);
+        
+        fail("test not finished yet");
     }
 }

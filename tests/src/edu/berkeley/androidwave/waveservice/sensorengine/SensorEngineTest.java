@@ -9,6 +9,7 @@
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
 import edu.berkeley.androidwave.TestUtils;
+import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
 import edu.berkeley.androidwave.waverecipe.*;
 
 import android.test.AndroidTestCase;
@@ -49,14 +50,14 @@ public class SensorEngineTest extends AndroidTestCase {
     public void testAvailableSensorsMatchingWaveSensorDescription() throws Exception {
         // we will test a sensorDescription that does not specify channels,
         // like the AccelerometerMagnitudeRecipe, to test imprecise matching
-        WaveSensorDescription sensorDescription = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "-m/s^2");
+        WaveSensorDescription sensorDescription = new WaveSensorDescription(WaveSensorDescription.Type.ACCELEROMETER, "-m/s^2");
         
         Set<WaveSensor> matchingSensorSet = sensorEngineInstance.availableSensorsMatchingWaveSensorDescription(sensorDescription);
         
         assertEquals("there should be 1 matching sensor", 1, matchingSensorSet.size());
         WaveSensor theMatchingSensor = matchingSensorSet.iterator().next();
         
-        assertEquals("and it should be an accelerometer", WaveSensor.Type.ACCELEROMETER, theMatchingSensor.getType());
+        assertEquals("and it should be an accelerometer", WaveSensorDescription.Type.ACCELEROMETER, theMatchingSensor.getType());
     }
     
     /**
@@ -68,7 +69,7 @@ public class SensorEngineTest extends AndroidTestCase {
     @MediumTest
     public void testStartAndStopAndroidWaveSensor() throws Exception {
         
-        Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensors(getContext(), WaveSensor.Type.ACCELEROMETER);
+        Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensors(getContext(), WaveSensorDescription.Type.ACCELEROMETER);
         assertTrue(accelSensors.size() > 0);
         
         AndroidWaveSensor accelSensor = (AndroidWaveSensor)accelSensors.iterator().next();

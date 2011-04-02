@@ -6,7 +6,7 @@
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waverecipe;
+package edu.berkeley.androidwave.waveclient;
 
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
@@ -27,7 +27,7 @@ public class WaveSensorDescriptionTest extends AndroidTestCase {
     WaveSensorDescription wsd;
     
     public void setUp() {
-        wsd = new WaveSensorDescription(WaveSensor.Type.ACCELEROMETER, "m/s^2");
+        wsd = new WaveSensorDescription(WaveSensorDescription.Type.ACCELEROMETER, "m/s^2");
     }
     
     public void testNewWaveSensorDescriptionHasNoChannels() {
@@ -44,12 +44,16 @@ public class WaveSensorDescriptionTest extends AndroidTestCase {
         assertNotNull(wsd.getExpectedUnits());
         
         // not fixture specific
-        WaveSensorDescription unitlessWsd = new WaveSensorDescription(WaveSensor.Type.MAGNETOMETER, null);
+        WaveSensorDescription unitlessWsd = new WaveSensorDescription(WaveSensorDescription.Type.MAGNETOMETER, null);
         assertFalse(unitlessWsd.hasExpectedUnits());
         assertNull(unitlessWsd.getExpectedUnits());
     }
     
     public void testGetType() {
-        assertEquals(WaveSensor.Type.ACCELEROMETER, wsd.getType());
+        assertEquals(WaveSensorDescription.Type.ACCELEROMETER, wsd.getType());
+    }
+    
+    public void testParcelable() {
+        fail("test not written yet");
     }
 }

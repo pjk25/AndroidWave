@@ -9,6 +9,7 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.TestUtils;
+import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
@@ -98,7 +99,7 @@ public class WaveRecipeTest extends AndroidTestCase {
         WaveSensorDescription[] sensors = recipeOne.getSensors();
         assertEquals("recipeOne has one sensor", 1, sensors.length);
         WaveSensorDescription theSensor = sensors[0];
-        assertEquals("recipeOne's sensor is an accelerometer", WaveSensor.Type.ACCELEROMETER, theSensor.getType());
+        assertEquals("recipeOne's sensor is an accelerometer", WaveSensorDescription.Type.ACCELEROMETER, theSensor.getType());
         assertTrue("sensor has units", theSensor.hasExpectedUnits());
         assertEquals("sensor unit is", "-m/s^2", theSensor.getExpectedUnits());
         

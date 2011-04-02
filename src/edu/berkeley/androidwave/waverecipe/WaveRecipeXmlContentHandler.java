@@ -8,6 +8,8 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
+import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
+import edu.berkeley.androidwave.waveclient.WaveSensorChannelDescription;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
@@ -57,10 +59,10 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         return result;
     }
     
-    protected static WaveSensor.Type waveSensorTypeFromString(String s)
+    protected static WaveSensorDescription.Type waveSensorTypeFromString(String s)
         throws Exception {
         if (s.equalsIgnoreCase("accelerometer")) {
-            return WaveSensor.Type.ACCELEROMETER;
+            return WaveSensorDescription.Type.ACCELEROMETER;
         } else {
             throw new Exception("Unknown sensor type \""+s+"\"");
         }
@@ -131,7 +133,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
             } else if (stag == SubTag.SENSORS) {
                 if (localName.equalsIgnoreCase("sensor")) {
                     try {
-                        WaveSensor.Type t = waveSensorTypeFromString(atts.getValue("type"));
+                        WaveSensorDescription.Type t = waveSensorTypeFromString(atts.getValue("type"));
                         currentSensor = new WaveSensorDescription(t, atts.getValue("units"));
                         String refId = atts.getValue("ref-id");
                         if (refId != null) {

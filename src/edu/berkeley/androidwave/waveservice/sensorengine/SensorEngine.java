@@ -8,9 +8,9 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
+import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
 import edu.berkeley.androidwave.waverecipe.WaveRecipe;
 import edu.berkeley.androidwave.waverecipe.WaveRecipeLocalDeviceSupportInfo;
-import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -65,7 +65,7 @@ public class SensorEngine implements SensorEventListener {
         
         for (WaveSensor candidateSensor : availableLocalSensors) {
             
-            WaveSensor.Type targetType = sensorDescription.getType();
+            WaveSensorDescription.Type targetType = sensorDescription.getType();
             if (candidateSensor.getType() == targetType) {
                 if (sensorDescription.hasChannels()) {
                     // channel descriptions are present, so they must match
