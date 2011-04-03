@@ -25,6 +25,11 @@
                 <action android:name="edu.berkeley.androidwave.intent.action.AUTHORIZE" />
             </intent-filter>
         </activity>
+        <!-- The public service -->
+        <service android:name="edu.berkeley.androidwave.waveservice.WaveService"
+                 android:exported="true" />
+        <!-- The private service -->
+        <!-- <service android:name="edu.berkeley.androidwave.waveservice.WaveService" /> -->
     </application>
     <uses-sdk android:minSdkVersion="4" />
 </manifest> 
