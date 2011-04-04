@@ -84,10 +84,10 @@ public class RecipeAuthorizationActivity extends Activity {
             
             recipeName.setText(theRecipe.getName());
             recipeDescription.setText(theRecipe.getDescription());
+        } else {
+            setResult(RESULT_CANCELED);
+            finish();
         }
-        
-        setResult(RESULT_CANCELED);
-        finish();
     }
     
     private OnClickListener mAuthListener = new OnClickListener() {
