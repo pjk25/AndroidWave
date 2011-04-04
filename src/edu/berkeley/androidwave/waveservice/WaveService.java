@@ -42,7 +42,7 @@ public class WaveService extends Service {
         if (intent.getAction().equals(ACTION_WAVE_SERVICE)) {
             return mPublicBinder;
         }
-        if (intent.getAction().equals(Intent.ACTION_EDIT)) {
+        if (intent.getAction().equals(Intent.ACTION_MAIN)) {
             return mUIBinder;
         }
         return null;

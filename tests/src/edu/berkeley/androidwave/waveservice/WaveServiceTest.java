@@ -85,9 +85,10 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
      */
     @MediumTest
     public void testPrivateBindable() {
-        Intent startIntent = new Intent(Intent.ACTION_EDIT);
+        Intent startIntent = new Intent(Intent.ACTION_MAIN);
         startIntent.setClass(getContext(), WaveService.class);
-        IBinder service = bindService(startIntent); 
+        IBinder service = bindService(startIntent);
+        assertNotNull("service should not be null", service);
     }
     
     @MediumTest
