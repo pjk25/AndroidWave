@@ -30,6 +30,12 @@ public class WaveService extends Service {
     public static final String ACTION_REQUEST_RECIPE_AUTHORIZE = "edu.berkeley.androidwave.intent.action.AUTHORIZE";
     public static final String RECIPE_ID_EXTRA = "recipe_id";
     
+    protected void throwNotImplemented() {
+        String className = getClass().getName();
+        String methodName = Thread.currentThread().getStackTrace()[3].getMethodName();
+        throw new RuntimeException(className+"#"+methodName+" not implemented yet!");
+    }
+    
     @Override
     public IBinder onBind(Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_MAIN)) {
@@ -131,14 +137,16 @@ public class WaveService extends Service {
           * registerRecipeOutputListener
           */
          public boolean registerRecipeOutputListener(IWaveRecipeOutputDataListener listener, boolean includeSensorData) {
-             throw new RuntimeException("not yet implemented");
+             throwNotImplemented();
+             return false;
          }
          
          /**
           * unregisterRecipeOutputListener
           */
          public boolean unregisterRecipeOutputListener(IWaveRecipeOutputDataListener listener) {
-             throw new RuntimeException("not yet implemented");
+             throwNotImplemented();
+             return false;
          }
      };
      
