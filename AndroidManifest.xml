@@ -26,8 +26,11 @@
             </intent-filter>
         </activity>
         <!-- The public service -->
-        <service android:name="edu.berkeley.androidwave.waveservice.WaveService"
-                 android:exported="true" />
+        <service android:name="edu.berkeley.androidwave.waveservice.WaveService">
+            <intent-filter>
+                <action android:name="edu.berkeley.androidwave.intent.action.WAVE_SERVICE" />
+            </intent-filter>
+        </service>
         <!-- The private service -->
         <!-- <service android:name="edu.berkeley.androidwave.waveservice.WaveService" /> -->
     </application>

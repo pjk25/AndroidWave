@@ -92,9 +92,9 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
     
     @MediumTest
     public void testPublicBindable() {
-        Intent startIntent = new Intent(Intent.ACTION_MAIN);
-        startIntent.setClass(getContext(), WaveService.class);
-        IBinder service = bindService(startIntent); 
+        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
+        IBinder service = bindService(startIntent);
+        assertNotNull("service should not be null", service);
     }
     
     /**
@@ -115,9 +115,8 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         /**
          * test the remote calls
          */
-        Intent startIntent = new Intent(Intent.ACTION_MAIN);
-        startIntent.setClass(getContext(), WaveService.class);
-        IBinder service = bindService(startIntent); 
+        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
+        IBinder service = bindService(startIntent);
         
         IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
         assertNotNull(mService);
@@ -135,8 +134,7 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
      */
     @LargeTest
     public void testRecipeExistsNoDownload() throws Exception {
-        Intent startIntent = new Intent(Intent.ACTION_MAIN);
-        startIntent.setClass(getContext(), WaveService.class);
+        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
         IBinder service = bindService(startIntent); 
         
         IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
@@ -160,8 +158,7 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
      */
     @LargeTest
     public void testIsAuthorized() throws Exception {
-        Intent startIntent = new Intent(Intent.ACTION_MAIN);
-        startIntent.setClass(getContext(), WaveService.class);
+        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
         IBinder service = bindService(startIntent); 
         
         IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
@@ -177,8 +174,7 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
      */
     @LargeTest
     public void testRetrieveAuthorization() throws Exception {
-        Intent startIntent = new Intent(Intent.ACTION_MAIN);
-        startIntent.setClass(getContext(), WaveService.class);
+        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
         IBinder service = bindService(startIntent); 
         
         IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
@@ -195,8 +191,7 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
      */
     @LargeTest
     public void testGetAuthorizationIntent() throws Exception {
-        Intent startIntent = new Intent(Intent.ACTION_MAIN);
-        startIntent.setClass(getContext(), WaveService.class);
+        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
         IBinder service = bindService(startIntent); 
         
         IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);

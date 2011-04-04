@@ -27,6 +27,7 @@ import edu.berkeley.androidwave.waverecipe.*;
  */
 public class WaveService extends Service {
     
+    public static final String ACTION_WAVE_SERVICE = "edu.berkeley.androidwave.intent.action.WAVE_SERVICE";
     public static final String ACTION_REQUEST_RECIPE_AUTHORIZE = "edu.berkeley.androidwave.intent.action.AUTHORIZE";
     public static final String RECIPE_ID_EXTRA = "recipe_id";
     
@@ -38,7 +39,7 @@ public class WaveService extends Service {
     
     @Override
     public IBinder onBind(Intent intent) {
-        if (intent.getAction().equals(Intent.ACTION_MAIN)) {
+        if (intent.getAction().equals(ACTION_WAVE_SERVICE)) {
             return mPublicBinder;
         }
         if (intent.getAction().equals(Intent.ACTION_EDIT)) {
