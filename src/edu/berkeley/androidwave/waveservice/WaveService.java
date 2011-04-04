@@ -131,7 +131,14 @@ public class WaveService extends Service {
           * registerRecipeOutputListener
           */
          public boolean registerRecipeOutputListener(IWaveRecipeOutputDataListener listener, boolean includeSensorData) {
-             return false;
+             throw new RuntimeException("not yet implemented");
+         }
+         
+         /**
+          * unregisterRecipeOutputListener
+          */
+         public boolean unregisterRecipeOutputListener(IWaveRecipeOutputDataListener listener) {
+             throw new RuntimeException("not yet implemented");
          }
      };
      

@@ -49,4 +49,9 @@ interface IWaveServicePublic {
      * Register recipe output listener
      */
     boolean registerRecipeOutputListener(in IWaveRecipeOutputDataListener listener, boolean includeSensorData);
+    
+    /**
+     * Unregister recipe output listener
+     */
+    boolean unregisterRecipeOutputListener(in IWaveRecipeOutputDataListener listener);
 }

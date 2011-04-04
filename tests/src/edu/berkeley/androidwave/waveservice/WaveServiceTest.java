@@ -127,6 +127,7 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         mService.isAuthorized("edu.berkeley.waverecipe.AccelerometerMagnitude");
         mService.getAuthorizationIntent("edu.berkeley.waverecipe.AccelerometerMagnitude");
         mService.registerRecipeOutputListener(mListener, false);
+        mService.unregisterRecipeOutputListener(mListener);
     }
     
     /**
