@@ -2,5 +2,6 @@
 <resources>
     <string name="app_name">AndroidWaveActivity</string>
     <string name="main_activity_name">AndroidWave</string>
+    <string name="main_activity_title">AndroidWave Manager</string>
     <string name="auth_activity_name">AndroidWave - Recipe Authorization Request</string>
 </resources>

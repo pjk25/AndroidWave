@@ -18,6 +18,7 @@ public class AndroidWaveActivity extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        setTitle(R.string.main_activity_title);
         setContentView(R.layout.main);
     }
 }
