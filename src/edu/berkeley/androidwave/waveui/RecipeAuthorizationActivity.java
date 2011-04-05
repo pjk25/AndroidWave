@@ -13,6 +13,7 @@ import edu.berkeley.androidwave.waveservice.WaveService;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -46,6 +47,7 @@ public class RecipeAuthorizationActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitleColor(Color.RED);
         setContentView(R.layout.recipe_auth);
         
         // connect to views
