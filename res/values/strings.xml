@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AndroidWaveActivity</string>
+    <string name="main_activity_name">AndroidWave</string>
+    <string name="auth_activity_name">AndroidWave - Recipe Authorization Request</string>
 </resources>
