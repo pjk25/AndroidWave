@@ -8,6 +8,7 @@
 
 package edu.berkeley.androidwave.waveservice;
 
+import edu.berkeley.androidwave.PrivateAccessor;
 import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
 import edu.berkeley.androidwave.waveclient.IWaveServicePublic;
@@ -68,6 +69,31 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
     }
     
     /**
+     * test the recipeInCache private method
+     * 
+     * This test evidences the caching structure
+     */
+    @SmallTest
+    public void recipeInCache() throws Exception {
+        WaveService s = getService();
+        
+        cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveRecipe.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
+        System.out.println("cachedRecipe => "+cachedRecipe);
+        
+        // use PrivateAccessor to call the private method
+        boolean inCache = (Boolean) PrivateAccessor.invokePrivateMethod(s, "recipeInCache", "edu.berkeley.waverecipe.AccelerometerMagnitude");
+        assertTrue(inCache);
+        
+        // now remove it
+        if (!cachedRecipe.delete()) {
+            throw new Exception("could not remove "+cachedRecipe);
+        }
+        
+        inCache = (Boolean) PrivateAccessor.invokePrivateMethod(s, "recipeInCache", "edu.berkeley.waverecipe.AccelerometerMagnitude");
+        assertFalse(inCache);
+    }
+    
+    /**
      * Test basic startup/shutdown of Service
      */
     @SmallTest
@@ -123,35 +149,10 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         assertNotNull(mService);
         
         // for now just make the remote call, without validating the result
-        mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude", false);
         mService.isAuthorized("edu.berkeley.waverecipe.AccelerometerMagnitude");
         mService.getAuthorizationIntent("edu.berkeley.waverecipe.AccelerometerMagnitude");
         mService.registerRecipeOutputListener(mListener, false);
         mService.unregisterRecipeOutputListener(mListener);
-    }
-    
-    /**
-     * test the recipeExists call
-     */
-    @LargeTest
-    public void testRecipeExistsNoDownload() throws Exception {
-        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
-        IBinder service = bindService(startIntent); 
-        
-        IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
-        
-        // we bypass the net download of the recipe and manually cache it
-        cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveRecipe.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
-        System.out.println("cachedRecipe => "+cachedRecipe);
-        
-        assertTrue(mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude", false));
-        
-        // now remove it
-        if (!cachedRecipe.delete()) {
-            throw new Exception("could not remove "+cachedRecipe);
-        }
-        
-        assertFalse(mService.recipeExists("edu.berkeley.waverecipe.AccelerometerMagnitude", false));
     }
     
     /**

@@ -14,19 +14,12 @@ import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
 interface IWaveServicePublic {
     
     /**
-     * recipeExists
-     * 
-     * allows a client to check if a recipeID is valid and available to the
-     * device. {@code search} indicates if the device may search external
-     * recipe repositories.
-     */
-    boolean recipeExists(in String recipeID, boolean search);
-    
-    /**
      * isAuthorized
      * 
      * allows a client to check it if it remains authorized for a given
-     * recipe, so in can launch the WAVE UI with an Intent if necessary
+     * recipe, so in can launch the WAVE UI with an Intent if necessary. We
+     * could also use {@code retrieveAuthorizationInfo}, but this method is
+     * designed to be lighter.
      */
     boolean isAuthorized(in String recipeID);
     

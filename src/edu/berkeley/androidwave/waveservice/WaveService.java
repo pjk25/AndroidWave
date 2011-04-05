@@ -89,27 +89,24 @@ public class WaveService extends Service {
     }
     
     /**
+     * recipeInCache
+     */
+    private boolean recipeInCache(String recipeID) {
+        // check for the recipe in the cache
+        String[] c = WaveRecipe.WAVERECIPE_CACHE_DIR.split(File.separator, 2);
+        File filesDir = getDir(c[0], Context.MODE_PRIVATE);
+        File recipeFile = new File(filesDir, (c.length == 1 ? "" : c[1] + "/")+recipeID+".waverecipe");
+        Log.d(getClass().getSimpleName(), "Checking for cached recipe at "+recipeFile);
+        return recipeFile.exists();
+    }
+
+    
+    /**
      * WAVESERVICE PUBLIC METHODS
      * 
      * @see IWaveServicePublic
      */
      private final IWaveServicePublic.Stub mPublicBinder = new IWaveServicePublic.Stub() {
-         /**
-          * registerRecipe
-          */
-         public boolean recipeExists(String recipeID, boolean search) {
-             // check for the recipe in the cache
-             String[] c = WaveRecipe.WAVERECIPE_CACHE_DIR.split(File.separator, 2);
-             File filesDir = getDir(c[0], Context.MODE_PRIVATE);
-             File recipeFile = new File(filesDir, (c.length == 1 ? "" : c[1] + "/")+recipeID+".waverecipe");
-             Log.d(getClass().getSimpleName(), "Checking for cached recipe at "+recipeFile);
-             boolean cached = recipeFile.exists();
-             if (!cached && search) {
-                // try to download from server
-                throw new RuntimeException("Not implemented yet");
-             }
-             return cached;
-         }
          
          /**
           * isAuthorized
