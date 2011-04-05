@@ -40,6 +40,7 @@ public class PrivateAccessor {
         return null;
     }
 
+    // modified for varargs by pkuryloski
     public static Object invokePrivateMethod(Object o, String methodName,
             Object... params) {
         // Check we have valid arguments...
