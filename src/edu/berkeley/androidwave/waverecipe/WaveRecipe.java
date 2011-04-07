@@ -75,10 +75,12 @@ public class WaveRecipe {
         Signature[] recipeSignatures = recipePackageInfo.signatures;
         Log.d("WaveRecipe", "Loading recipe at "+recipePath);
         if (recipeSignatures == null || recipeSignatures.length == 0) {
-            throw new InvalidSignatureException();
+            //throw new InvalidSignatureException();
         }
-        for (Signature sig : recipeSignatures) {
-            Log.d("WaveRecipe", "\t"+sig);
+        if (recipeSignatures != null) {
+            for (Signature sig : recipeSignatures) {
+                Log.d("WaveRecipe", "\t"+sig);
+            }
         }
         
         WaveRecipe recipe = new WaveRecipe();
