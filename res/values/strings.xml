@@ -4,4 +4,5 @@
     <string name="main_activity_name">AndroidWave</string>
     <string name="main_activity_title">AndroidWave Manager</string>
     <string name="auth_activity_name">AndroidWave - Recipe Authorization Request</string>
+    <string name="wave_service_permission_description">Uses the AndroidWave system for recipe authorization.</string>
 </resources>

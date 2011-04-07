@@ -3,7 +3,15 @@
       package="edu.berkeley.androidwave"
       android:versionCode="1"
       android:versionName="1.0">
+      
+    <permission android:description="@string/wave_service_permission_description"
+                android:label="WaveService"
+                android:name="edu.berkeley.androidwave.permission.WAVE_SERVICE"
+                android:protectionLevel="dangerous" />
 
+    <!-- We use our own permission because we have a local service -->
+    <uses-permission android:name="edu.berkeley.androidwave.permission.WAVE_SERVICE" />
+    
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- <uses-permission android:name="android.permission.READ_PHONE_STATE" /> -->
@@ -27,7 +35,8 @@
             </intent-filter>
         </activity>
         <!-- The public service -->
-        <service android:name="edu.berkeley.androidwave.waveservice.WaveService">
+        <service android:name="edu.berkeley.androidwave.waveservice.WaveService"
+                 android:permission="edu.berkeley.androidwave.permission.WAVE_SERVICE">
             <intent-filter>
                 <action android:name="edu.berkeley.androidwave.intent.action.WAVE_SERVICE" />
             </intent-filter>
