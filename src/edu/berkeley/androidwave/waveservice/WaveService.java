@@ -90,14 +90,13 @@ public class WaveService extends Service {
     }
     
     /**
-     * retrieveRecipeForID
+     * beginRetrieveRecipeForID
      * 
      * this should contact a recipe server, validate (jar has valid sig only)
      * and cache it
      */
-    public File retrieveRecipeForID(String id) {
+    public void beginRetrieveRecipeForID(String id, RecipeRetrievalResponder r) {
         throwNotImplemented();
-        return null;
     }
     
     /**

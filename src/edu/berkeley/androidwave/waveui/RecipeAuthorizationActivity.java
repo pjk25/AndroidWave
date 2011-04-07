@@ -10,6 +10,7 @@ package edu.berkeley.androidwave.waveui;
 
 import edu.berkeley.androidwave.R;
 import edu.berkeley.androidwave.waverecipe.WaveRecipe;
+import edu.berkeley.androidwave.waveservice.RecipeRetrievalResponder;
 import edu.berkeley.androidwave.waveservice.WaveService;
 
 import android.app.Activity;
@@ -38,7 +39,7 @@ import java.io.File;
  * possibly even displaying) this UI. We might need to introduce a download
  * dialog, or possibly another activity
  */
-public class RecipeAuthorizationActivity extends Activity {
+public class RecipeAuthorizationActivity extends Activity implements RecipeRetrievalResponder {
     
     public static final String ACTION_DID_AUTHORIZE = "edu.berkeley.androidwave.intent.action.DID_AUTHORIZE";
     public static final String ACTION_DID_DENY = "edu.berkeley.androidwave.intent.action.DID_DENY";
@@ -72,7 +73,9 @@ public class RecipeAuthorizationActivity extends Activity {
         denyButton = (Button) findViewById(R.id.deny_button);
         
         // more UI setup
+        authButton.setEnabled(false);
         authButton.setOnClickListener(mAuthListener);
+        denyButton.setEnabled(false);
         denyButton.setOnClickListener(mDenyListener);
         
         // connect to WaveService
@@ -122,31 +125,26 @@ public class RecipeAuthorizationActivity extends Activity {
             String recipeId = i.getStringExtra(WaveService.RECIPE_ID_EXTRA);
 
             theRecipe = null;
-            try {
-                File recipeCacheFile = mService.recipeCacheFileForId(recipeId);
-                if (recipeCacheFile != null) {
+            File recipeCacheFile = mService.recipeCacheFileForId(recipeId);
+            if (recipeCacheFile != null) {
+                try {
                     theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile.getPath());
-                } else {
-                    Toast.makeText(RecipeAuthorizationActivity.this, "Attempting to retrieve this recipe…", Toast.LENGTH_SHORT).show();
-                    recipeCacheFile = mService.retrieveRecipeForID(recipeId);
-                    if (recipeCacheFile != null) {
-                        Toast.makeText(RecipeAuthorizationActivity.this, "Failure.", Toast.LENGTH_SHORT).show();
+                    if (theRecipe == null) {
+                        setResult(RESULT_CANCELED);
+                        finish();
                     } else {
-                        Toast.makeText(RecipeAuthorizationActivity.this, "Success!", Toast.LENGTH_SHORT).show();
-                        theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile.getPath());
+                        recipeName.setText(theRecipe.getName());
+                        recipeDescription.setText(theRecipe.getDescription());
+                        authButton.setEnabled(true);
+                        denyButton.setEnabled(true);
                     }
+                } catch (Exception e) {
+                    Toast.makeText(RecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                Toast.makeText(RecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            }
-            
-            if (theRecipe == null) {
-                //setResult(RESULT_CANCELED);
-                //finish();
             } else {
-                recipeName.setText(theRecipe.getName());
-                recipeDescription.setText(theRecipe.getDescription());
+                Toast.makeText(RecipeAuthorizationActivity.this, "Attempting to retrieve this recipe…", Toast.LENGTH_SHORT).show();
+                mService.beginRetrieveRecipeForID(recipeId, this);
             }
         } else {
             setResult(RESULT_CANCELED);
@@ -186,4 +184,18 @@ public class RecipeAuthorizationActivity extends Activity {
             mBound = false;
         }
     };
+    
+    /**
+     * RecipeRetrievalResponder implementation
+     */
+     public void handleRetrievalFailed(String recipeId, String message) {
+         Toast.makeText(RecipeAuthorizationActivity.this, "Recipe retrieval failed.", Toast.LENGTH_SHORT).show();
+         setResult(RESULT_CANCELED);
+         finish();
+     }
+
+     public void handleRetrievalFinished(String recipeId, File f) {
+         
+     }
+
 }
