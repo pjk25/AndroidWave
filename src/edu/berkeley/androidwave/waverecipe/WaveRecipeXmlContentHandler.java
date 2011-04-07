@@ -203,7 +203,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     // clean up the text buffer before storing as the description
                     recipe.description = cleanDescriptionText(textBuffer);
                     textBuffer = "";
-                    Log.d(getClass().getSimpleName(), "Description assigned as \""+recipe.description+"\".");
+                    // Log.d(getClass().getSimpleName(), "Description assigned as \""+recipe.description+"\".");
                 }
             } else if (stag == SubTag.SENSORS) {
                 if (localName.equalsIgnoreCase("sensors")) {
