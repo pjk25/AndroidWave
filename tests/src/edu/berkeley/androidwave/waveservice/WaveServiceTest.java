@@ -74,23 +74,28 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
      * This test evidences the caching structure
      */
     @SmallTest
-    public void recipeInCache() throws Exception {
+    public void testRecipeInCacheFileForId() throws Exception {
+        Intent startIntent = new Intent(Intent.ACTION_MAIN);
+        startIntent.setClass(getContext(), WaveService.class);
+        IBinder service = bindService(startIntent);
+        assertNotNull("service should not be null", service);
         WaveService s = getService();
+        assertNotNull(s);
         
-        cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveRecipe.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
+        cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveService.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
         System.out.println("cachedRecipe => "+cachedRecipe);
         
         // use PrivateAccessor to call the private method
-        boolean inCache = (Boolean) PrivateAccessor.invokePrivateMethod(s, "recipeInCache", "edu.berkeley.waverecipe.AccelerometerMagnitude");
-        assertTrue(inCache);
+        File inCache = (File) PrivateAccessor.invokePrivateMethod(s, "recipeCacheFileForId", "edu.berkeley.waverecipe.AccelerometerMagnitude");
+        assertTrue(inCache.exists());
         
         // now remove it
         if (!cachedRecipe.delete()) {
             throw new Exception("could not remove "+cachedRecipe);
         }
         
-        inCache = (Boolean) PrivateAccessor.invokePrivateMethod(s, "recipeInCache", "edu.berkeley.waverecipe.AccelerometerMagnitude");
-        assertFalse(inCache);
+        inCache = (File) PrivateAccessor.invokePrivateMethod(s, "recipeCacheFileForId", "edu.berkeley.waverecipe.AccelerometerMagnitude");
+        assertNull(inCache);
     }
     
     /**

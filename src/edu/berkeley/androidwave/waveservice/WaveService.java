@@ -52,7 +52,6 @@ public class WaveService extends Service {
     
     /**
      * The UI service is a local binding only as there is only one UI app
-     * It is identified by the ACTION_EDIT Intent
      */
     private final IBinder mUIBinder = new LocalBinder();
     
@@ -60,7 +59,7 @@ public class WaveService extends Service {
      * The associated local binder
      */
     public class LocalBinder extends Binder {
-        WaveService getService() {
+        public WaveService getService() {
             return WaveService.this;
         }
     }
@@ -75,7 +74,7 @@ public class WaveService extends Service {
      * Get an array of all recipes in-use as well as locally installed/stored
      * recipes. @see edu.berkeley.androidwave.waverecipe.WaveRecipe
      */
-    WaveRecipeAuthorization[] deviceRecipeAuthorizations() {
+    public WaveRecipeAuthorization[] deviceRecipeAuthorizations() {
         return null;
     }
     
@@ -86,7 +85,7 @@ public class WaveService extends Service {
      * Get a list of all outgoing data channels the device supports
      * @see WaveDeviceChannel
      */
-    WaveDeviceChannel deviceChannels() {
+    public WaveDeviceChannel deviceChannels() {
         return null;
     }
     
@@ -96,21 +95,22 @@ public class WaveService extends Service {
      * this should contact a recipe server, validate (jar has valid sig only)
      * and cache it
      */
-    private boolean retrieveRecipeForID(String id, int version) {
+    public File retrieveRecipeForID(String id) {
         throwNotImplemented();
-        return false;
+        return null;
     }
     
     /**
-     * recipeInCache
+     * recipeCacheFileForId
      */
-    private boolean recipeInCache(String recipeID) {
-        // check for the recipe in the cache
+    public File recipeCacheFileForId(String id) {
         String[] c = WAVERECIPE_CACHE_DIR.split(File.separator, 2);
         File filesDir = getDir(c[0], Context.MODE_PRIVATE);
-        File recipeFile = new File(filesDir, (c.length == 1 ? "" : c[1] + "/")+recipeID+".waverecipe");
-        Log.d(getClass().getSimpleName(), "Checking for cached recipe at "+recipeFile);
-        return recipeFile.exists();
+        File recipeFile = new File(filesDir, (c.length == 1 ? "" : c[1] + "/")+id+".waverecipe");
+        if (!recipeFile.exists()) {
+            recipeFile = null;
+        }
+        return recipeFile;
     }
 
     
