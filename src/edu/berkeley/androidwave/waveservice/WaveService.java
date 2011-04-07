@@ -30,6 +30,8 @@ public class WaveService extends Service {
     public static final String ACTION_WAVE_SERVICE = "edu.berkeley.androidwave.intent.action.WAVE_SERVICE";
     public static final String ACTION_REQUEST_RECIPE_AUTHORIZE = "edu.berkeley.androidwave.intent.action.AUTHORIZE";
     public static final String RECIPE_ID_EXTRA = "recipe_id";
+    public static final String WAVERECIPE_CACHE_DIR = "waverecipes/cache";
+    
     
     protected void throwNotImplemented() {
         String className = getClass().getName();
@@ -89,11 +91,22 @@ public class WaveService extends Service {
     }
     
     /**
+     * retrieveRecipeForID
+     * 
+     * this should contact a recipe server, validate (jar has valid sig only)
+     * and cache it
+     */
+    private boolean retrieveRecipeForID(String id, int version) {
+        throwNotImplemented();
+        return false;
+    }
+    
+    /**
      * recipeInCache
      */
     private boolean recipeInCache(String recipeID) {
         // check for the recipe in the cache
-        String[] c = WaveRecipe.WAVERECIPE_CACHE_DIR.split(File.separator, 2);
+        String[] c = WAVERECIPE_CACHE_DIR.split(File.separator, 2);
         File filesDir = getDir(c[0], Context.MODE_PRIVATE);
         File recipeFile = new File(filesDir, (c.length == 1 ? "" : c[1] + "/")+recipeID+".waverecipe");
         Log.d(getClass().getSimpleName(), "Checking for cached recipe at "+recipeFile);

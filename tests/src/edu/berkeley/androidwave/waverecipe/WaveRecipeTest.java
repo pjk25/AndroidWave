@@ -55,23 +55,6 @@ public class WaveRecipeTest extends AndroidTestCase {
     }
     
     /**
-     * testRetrieveRecipe
-     *
-     * Retrieve a recipe from a recipe authority.  Note that we need a
-     * running recipe server for this.
-     */
-    public void testCreateFromID() throws Exception {
-        fail("test not written yet");
-        
-        String recipeID = "";
-        int version = 0;
-        
-        WaveRecipe testRecipe = WaveRecipe.createFromID(getContext(), recipeID, version);
-        
-        //assertNotNull(testRecipe);
-    }
-    
-    /**
      * testPreconditions
      * 
      * same as testCreateFromDisk, but base functionality, so labeled

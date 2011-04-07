@@ -40,8 +40,6 @@ public class WaveRecipe {
     
     private static final String DESCRIPTION_XML_PATH = "assets/description.xml";
     
-    public static final String WAVERECIPE_CACHE_DIR = "waverecipes/cache";
-    
     protected String recipeId;
     protected Date version;
     protected String name;
@@ -53,25 +51,6 @@ public class WaveRecipe {
     protected GranularityTable granularityTable;
     
     protected Class<WaveRecipeAlgorithm> algorithmMainClass;
-    
-    /**
-     * createFromUID
-     * 
-     * This should check for a cached version of the recipe, downloading it if
-     * necessary, then instantiating from the downloaded version.
-     */
-    public static WaveRecipe createFromID(Context context, String recipeID, int version)
-            throws Exception {
-        String[] c = WaveRecipe.WAVERECIPE_CACHE_DIR.split(File.separator, 2);
-        File filesDir = context.getDir(c[0], Context.MODE_PRIVATE);
-        File recipeFile = new File(filesDir, (c.length == 1 ? "" : c[1] + "/")+recipeID+".waverecipe");
-        Log.d("WaveRecipe", "Checking for cached recipe at "+recipeFile);
-        if (recipeFile.exists()) {
-            return WaveRecipe.createFromDisk(context, recipeFile.getPath());
-        } else {
-            throw new Exception("Recipe downloading not implemented yet");
-        }
-    }
     
     /**
      * createFromDisk
@@ -91,7 +70,6 @@ public class WaveRecipe {
             throw new InvalidSignatureException();
         }
         
-        /*
         // Use the packagemanager to inspect the apk signature
         PackageInfo recipePackageInfo = context.getPackageManager().getPackageArchiveInfo(recipePath, PackageManager.GET_SIGNATURES);
         Signature[] recipeSignatures = recipePackageInfo.signatures;
@@ -102,7 +80,6 @@ public class WaveRecipe {
         for (Signature sig : recipeSignatures) {
             Log.d("WaveRecipe", "\t"+sig);
         }
-         */
         
         WaveRecipe recipe = new WaveRecipe();
         
@@ -127,18 +104,6 @@ public class WaveRecipe {
         }
         
         return recipe;
-    }
-    
-    /**
-     * retrieveRecipe
-     * 
-     * Retrieve a recipe from a recipe authority.  Note that we need a
-     * running recipe server for this.  This should cache the recipe locally.
-     */
-    protected static boolean retreiveRecipe(String recipeUID)
-        throws InvalidSignatureException {
-        // null implementation
-        return false;
     }
     
     /**
