@@ -27,6 +27,10 @@ import edu.berkeley.androidwave.R;
  * 
  * UI displayed when a client application requests authorization for a given
  * recipe
+ * 
+ * TODO: we now need to check if a recipe exists before populating (or
+ * possibly even displaying) this UI. We might need to introduce a download
+ * dialog, or possibly another activity
  */
 public class RecipeAuthorizationActivity extends Activity {
     
