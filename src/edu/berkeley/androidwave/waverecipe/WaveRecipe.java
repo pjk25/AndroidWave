@@ -74,8 +74,8 @@ public class WaveRecipe {
     public static WaveRecipe createFromDisk(Context context, String recipePath)
         throws Exception {
         
-        // final Object mSync = new Object();
-        // WeakReference<byte[]> mReadBuffer;
+        // TODO: Refactor the certificate code so that we can use in in the
+        //       authorization activity
         
         WeakReference<byte[]> readBufferRef;
         byte[] readBuffer = null;

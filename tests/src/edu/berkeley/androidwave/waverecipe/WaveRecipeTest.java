@@ -40,6 +40,9 @@ import java.util.HashMap;
  *                  needed sensors
  *                  generated outputs
  * 
+ * TODO: add a facitily by which a recipe is noted as signed by a known recipe
+ *       producer
+ * 
  * to run:
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waverecipe.WaveRecipeTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */

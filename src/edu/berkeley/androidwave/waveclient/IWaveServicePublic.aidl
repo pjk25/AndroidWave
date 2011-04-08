@@ -38,6 +38,7 @@ interface IWaveServicePublic {
      */
     Intent getAuthorizationIntent(in String recipeID);
     
+    // TODO: Add recipeId parameter to methods below
     /**
      * Register recipe output listener
      */
