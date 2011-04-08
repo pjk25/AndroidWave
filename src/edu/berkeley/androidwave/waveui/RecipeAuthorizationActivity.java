@@ -17,6 +17,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.*;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -90,18 +91,16 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             e.printStackTrace();
         }
         
-        // get some information about the requesting app
-        String clientActivityName = null;
-        if (getCallingActivity() != null) {
-            clientActivityName = getCallingActivity().toString();
+        // get some name information about the requesting app
+        String callingActivityName = "From: Unknown application";
+        try {
+            PackageManager pm = getPackageManager();
+            ActivityInfo aInfo = pm.getActivityInfo(getCallingActivity(), 0); // might need PackageManager.GET_META_DATA
+            callingActivityName = "From: "+aInfo.loadLabel(pm);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.d(getClass().getSimpleName(), "Exception while getting info for calling activity", e);
         }
-        String clientPackage = getCallingPackage();
-
-        if (clientActivityName != null) {
-            appName.setText(clientActivityName);
-        } else {
-            appName.setText(clientPackage);
-        }
+        appName.setText(callingActivityName);
     }
     
     @Override
