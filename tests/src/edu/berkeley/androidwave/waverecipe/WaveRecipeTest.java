@@ -34,13 +34,11 @@ import java.util.HashMap;
  * object from the Recipe authority.
  * It should have - a unique identifier
  *                  a version
+ *                  a certificate
  *                  a granularity table
  *                  an algorithm representation
  *                  needed sensors
  *                  generated outputs
- * 
- * We use an InstrumentationTestCase so we can use fixtures from the test
- * app's assets
  * 
  * to run:
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waverecipe.WaveRecipeTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
