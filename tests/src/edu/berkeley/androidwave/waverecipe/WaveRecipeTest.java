@@ -15,16 +15,17 @@ import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 import edu.berkeley.androidwave.waveservice.sensorengine.*;
 
-import java.io.*;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import android.content.Context;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
+import java.io.*;
+import java.security.cert.X509Certificate;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 
 /**
  * WaveRecipeTest
@@ -77,6 +78,11 @@ public class WaveRecipeTest extends AndroidTestCase {
         assertEquals("check name", "Accelerometer Magnitude", recipeOne.getName());
         
         assertEquals("check description", "Measures intensity of motion of your device. Representative of your activity level.", recipeOne.getDescription());
+        
+        // check signature information
+        X509Certificate cert = recipeOne.getCertificate();
+        assertNotNull("has certificate", cert);
+        assertEquals("cert DN", "CN=Android Debug, O=Android, C=US", cert.getSubjectDN().toString());
         
         // test the complex fields of the WaveRecipe
         WaveSensorDescription[] sensors = recipeOne.getSensors();
