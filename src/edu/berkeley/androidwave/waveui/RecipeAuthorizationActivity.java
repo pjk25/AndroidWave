@@ -148,6 +148,8 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                     } else {
                         recipeName.setText(theRecipe.getName());
                         recipeDescription.setText(theRecipe.getDescription());
+                        String recipeSigner = theRecipe.getCertificate().getSubjectDN().toString();
+                        recipeSig.setText("Signed by: "+recipeSigner);
                         authButton.setEnabled(true);
                         denyButton.setEnabled(true);
                     }
