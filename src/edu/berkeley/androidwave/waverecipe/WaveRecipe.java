@@ -24,6 +24,7 @@ import java.io.*;
 import java.lang.ref.WeakReference;
 import java.security.CodeSigner;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
@@ -42,6 +43,7 @@ import java.util.jar.JarFile;
  */
 public class WaveRecipe {
     
+    private static final String X509_TYPE = "X.509";
     private static final String DESCRIPTION_XML_PATH = "assets/description.xml";
     
     // for use in loading signatures
@@ -54,8 +56,7 @@ public class WaveRecipe {
     protected String description;
     
     // for the AndroidManifest.xml
-    protected Certificate[] certificates;
-    protected CodeSigner[] codeSigners;
+    protected X509Certificate certificate;
     
     protected WaveSensorDescription[] sensors;
     protected WaveRecipeOutput[] recipeOutputs;
@@ -90,7 +91,6 @@ public class WaveRecipe {
             }
         }
         
-        boolean sigsFailed = true;
         // Check the signatures of the recipe (which is an APK, which is a Jar)
         JarFile recipeApk = new JarFile(recipePath);
         if (recipeApk == null) {
@@ -105,24 +105,18 @@ public class WaveRecipe {
         Log.d("WaveRecipe", "Looking for signatures in "+recipePath+":"+entry.getName());
         // http://androidcracking.blogspot.com/2010/12/getting-apk-signature-outside-of.html
         Certificate[] certs = loadCertificates(recipeApk, entry, readBuffer);
-        CodeSigner[] signers = entry.getCodeSigners();
-        if (certs != null && certs.length > 0) {
-            sigsFailed = false;
-        }
-        if (signers != null && signers.length > 0) {
-            sigsFailed = false;
-        }
-        
-        // check for fail
-        if (sigsFailed) {
+        if (certs == null || certs.length == 0) {
             throw new InvalidSignatureException("No signatures found for AndroidManifest.xml");
+        }
+        Log.d("WaveRecipe", "Discovered signature of type: "+certs[0].getType());
+        if (!certs[0].getType().equals(X509_TYPE)) {
+            throw new InvalidSignatureException("AndroidManifest.xml signature is not an X509 Certificate");
         }
         
         // Recipe is verified and has at least one signature on the AndroidManifest.xml
         WaveRecipe recipe = new WaveRecipe();
         
-        recipe.certificates = certs;
-        recipe.codeSigners = signers;
+        recipe.certificate = (X509Certificate)certs[0];
         
         // Create a loader for this apk
         // http://yenliangl.blogspot.com/2009/11/dynamic-loading-of-classes-in-your.html
@@ -186,6 +180,13 @@ public class WaveRecipe {
      */
     public String getDescription() {
         return description;
+    }
+    
+    /**
+     * getCertificates
+     */
+    public X509Certificate getCertificate() {
+        return certificate;
     }
     
     /**
