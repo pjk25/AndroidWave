@@ -92,15 +92,29 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
         }
         
         // get some name information about the requesting app
+        PackageManager pm = getPackageManager();
         String callingActivityName = "From: Unknown application";
         try {
-            PackageManager pm = getPackageManager();
-            ActivityInfo aInfo = pm.getActivityInfo(getCallingActivity(), 0); // might need PackageManager.GET_META_DATA
+            ActivityInfo aInfo = pm.getActivityInfo(getCallingActivity(), 0);   // may need flag PackageManager.GET_META_DATA
             callingActivityName = "From: "+aInfo.loadLabel(pm);
         } catch (PackageManager.NameNotFoundException e) {
             Log.d(getClass().getSimpleName(), "Exception while getting info for calling activity", e);
         }
         appName.setText(callingActivityName);
+        
+        // get some signature information about the requesting app
+        String callingActivitySigString = "Signed: Unknown";
+        try {
+            PackageInfo pInfo = pm.getPackageInfo(getCallingPackage(), PackageManager.GET_SIGNATURES);
+            Signature[] sigs = pInfo.signatures;
+            if (sigs != null && sigs.length > 0) {
+                String sigAscii = sigs[0].toCharsString();
+                callingActivitySigString = "Signed: "+sigAscii.substring(0,20)+"…";
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.d(getClass().getSimpleName(), "Exception while getting signature info for calling package", e);
+        }
+        appSig.setText(callingActivitySigString);
     }
     
     @Override
