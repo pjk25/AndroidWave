@@ -21,8 +21,12 @@ import android.content.pm.*;
 import android.util.Log;
 import android.util.Xml;
 import java.io.*;
+import java.lang.ref.WeakReference;
+import java.security.CodeSigner;
 import java.security.cert.Certificate;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
@@ -40,10 +44,16 @@ public class WaveRecipe {
     
     private static final String DESCRIPTION_XML_PATH = "assets/description.xml";
     
+    // for use in loading signatures
+    private static final Object mSync = new Object();
+    private static WeakReference<byte[]> mReadBuffer;
+    
     protected String recipeId;
     protected Date version;
     protected String name;
     protected String description;
+    
+    protected Certificate[] certificates;
     
     protected WaveSensorDescription[] sensors;
     protected WaveRecipeOutput[] recipeOutputs;
@@ -61,29 +71,69 @@ public class WaveRecipe {
     public static WaveRecipe createFromDisk(Context context, String recipePath)
         throws Exception {
         
-        // recipePath should point to an apk.  We need to examine the
-        // signature of the apk somehow
+        // final Object mSync = new Object();
+        // WeakReference<byte[]> mReadBuffer;
         
-        // for now we just see if it has a signature
-        JarFile recipeApk = new JarFile(recipePath, true);
+        WeakReference<byte[]> readBufferRef;
+        byte[] readBuffer = null;
+        synchronized (mSync) {
+            readBufferRef = mReadBuffer;
+            if (readBufferRef != null) {
+                mReadBuffer = null;
+                readBuffer = readBufferRef.get();
+            }
+            if (readBuffer == null) {
+                readBuffer = new byte[8192];
+                readBufferRef = new WeakReference<byte[]>(readBuffer);
+            }
+        }
+        
+        boolean sigsFailed = true;
+        // Check the signatures of the recipe (which is an APK, which is a Jar)
+        JarFile recipeApk = new JarFile(recipePath);
         if (recipeApk == null) {
             throw new InvalidSignatureException();
         }
         
-        // Use the packagemanager to inspect the apk signature
-        PackageInfo recipePackageInfo = context.getPackageManager().getPackageArchiveInfo(recipePath, PackageManager.GET_SIGNATURES);
-        Signature[] recipeSignatures = recipePackageInfo.signatures;
-        Log.d("WaveRecipe", "Loading recipe at "+recipePath);
-        if (recipeSignatures == null || recipeSignatures.length == 0) {
-            //throw new InvalidSignatureException();
-        }
-        if (recipeSignatures != null) {
-            for (Signature sig : recipeSignatures) {
-                Log.d("WaveRecipe", "\t"+sig);
+        // we set sigsFailed false if just one signature is found.
+        JarEntry entry;
+        Enumeration<JarEntry> theEntries = recipeApk.entries();
+        while (theEntries.hasMoreElements()) {
+            entry = theEntries.nextElement();
+            // skip entries with no sigs
+            if (entry.isDirectory() || entry.getName().startsWith("META-INF/")) {
+                continue;
+            }
+            
+            Log.d("WaveRecipe", "Looking for signatures in "+recipePath+":"+entry.getName());
+            // http://androidcracking.blogspot.com/2010/12/getting-apk-signature-outside-of.html
+            Certificate[] certs = loadCertificates(recipeApk, entry, readBuffer);
+            CodeSigner[] signers = entry.getCodeSigners();
+            if (certs != null) {
+                Log.d("WaveRecipe", "\t"+certs.length+" certificates found.");
+                for (Certificate c : certs) {
+                    Log.d("WaveRecipe", "\t\t"+c);
+                    sigsFailed = false;
+                }
+            }
+            if (signers != null) {
+                Log.d("WaveRecipe", "\t"+signers.length+" code signers found.");
+                for (CodeSigner cs : signers) {
+                    Log.d("WaveRecipe", "\t\t"+cs);
+                    sigsFailed = false;
+                }
             }
         }
         
+        // check for fail
+        if (sigsFailed) {
+            throw new InvalidSignatureException();
+        }
+        
+        // Recipe is verified and has at least one signature on the AndroidManifest.xml
         WaveRecipe recipe = new WaveRecipe();
+        
+        //recipe.certificates = certs;
         
         // Create a loader for this apk
         // http://yenliangl.blogspot.com/2009/11/dynamic-loading-of-classes-in-your.html
@@ -193,5 +243,32 @@ public class WaveRecipe {
     @Override
     public String toString() {
         return String.format("%s(%s-%s)", this.getClass().getSimpleName(), recipeId, version);
+    }
+    
+    /**
+     * Private Methods
+     */
+    
+    /**
+     * loadSignatures
+     * 
+     * from http://androidcracking.blogspot.com/2010/12/getting-apk-signature-outside-of.html
+     */
+    private static java.security.cert.Certificate[] loadCertificates(JarFile jarFile, JarEntry je, byte[] readBuffer) {
+        try {
+            // We must read the stream for the JarEntry to retrieve
+            // its certificates.
+            InputStream is = jarFile.getInputStream(je);
+            while (is.read(readBuffer, 0, readBuffer.length) != -1) {
+                // not using
+            }
+            is.close();
+
+            return (java.security.cert.Certificate[]) (je != null ? je.getCertificates() : null);
+        } catch (IOException e) {
+            System.err.println("Exception reading " + je.getName() + " in "
+                + jarFile.getName() + ": " + e);
+        }
+        return null;
     }
 }

@@ -114,7 +114,5 @@ public class WaveRecipeTest extends AndroidTestCase {
         Object algorithmInstanceAsObject = recipeOne.getAlgorithmInstance();
         assertNotNull("algorithmMainClass can be instantiated", algorithmInstanceAsObject);
         MoreAsserts.assertAssignableFrom(WaveRecipeAlgorithm.class, algorithmInstanceAsObject);
-        
-        fail("we are not testing package signatures fully yet.");
     }
 }
