@@ -10,4 +10,11 @@ package edu.berkeley.androidwave.waveexception;
 
 public class InvalidSignatureException extends Exception {
     
+    public InvalidSignatureException() {
+        super();
+    }
+    
+    public InvalidSignatureException(String detailMessage) {
+        super(detailMessage);
+    }
 }
