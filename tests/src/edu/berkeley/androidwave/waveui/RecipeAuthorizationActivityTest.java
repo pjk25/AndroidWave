@@ -30,6 +30,7 @@ public class RecipeAuthorizationActivityTest extends ActivityInstrumentationTest
     File cachedRecipe = null;
 
     public RecipeAuthorizationActivityTest() {
+        // TODO: consider adjusting package name
         super("edu.berkeley.androidwave.waveui", RecipeAuthorizationActivity.class);
     }
     
@@ -65,7 +66,7 @@ public class RecipeAuthorizationActivityTest extends ActivityInstrumentationTest
      * Some UI testing
      */
     public void testUILayout() throws Exception {
-        cachedRecipe = TestUtils.copyTestAssetToInternal(getInstrumentation().getTargetContext(), "fixtures/waverecipes/one.waverecipe", WaveRecipe.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
+        cachedRecipe = TestUtils.copyTestAssetToInternal(getInstrumentation().getTargetContext(), "fixtures/waverecipes/one.waverecipe", WaveService.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
         System.out.println("cachedRecipe => "+cachedRecipe);
         assertTrue("recipe is cached", cachedRecipe.exists());
         

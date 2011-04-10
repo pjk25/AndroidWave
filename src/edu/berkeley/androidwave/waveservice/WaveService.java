@@ -96,7 +96,7 @@ public class WaveService extends Service {
      * and cache it
      */
     public void beginRetrieveRecipeForID(String id, RecipeRetrievalResponder r) {
-        throwNotImplemented();
+        r.handleRetrievalFailed(id, "beginRetrieveRecipeForID not implemented yet.");
     }
     
     /**

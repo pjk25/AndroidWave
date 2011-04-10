@@ -36,9 +36,7 @@ import java.io.File;
  * UI displayed when a client application requests authorization for a given
  * recipe
  * 
- * TODO: we now need to check if a recipe exists before populating (or
- * possibly even displaying) this UI. We might need to introduce a download
- * dialog, or possibly another activity
+ * TODO: Handle download progress, failure and success updates from the service
  */
 public class RecipeAuthorizationActivity extends Activity implements RecipeRetrievalResponder {
     
@@ -91,30 +89,34 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             e.printStackTrace();
         }
         
-        // get some name information about the requesting app
-        PackageManager pm = getPackageManager();
-        String callingActivityName = "From: Unknown application";
         try {
-            ActivityInfo aInfo = pm.getActivityInfo(getCallingActivity(), 0);   // may need flag PackageManager.GET_META_DATA
-            callingActivityName = "From: "+aInfo.loadLabel(pm);
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.d(getClass().getSimpleName(), "Exception while getting info for calling activity", e);
-        }
-        appName.setText(callingActivityName);
-        
-        // get some signature information about the requesting app
-        String callingActivitySigString = "Signed: Unknown";
-        try {
-            PackageInfo pInfo = pm.getPackageInfo(getCallingPackage(), PackageManager.GET_SIGNATURES);
-            Signature[] sigs = pInfo.signatures;
-            if (sigs != null && sigs.length > 0) {
-                String sigAscii = sigs[0].toCharsString();
-                callingActivitySigString = "Signed: "+sigAscii.substring(0,20)+"…";
+            // get some name information about the requesting app
+            PackageManager pm = getPackageManager();
+            String callingActivityName = "From: Unknown application";
+            try {
+                ActivityInfo aInfo = pm.getActivityInfo(getCallingActivity(), 0);   // may need flag PackageManager.GET_META_DATA
+                callingActivityName = "From: "+aInfo.loadLabel(pm);
+            } catch (PackageManager.NameNotFoundException nnfe) {
+                Log.d(getClass().getSimpleName(), "NameNotFoundException while getting info for calling activity", nnfe);
             }
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.d(getClass().getSimpleName(), "Exception while getting signature info for calling package", e);
+            appName.setText(callingActivityName);
+        
+            // get some signature information about the requesting app
+            String callingActivitySigString = "Signed: Unknown";
+            try {
+                PackageInfo pInfo = pm.getPackageInfo(getCallingPackage(), PackageManager.GET_SIGNATURES);
+                Signature[] sigs = pInfo.signatures;
+                if (sigs != null && sigs.length > 0) {
+                    String sigAscii = sigs[0].toCharsString();
+                    callingActivitySigString = "Signed: "+sigAscii.substring(0,20)+"…";
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.d(getClass().getSimpleName(), "Exception while getting signature info for calling package", e);
+            }
+            appSig.setText(callingActivitySigString);
+        } catch (Exception e) {
+            Log.d(getClass().getSimpleName(), "Exeption while getting info for calling activity", e);
         }
-        appSig.setText(callingActivitySigString);
     }
     
     @Override
@@ -127,8 +129,6 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
         }
     }
     
-    // TODO: modify this so it waits for recipe download, so that the ui comes
-    // up.
     private void afterBind() {
         // check in with the service about the status of this recipe
         if (mBound) {
