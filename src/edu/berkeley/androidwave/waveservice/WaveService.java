@@ -146,7 +146,7 @@ public class WaveService extends Service {
          /**
           * registerRecipeOutputListener
           */
-         public boolean registerRecipeOutputListener(IWaveRecipeOutputDataListener listener, boolean includeSensorData) {
+         public boolean registerRecipeOutputListener(String recipeId, IWaveRecipeOutputDataListener listener) {
              throwNotImplemented();
              return false;
          }
@@ -154,7 +154,7 @@ public class WaveService extends Service {
          /**
           * unregisterRecipeOutputListener
           */
-         public boolean unregisterRecipeOutputListener(IWaveRecipeOutputDataListener listener) {
+         public boolean unregisterRecipeOutputListener(String recipeId, IWaveRecipeOutputDataListener listener) {
              throwNotImplemented();
              return false;
          }

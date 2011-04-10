@@ -154,10 +154,11 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         assertNotNull(mService);
         
         // for now just make the remote call, without validating the result
-        mService.isAuthorized("edu.berkeley.waverecipe.AccelerometerMagnitude");
-        mService.getAuthorizationIntent("edu.berkeley.waverecipe.AccelerometerMagnitude");
-        mService.registerRecipeOutputListener(mListener, false);
-        mService.unregisterRecipeOutputListener(mListener);
+        String recipeId = "edu.berkeley.waverecipe.AccelerometerMagnitude";
+        mService.isAuthorized(recipeId);
+        mService.getAuthorizationIntent(recipeId);
+        mService.registerRecipeOutputListener(recipeId, mListener);
+        mService.unregisterRecipeOutputListener(recipeId, mListener);
     }
     
     /**

@@ -38,14 +38,13 @@ interface IWaveServicePublic {
      */
     Intent getAuthorizationIntent(in String recipeID);
     
-    // TODO: Add recipeId parameter to methods below
     /**
      * Register recipe output listener
      */
-    boolean registerRecipeOutputListener(in IWaveRecipeOutputDataListener listener, boolean includeSensorData);
+    boolean registerRecipeOutputListener(in String recipeId, in IWaveRecipeOutputDataListener listener);
     
     /**
      * Unregister recipe output listener
      */
-    boolean unregisterRecipeOutputListener(in IWaveRecipeOutputDataListener listener);
+    boolean unregisterRecipeOutputListener(in String recipeId, in IWaveRecipeOutputDataListener listener);
 }
