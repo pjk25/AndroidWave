@@ -26,6 +26,7 @@ public class WaveSensorDescriptionTest extends AndroidTestCase {
     
     WaveSensorDescription wsd;
     
+    @Override
     public void setUp() {
         wsd = new WaveSensorDescription(WaveSensorDescription.Type.ACCELEROMETER, "m/s^2");
     }
@@ -53,7 +54,9 @@ public class WaveSensorDescriptionTest extends AndroidTestCase {
         assertEquals(WaveSensorDescription.Type.ACCELEROMETER, wsd.getType());
     }
     
-    public void testParcelable() {
-        fail("test not written yet");
+    public void testLocalStringRepresentation() {
+        // the local string representation allows us to record an authorization
+        // in a simple serializable form on this device
+        assertEquals("", wsd.localStringRepresentation());
     }
 }

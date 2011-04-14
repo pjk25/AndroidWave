@@ -6,10 +6,8 @@
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waveclient;
+package edu.berkeley.androidwave.waverecipe;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import java.util.Vector;
 
 /**
@@ -20,7 +18,7 @@ import java.util.Vector;
  * of a sensor that can be met, so may be generic, or very precise, depending
  * on the nature of the algorithm.
  */
-public class WaveSensorDescription implements Parcelable {
+public class WaveSensorDescription {
     
     public enum Type { ACCELEROMETER, MAGNETOMETER, LOCATION };
     
@@ -77,30 +75,5 @@ public class WaveSensorDescription implements Parcelable {
      */
     public boolean addChannel(WaveSensorChannelDescription c) {
         return channels.add(c);
-    }
-
-    /**
-     * Parcelable Methods
-     */
-    public int describeContents() {
-        return 0;
-    }
-    
-    public void writeToParcel(Parcel dest, int flags) {
-        
-    }
-    
-    public static final Parcelable.Creator<WaveSensorDescription> CREATOR = new Parcelable.Creator<WaveSensorDescription>() {
-        public WaveSensorDescription createFromParcel(Parcel in) {
-            return new WaveSensorDescription(in);
-        }
-        
-        public WaveSensorDescription[] newArray(int size) {
-            return new WaveSensorDescription[size];
-        }
-    };
-    
-    private WaveSensorDescription(Parcel in) {
-        
     }
 }

@@ -59,7 +59,7 @@ public class WaveRecipe {
     protected X509Certificate certificate;
     
     protected WaveSensorDescription[] sensors;
-    protected WaveRecipeOutput[] recipeOutputs;
+    protected WaveRecipeOutput recipeOutput;
     
     protected GranularityTable granularityTable;
     
@@ -203,8 +203,8 @@ public class WaveRecipe {
      * 
      * @see WaveRecipeOutput
      */
-    public WaveRecipeOutput[] getRecipeOutputs() {
-        return recipeOutputs;
+    public WaveRecipeOutput getRecipeOutput() {
+        return recipeOutput;
     }
     
     /**

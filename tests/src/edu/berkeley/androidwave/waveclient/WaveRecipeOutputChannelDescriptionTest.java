@@ -6,7 +6,7 @@
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waverecipe;
+package edu.berkeley.androidwave.waveclient;
 
 import edu.berkeley.androidwave.TestUtils;
 
@@ -32,5 +32,9 @@ public class WaveRecipeOutputChannelTest extends AndroidTestCase {
     public void testName() {
         TestUtils.assertHasMethod("public java.lang.String edu.berkeley.androidwave.waverecipe.WaveRecipeOutputChannel.getName()", anOutputChannel);
         assertEquals("magnitude", anOutputChannel.getName());
+    }
+    
+    public void testParcelable() {
+        fail("test not written yet");
     }
 }

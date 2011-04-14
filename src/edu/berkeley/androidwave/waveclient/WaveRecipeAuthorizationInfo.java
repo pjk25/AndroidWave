@@ -22,36 +22,13 @@ import java.util.HashMap;
 public class WaveRecipeAuthorizationInfo implements Parcelable {
     
     protected String recipeId;
-    
-    protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxRateMap;
-    protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxPrecisionMap;
-    
-    protected HashMap<WaveSensorChannelDescription, Double> sensorChannelDescriptionMaxRateMap;
-    protected HashMap<WaveSensorChannelDescription, Double> sensorChannelDescriptionMaxPrecisionMap;
-    
-    public WaveRecipeAuthorizationInfo() {
-        sensorDescriptionMaxRateMap = new HashMap<WaveSensorDescription, Double>();
-        sensorDescriptionMaxPrecisionMap = new HashMap<WaveSensorDescription, Double>();
-        sensorChannelDescriptionMaxRateMap = new HashMap<WaveSensorChannelDescription, Double>();
-        sensorChannelDescriptionMaxPrecisionMap = new HashMap<WaveSensorChannelDescription, Double>();
-    }
-    
-    public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxRateMap() {
-        return sensorDescriptionMaxRateMap;
-    }
-    
-    public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxPrecisionMap() {
-        return sensorDescriptionMaxPrecisionMap;
-    }
-    
-    public HashMap<WaveSensorChannelDescription, Double> getSensorChannelDescriptionMaxRateMap() {
-        return sensorChannelDescriptionMaxRateMap;
-    }
-    
-    public HashMap<WaveSensorChannelDescription, Double> getSensorChannelDescriptionMaxPrecisionMap() {
-        return sensorChannelDescriptionMaxPrecisionMap;
-    }
 
+    protected WaveRecipeOutputDescription recipeOutputDescription;
+    
+    protected double outputMaxRate;
+    protected double outputMaxPrecision;
+    
+    
     /**
      * Parcelable Methods
      */

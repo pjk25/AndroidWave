@@ -31,7 +31,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     protected String textBuffer;
     boolean inRecipe;
     
-    public enum SubTag { NONE, SENSORS, OUTPUTS, TABLE, ALG };
+    public enum SubTag { NONE, SENSORS, OUTPUT, TABLE, ALG };
     SubTag stag = SubTag.NONE;
     
     HashMap<String, Object> referenceMap;
@@ -39,8 +39,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     Vector<WaveSensorDescription> sensors;
     protected WaveSensorDescription currentSensor;
     
-    Vector<WaveRecipeOutput> outputs;
-    protected WaveRecipeOutput currentOutput;
+    protected WaveRecipeOutput recipeOutput;
     
     protected GranularityTable granularityTable;
     
@@ -93,8 +92,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         sensors = new Vector();
         currentSensor = null;
         
-        outputs = new Vector();
-        currentOutput = null;
+        recipeOutput = null;
         
         granularityTable = null;
     }
@@ -115,8 +113,9 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     textBuffer = "";
                 } else if (localName.equalsIgnoreCase("sensors")) {
                     stag = SubTag.SENSORS;
-                } else if (localName.equalsIgnoreCase("outputs")) {
-                    stag = SubTag.OUTPUTS;
+                } else if (localName.equalsIgnoreCase("output")) {
+                    recipeOutput = new WaveRecipeOutput(atts.getValue("name"), atts.getValue("units"));
+                    stag = SubTag.OUTPUT;
                 } else if (localName.equalsIgnoreCase("granularity-table")) {
                     String tableType = atts.getValue("type");
                     if (tableType.equalsIgnoreCase("continuous")) {
@@ -150,11 +149,9 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                         referenceMap.put(refId, currentChannel);
                     }
                 }
-            } else if (stag == SubTag.OUTPUTS) {
-                if (localName.equalsIgnoreCase("output")) {
-                    currentOutput = new WaveRecipeOutput(atts.getValue("name"), atts.getValue("units"));
-                } else if (localName.equalsIgnoreCase("channel")) {
-                    currentOutput.addChannel(new WaveRecipeOutputChannel(atts.getValue("name")));
+            } else if (stag == SubTag.OUTPUT) {
+                if (localName.equalsIgnoreCase("channel")) {
+                    recipeOutput.addChannel(new WaveRecipeOutputChannel(atts.getValue("name")));
                 }
             } else if (stag == SubTag.TABLE) {
                 // the rate and precision tags currently have no attributes,
@@ -215,14 +212,10 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     // here, but it shouldn't be necessary
                     sensors.add(currentSensor);
                 }
-            } else if (stag == SubTag.OUTPUTS) {
-                if (localName.equalsIgnoreCase("outputs")) {
-                    // finalize outputs array
-                    recipe.recipeOutputs = outputs.toArray(new WaveRecipeOutput[0]);
+            } else if (stag == SubTag.OUTPUT) {
+                if (localName.equalsIgnoreCase("output")) {
+                    recipe.recipeOutput = recipeOutput;
                     stag = SubTag.NONE;
-                } else if (localName.equalsIgnoreCase("output")) {
-                    // finalize output reference
-                    outputs.add(currentOutput);
                 }
             } else if (stag == SubTag.TABLE) {
                 if (localName.equalsIgnoreCase("granularity-table")) {

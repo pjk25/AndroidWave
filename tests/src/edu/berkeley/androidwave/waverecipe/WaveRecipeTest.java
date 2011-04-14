@@ -93,9 +93,7 @@ public class WaveRecipeTest extends AndroidTestCase {
         assertTrue("sensor has units", theSensor.hasExpectedUnits());
         assertEquals("sensor unit is", "-m/s^2", theSensor.getExpectedUnits());
         
-        WaveRecipeOutput[] recipeOutputs = recipeOne.getRecipeOutputs();
-        assertEquals("recipeOne has one output", 1, recipeOutputs.length);
-        WaveRecipeOutput theOutput = recipeOutputs[0];
+        WaveRecipeOutput theOutput = recipeOne.getRecipeOutput();
         assertEquals("recipeOne's output name is ", "AccelerometerMagnitude", theOutput.getName());
         assertEquals("recipeOne's output has units of g", "g", theOutput.getUnits());
         WaveRecipeOutputChannel[] outputChannels = theOutput.getChannels();

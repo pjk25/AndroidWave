@@ -15,12 +15,13 @@
         </sensor>
         <!-- Calibration information can be included within the sensor tags -->
     </sensors>
-    <outputs>
-        <output name="AccelerometerMagnitude" units="g">
-            <!-- Any output must describe at least one channel -->
-            <channel name="magnitude" />
-        </output>
-    </outputs>
+    <!-- We only support one output, albeit with multiple channels.
+         This simplifies the rest of the description, where there is only one
+         granularity table and one algorithm specified as well. -->
+    <output name="AccelerometerMagnitude" units="g">
+        <!-- Any output must describe at least one channel -->
+        <channel name="magnitude" />
+    </output>
     <granularity-table type="continuous">
         <rate>#input_accelerometer</rate><!-- #ref-id references rate information from an incoming sensor-->
         <precision>#input_accelerometer</precision><!-- need to confirm accuracy of this in the case of vector magnitude -->

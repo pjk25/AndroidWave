@@ -38,4 +38,8 @@ public class WaveRecipeOutputTest extends AndroidTestCase {
         TestUtils.assertHasMethod("public java.lang.String edu.berkeley.androidwave.waverecipe.WaveRecipeOutput.getUnits()", anOutput);
         assertEquals("g", anOutput.getUnits());
     }
+    
+    public void testParcelable() {
+        fail("test not written yet");
+    }
 }

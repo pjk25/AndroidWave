@@ -1,18 +1,24 @@
 // 
-//  WaveRecipeOutputChannel.java
+//  WaveSensorChannelDescription.java
 //  AndroidWaveProject
 //  
-//  Created by Philip Kuryloski on 2011-02-23.
+//  Created by Philip Kuryloski on 2011-02-22.
 //  Copyright 2011 Philip Kuryloski. All rights reserved.
 // 
 
 package edu.berkeley.androidwave.waverecipe;
 
-public class WaveRecipeOutputChannel {
+/**
+ * WaveSensorChannelDescription
+ *
+ * @see WaveSensor
+ */
+
+public class WaveSensorChannelDescription {
     
     protected String name;
     
-    public WaveRecipeOutputChannel(String name) {
+    public WaveSensorChannelDescription(String name) {
         this.name = name;
     }
     
