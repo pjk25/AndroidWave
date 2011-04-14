@@ -22,13 +22,13 @@ public class WaveRecipeOutputDescription implements Parcelable {
     protected String name;
     protected String units;
     
-    protected Vector<WaveRecipeOutputChannel> channels;
+    protected Vector<WaveRecipeOutputChannelDescription> channels;
     
     public WaveRecipeOutputDescription(String name, String units) {
         this.name = name;
         this.units = units;
         
-        channels = new Vector<WaveRecipeOutputChannel>();
+        channels = new Vector<WaveRecipeOutputChannelDescription>();
     }
     
     /**
@@ -49,7 +49,7 @@ public class WaveRecipeOutputDescription implements Parcelable {
      * getChannels
      */
     public WaveRecipeOutputChannelDescription[] getChannels() {
-        return channels.toArray(new WaveRecipeOutputChannel[0]);
+        return channels.toArray(new WaveRecipeOutputChannelDescription[0]);
     }
 
     /**

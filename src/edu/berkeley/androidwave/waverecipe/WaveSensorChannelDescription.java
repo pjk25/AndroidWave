@@ -22,7 +22,17 @@ public class WaveSensorChannelDescription {
         this.name = name;
     }
     
+    /**
+     * getName
+     */
     public String getName() {
         return name;
+    }
+    
+    /**
+     * localStringRepresentation
+     */
+    protected String localStringRepresentation() {
+        return null;
     }
 }

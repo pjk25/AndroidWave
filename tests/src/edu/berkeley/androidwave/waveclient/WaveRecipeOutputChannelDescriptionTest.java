@@ -21,16 +21,15 @@ import android.test.suitebuilder.annotation.SmallTest;
  * to run:
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waverecipe.WaveRecipeOutputChannelTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
-public class WaveRecipeOutputChannelTest extends AndroidTestCase {
+public class WaveRecipeOutputChannelDescriptionTest extends AndroidTestCase {
     
-    WaveRecipeOutputChannel anOutputChannel;
+    WaveRecipeOutputChannelDescription anOutputChannel;
     
     public void setUp() {
-        anOutputChannel = new WaveRecipeOutputChannel("magnitude");
+        anOutputChannel = new WaveRecipeOutputChannelDescription("magnitude");
     }
     
     public void testName() {
-        TestUtils.assertHasMethod("public java.lang.String edu.berkeley.androidwave.waverecipe.WaveRecipeOutputChannel.getName()", anOutputChannel);
         assertEquals("magnitude", anOutputChannel.getName());
     }
     

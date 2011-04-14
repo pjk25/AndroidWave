@@ -76,4 +76,11 @@ public class WaveSensorDescription {
     public boolean addChannel(WaveSensorChannelDescription c) {
         return channels.add(c);
     }
+    
+    /**
+     * localStringRepresentation
+     */
+    protected String localStringRepresentation() {
+        return null;
+    }
 }
