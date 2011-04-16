@@ -9,8 +9,7 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveexception.*;
-import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
-import edu.berkeley.androidwave.waveclient.WaveSensorChannelDescription;
+import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDescription;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
@@ -59,7 +58,7 @@ public class WaveRecipe {
     protected X509Certificate certificate;
     
     protected WaveSensorDescription[] sensors;
-    protected WaveRecipeOutput recipeOutput;
+    protected WaveRecipeOutputDescription recipeOutput;
     
     protected GranularityTable granularityTable;
     
@@ -199,11 +198,11 @@ public class WaveRecipe {
     }
     
     /**
-     * getRecipeOutputs
+     * getOutputs
      * 
      * @see WaveRecipeOutput
      */
-    public WaveRecipeOutput getRecipeOutput() {
+    public WaveRecipeOutputDescription getOutput() {
         return recipeOutput;
     }
     

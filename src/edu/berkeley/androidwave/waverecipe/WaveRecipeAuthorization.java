@@ -9,8 +9,6 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
-import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
-import edu.berkeley.androidwave.waveclient.WaveSensorChannelDescription;
 
 import android.content.pm.Signature;
 

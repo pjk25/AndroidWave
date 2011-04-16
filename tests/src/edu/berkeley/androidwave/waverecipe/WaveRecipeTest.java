@@ -9,7 +9,8 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.TestUtils;
-import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
+import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDescription;
+import edu.berkeley.androidwave.waveclient.WaveRecipeOutputChannelDescription;
 import edu.berkeley.androidwave.waveexception.InvalidSignatureException;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
@@ -93,10 +94,10 @@ public class WaveRecipeTest extends AndroidTestCase {
         assertTrue("sensor has units", theSensor.hasExpectedUnits());
         assertEquals("sensor unit is", "-m/s^2", theSensor.getExpectedUnits());
         
-        WaveRecipeOutput theOutput = recipeOne.getRecipeOutput();
+        WaveRecipeOutputDescription theOutput = recipeOne.getOutput();
         assertEquals("recipeOne's output name is ", "AccelerometerMagnitude", theOutput.getName());
         assertEquals("recipeOne's output has units of g", "g", theOutput.getUnits());
-        WaveRecipeOutputChannel[] outputChannels = theOutput.getChannels();
+        WaveRecipeOutputChannelDescription[] outputChannels = theOutput.getChannels();
         assertEquals("AccelerometerMagnitude has one channel", 1, outputChannels.length);
         assertEquals("that channel is called \"magnitude\"", "magnitude", outputChannels[0].getName());
         

@@ -9,7 +9,6 @@
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
 import edu.berkeley.androidwave.TestUtils;
-import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
 import edu.berkeley.androidwave.waverecipe.*;
 
 import android.test.AndroidTestCase;

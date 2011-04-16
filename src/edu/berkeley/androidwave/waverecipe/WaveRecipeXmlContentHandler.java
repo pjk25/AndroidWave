@@ -8,8 +8,8 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
-import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
-import edu.berkeley.androidwave.waveclient.WaveSensorChannelDescription;
+import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDescription;
+import edu.berkeley.androidwave.waveclient.WaveRecipeOutputChannelDescription;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
@@ -39,7 +39,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     Vector<WaveSensorDescription> sensors;
     protected WaveSensorDescription currentSensor;
     
-    protected WaveRecipeOutput recipeOutput;
+    protected WaveRecipeOutputDescription recipeOutput;
     
     protected GranularityTable granularityTable;
     
@@ -114,7 +114,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 } else if (localName.equalsIgnoreCase("sensors")) {
                     stag = SubTag.SENSORS;
                 } else if (localName.equalsIgnoreCase("output")) {
-                    recipeOutput = new WaveRecipeOutput(atts.getValue("name"), atts.getValue("units"));
+                    recipeOutput = new WaveRecipeOutputDescription(atts.getValue("name"), atts.getValue("units"));
                     stag = SubTag.OUTPUT;
                 } else if (localName.equalsIgnoreCase("granularity-table")) {
                     String tableType = atts.getValue("type");
@@ -151,7 +151,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 }
             } else if (stag == SubTag.OUTPUT) {
                 if (localName.equalsIgnoreCase("channel")) {
-                    recipeOutput.addChannel(new WaveRecipeOutputChannel(atts.getValue("name")));
+                    recipeOutput.addChannel(new WaveRecipeOutputChannelDescription(atts.getValue("name")));
                 }
             } else if (stag == SubTag.TABLE) {
                 // the rate and precision tags currently have no attributes,

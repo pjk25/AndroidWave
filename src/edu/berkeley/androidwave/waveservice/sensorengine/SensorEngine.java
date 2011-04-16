@@ -8,7 +8,7 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
-import edu.berkeley.androidwave.waveclient.WaveSensorDescription;
+import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 import edu.berkeley.androidwave.waverecipe.WaveRecipe;
 import edu.berkeley.androidwave.waverecipe.WaveRecipeLocalDeviceSupportInfo;
 
