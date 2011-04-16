@@ -10,7 +10,9 @@ package edu.berkeley.androidwave.waveclient;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import java.util.Vector;
+import android.util.Log;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 /**
  * WaveRecipeOutputDescription
@@ -19,16 +21,18 @@ import java.util.Vector;
  */
 public class WaveRecipeOutputDescription implements Parcelable {
     
+    public static final String TAG = "WaveRecipeOutputDescription";
+    
     protected String name;
     protected String units;
     
-    protected Vector<WaveRecipeOutputChannelDescription> channels;
+    protected ArrayList<WaveRecipeOutputChannelDescription> channels;
     
     public WaveRecipeOutputDescription(String name, String units) {
         this.name = name;
         this.units = units;
         
-        channels = new Vector<WaveRecipeOutputChannelDescription>();
+        channels = new ArrayList<WaveRecipeOutputChannelDescription>();
     }
     
     /**
@@ -59,6 +63,50 @@ public class WaveRecipeOutputDescription implements Parcelable {
         return channels.add(c);
     }
     
+    // Use @Override to avoid accidental overloading.
+    @Override public boolean equals(Object o) {
+        // Return true if the objects are identical.
+        // (This is just an optimization, not required for correctness.)
+        if (this == o) {
+            return true;
+        }
+
+        // Return false if the other object has the wrong type.
+        // This type may be an interface depending on the interface's specification.
+        if (!(o instanceof WaveRecipeOutputDescription)) {
+            return false;
+        }
+
+        // Cast to the appropriate type.
+        // This will succeed because of the instanceof, and lets us access private fields.
+        WaveRecipeOutputDescription lhs = (WaveRecipeOutputDescription) o;
+
+        // Check each field. Primitive fields, reference fields, and nullable reference
+        // fields are all treated differently.
+        return (name == null ? lhs.name == null : name.equals(lhs.name))
+               && (units == null ? lhs.units == null : units.equals(lhs.units))
+               && channels.equals(lhs.channels); // channels should never be null
+    }
+    
+    @Override public int hashCode() {
+        // Start with a non-zero constant.
+        int result = 17;
+
+        // Include a hash for each field.
+        result = 31 * result + (name == null ? 0 : name.hashCode());
+        result = 31 * result + (units == null ? 0 : units.hashCode());
+        result = 31 * result + channels.hashCode();
+
+        return result;
+    }
+    
+    @Override public String toString() {
+        return getClass().getName() + "[" +
+            "name=" + name + ", " +
+            "units=" + units + ", " +
+            "channels=" + channels + "]";
+    }
+
     /**
      * Parcelable Methods
      */
@@ -67,7 +115,10 @@ public class WaveRecipeOutputDescription implements Parcelable {
     }
     
     public void writeToParcel(Parcel dest, int flags) {
-        
+        dest.writeString(name);
+        dest.writeString(units);
+        Log.d(TAG, "writeToParcel => "+channels);
+        dest.writeTypedList(channels);
     }
     
     public static final Parcelable.Creator<WaveRecipeOutputDescription> CREATOR = new Parcelable.Creator<WaveRecipeOutputDescription>() {
@@ -81,6 +132,12 @@ public class WaveRecipeOutputDescription implements Parcelable {
     };
     
     private WaveRecipeOutputDescription(Parcel in) {
-        
+        channels = new ArrayList<WaveRecipeOutputChannelDescription>();
+        Log.d(TAG, "WaveRecipeOutputChannelDescription(Parcel in) => "+channels);
+        in.readTypedList(channels, WaveRecipeOutputChannelDescription.CREATOR);
+        Log.d(TAG, "WaveRecipeOutputChannelDescription(Parcel in) => "+channels);
+
+        units = in.readString();
+        name = in.readString();
     }
 }
