@@ -132,12 +132,12 @@ public class WaveRecipeOutputDescription implements Parcelable {
     };
     
     private WaveRecipeOutputDescription(Parcel in) {
+        name = in.readString();
+        units = in.readString();
+
         channels = new ArrayList<WaveRecipeOutputChannelDescription>();
         Log.d(TAG, "WaveRecipeOutputChannelDescription(Parcel in) => "+channels);
         in.readTypedList(channels, WaveRecipeOutputChannelDescription.CREATOR);
         Log.d(TAG, "WaveRecipeOutputChannelDescription(Parcel in) => "+channels);
-
-        units = in.readString();
-        name = in.readString();
     }
 }
