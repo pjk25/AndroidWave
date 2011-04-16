@@ -1,5 +1,5 @@
 // 
-//  WaveRecipeOutputChannelTest.java
+//  WaveRecipeOutputChannelDescriptionTest.java
 //  tests
 //  
 //  Created by Philip Kuryloski on 2011-03-15.
@@ -19,7 +19,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
 /**
- * WaveRecipeOutputChannelTest
+ * WaveRecipeOutputChannelDescriptionTest
  * 
  * to run:
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waveclient.WaveRecipeOutputChannelDescriptionTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
@@ -51,10 +51,11 @@ public class WaveRecipeOutputChannelDescriptionTest extends AndroidTestCase {
         Parcel p = Parcel.obtain();
         WaveRecipeOutputChannelDescription original = new WaveRecipeOutputChannelDescription("magnitude");
         
-        original.writeToParcel(p, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
+        p.writeParcelable(original, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
         
         p.setDataPosition(0);
-        WaveRecipeOutputChannelDescription restored = WaveRecipeOutputChannelDescription.CREATOR.createFromParcel(p);
+        WaveRecipeOutputChannelDescription restored = p.readParcelable(WaveRecipeOutputChannelDescription.class.getClassLoader());
+        p.recycle();
         
         assertEquals(original, restored);
     }

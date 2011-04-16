@@ -10,8 +10,11 @@ package edu.berkeley.androidwave.waveclient;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 public class WaveRecipeOutputChannelDescription implements Parcelable {
+    
+    private static final String TAG = "WaveRecipeOutputChannelDescription";
     
     protected String name;
     
@@ -51,11 +54,14 @@ public class WaveRecipeOutputChannelDescription implements Parcelable {
         int result = 17;
 
         // Include a hash for each field.
-        result = 31 * result +
-            (name == null ? 0
-            : name.hashCode());
+        result = 31 * result + (name == null ? 0 : name.hashCode());
 
         return result;
+    }
+    
+    @Override public String toString() {
+        return getClass().getName() + "[" +
+            "name=" + name + "]";
     }
 
     /**
@@ -66,6 +72,7 @@ public class WaveRecipeOutputChannelDescription implements Parcelable {
     }
     
     public void writeToParcel(Parcel dest, int flags) {
+        Log.d(TAG, "writeToParcel("+dest+", "+flags+")");
         dest.writeString(name);
     }
     
@@ -80,6 +87,7 @@ public class WaveRecipeOutputChannelDescription implements Parcelable {
     };
     
     private WaveRecipeOutputChannelDescription(Parcel in) {
+        Log.d(TAG, "WaveRecipeOutputChannelDescription(Parcel "+in+")");
         name = in.readString();
     }
 }
