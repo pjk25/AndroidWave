@@ -165,7 +165,12 @@ public class TestUtils {
     }
     
     public static void assertHasMethod(String expectedMethodSignature, boolean ignoreThrowsPortion, Object actualObject) {
-        Method[] methods = actualObject.getClass().getMethods();
+        Method[] methods;
+        if (actualObject instanceof Class) {
+            methods = ((Class)actualObject).getMethods();
+        } else {
+            methods = actualObject.getClass().getMethods();
+        }
         
         String[] methodSignatures = new String[methods.length];
         for (int i=0; i<methods.length; i++) {
