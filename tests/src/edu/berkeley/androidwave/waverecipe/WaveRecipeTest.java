@@ -72,7 +72,7 @@ public class WaveRecipeTest extends AndroidTestCase {
         recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
         
         // test the values in the recipeOne fixture
-        assertEquals("getID should match that of recipe xml", "edu.berkeley.waverecipe.AccelerometerMagnitude", recipeOne.getID());
+        assertEquals("getId should match that of recipe xml", "edu.berkeley.waverecipe.AccelerometerMagnitude", recipeOne.getId());
         
         Date versionDate = parseDateFromXmlString("2011-01-09 19:20:30.45-0800");
         assertEquals("getVersion should be the timestamp of the recipe's signature", versionDate, recipeOne.getVersion());

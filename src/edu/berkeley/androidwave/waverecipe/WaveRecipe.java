@@ -154,9 +154,9 @@ public class WaveRecipe {
     }
     
     /**
-     * getID
+     * getId
      */
-    public String getID() {
+    public String getId() {
         return recipeId;
     }
     
