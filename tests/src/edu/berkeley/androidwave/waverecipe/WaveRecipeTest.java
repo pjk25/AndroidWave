@@ -106,11 +106,11 @@ public class WaveRecipeTest extends AndroidTestCase {
         assertEquals("GranularityTable is continuous", ContinuousGranularityTable.class, table.getClass());
         
         // need to check mappings somehow, lets just try some values
-        HashMap<Object, Double> rateMap = new HashMap<Object, Double>();
+        HashMap<WaveSensorDescription, Double> rateMap = new HashMap<WaveSensorDescription, Double>();
         rateMap.put(theSensor, 10.0);
         assertEquals("rate out equals rate in", 10.0, ((ContinuousGranularityTable)table).rateForSensorRates(rateMap));
         
-        HashMap<Object, Double> precisionMap = new HashMap<Object, Double>();
+        HashMap<WaveSensorDescription, Double> precisionMap = new HashMap<WaveSensorDescription, Double>();
         precisionMap.put(theSensor, 0.01);
         assertEquals("precision out equals precision in", 0.01, ((ContinuousGranularityTable)table).precisionForSensorPrecisions(precisionMap));
         

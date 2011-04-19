@@ -44,7 +44,7 @@ public class ContinuousGranularityTable extends GranularityTable {
     /**
      * mathHelper
      */
-    protected double mathHelper(String formula, HashMap<Object, Double> valueMap)
+    protected double mathHelper(String formula, HashMap<WaveSensorDescription, Double> valueMap)
             throws Exception {
         String function = "y="+formula;
         MathParser parser = new MathParser();
@@ -70,7 +70,8 @@ public class ContinuousGranularityTable extends GranularityTable {
      * Determines output rate for the recipe given a map of inputs and rates
      * associated with those inputs
      */
-    public double rateForSensorRates(HashMap<Object, Double> rateMap)
+    @Override
+    public double rateForSensorRates(HashMap<WaveSensorDescription, Double> rateMap)
             throws Exception {
         
         double result;
@@ -89,7 +90,8 @@ public class ContinuousGranularityTable extends GranularityTable {
     /**
      * precisionForSensorPrecisions
      */
-    public double precisionForSensorPrecisions(HashMap<Object, Double> precisionMap)
+    @Override
+    public double precisionForSensorPrecisions(HashMap<WaveSensorDescription, Double> precisionMap)
             throws Exception {
         
         double result;

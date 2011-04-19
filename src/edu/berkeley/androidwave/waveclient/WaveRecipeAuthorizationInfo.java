@@ -21,17 +21,19 @@ import java.util.HashMap;
  */
 public class WaveRecipeAuthorizationInfo implements Parcelable {
     
-    protected String recipeId;
+    public String recipeId;
 
-    protected WaveRecipeOutputDescription recipeOutputDescription;
+    public WaveRecipeOutputDescription recipeOutputDescription;
     
-    protected double outputMaxRate;
-    protected double outputMaxPrecision;
+    public double outputMaxRate;
+    public double outputMaxPrecision;
     
     /**
-     * protected Constructor for unit test
+     * Constructor
      */
-    protected WaveRecipeAuthorizationInfo(String id) {
+    public WaveRecipeAuthorizationInfo(String id) {
+        outputMaxRate = -1.0;
+        outputMaxPrecision = -1.0;
         recipeId = id;
     }
     

@@ -36,13 +36,13 @@ public class ContinuousGranularityTableTest extends TestCase {
         table.setVariableMap(variableMap);
         
         // construct method input
-        HashMap<Object, Double> rateMap;
+        HashMap<WaveSensorDescription, Double> rateMap;
         
-        rateMap = new HashMap<Object, Double>();
+        rateMap = new HashMap<WaveSensorDescription, Double>();
         rateMap.put(aSensor, 5.0);
         assertEquals(5.0, table.rateForSensorRates(rateMap));
 
-        rateMap = new HashMap<Object, Double>();
+        rateMap = new HashMap<WaveSensorDescription, Double>();
         rateMap.put(aSensor, 10.0);
         assertEquals(10.0, table.rateForSensorRates(rateMap));
     }
@@ -61,13 +61,13 @@ public class ContinuousGranularityTableTest extends TestCase {
         table.setVariableMap(variableMap);
         
         // construct method input
-        HashMap<Object, Double> rateMap;
+        HashMap<WaveSensorDescription, Double> rateMap;
         
-        rateMap = new HashMap<Object, Double>();
+        rateMap = new HashMap<WaveSensorDescription, Double>();
         rateMap.put(aSensor, 6.0);
         assertEquals(6.0, table.rateForSensorRates(rateMap));
 
-        rateMap = new HashMap<Object, Double>();
+        rateMap = new HashMap<WaveSensorDescription, Double>();
         rateMap.put(aSensor, 8.0);
         assertEquals(8.0, table.rateForSensorRates(rateMap));
     }

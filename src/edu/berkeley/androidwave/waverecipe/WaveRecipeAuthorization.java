@@ -9,9 +9,10 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
+import edu.berkeley.androidwave.waverecipe.granularitytable.GranularityTable;
 
 import android.content.pm.Signature;
-
+import android.util.Log;
 import java.util.HashMap;
 
 /**
@@ -23,6 +24,8 @@ import java.util.HashMap;
  */
 public class WaveRecipeAuthorization {
     
+    private static final String TAG = WaveRecipeAuthorization.class.getSimpleName();
+    
     protected WaveRecipe recipe;
     
     protected WaveRecipeLocalDeviceSupportInfo supportInfo;
@@ -33,17 +36,12 @@ public class WaveRecipeAuthorization {
     protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxRateMap;
     protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxPrecisionMap;
     
-    protected HashMap<WaveSensorChannelDescription, Double> sensorChannelDescriptionMaxRateMap;
-    protected HashMap<WaveSensorChannelDescription, Double> sensorChannelDescriptionMaxPrecisionMap;
-    
     public WaveRecipeAuthorization(WaveRecipeLocalDeviceSupportInfo supportInfo) {
         this.supportInfo = supportInfo;
         this.recipe = supportInfo.getAssociatedRecipe();
 
         sensorDescriptionMaxRateMap = new HashMap<WaveSensorDescription, Double>();
         sensorDescriptionMaxPrecisionMap = new HashMap<WaveSensorDescription, Double>();
-        sensorChannelDescriptionMaxRateMap = new HashMap<WaveSensorChannelDescription, Double>();
-        sensorChannelDescriptionMaxPrecisionMap = new HashMap<WaveSensorChannelDescription, Double>();
     }
     
     public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxRateMap() {
@@ -54,15 +52,19 @@ public class WaveRecipeAuthorization {
         return sensorDescriptionMaxPrecisionMap;
     }
     
-    public HashMap<WaveSensorChannelDescription, Double> getSensorChannelDescriptionMaxRateMap() {
-        return sensorChannelDescriptionMaxRateMap;
-    }
-    
-    public HashMap<WaveSensorChannelDescription, Double> getSensorChannelDescriptionMaxPrecisionMap() {
-        return sensorChannelDescriptionMaxPrecisionMap;
-    }
-    
     public WaveRecipeAuthorizationInfo asInfo() {
-        return null;
+        WaveRecipeAuthorizationInfo info = new WaveRecipeAuthorizationInfo(recipe.getId());
+        
+        info.recipeOutputDescription = recipe.getOutput();
+        
+        GranularityTable t = recipe.getGranularityTable();
+        try {
+            info.outputMaxRate = t.rateForSensorRates(sensorDescriptionMaxRateMap);
+            info.outputMaxPrecision = t.precisionForSensorPrecisions(sensorDescriptionMaxPrecisionMap);
+        } catch (Exception e) {
+            Log.w(TAG, "Exception raised while calculating output rate and precision", e);
+        }
+        
+        return info;
     }
 }

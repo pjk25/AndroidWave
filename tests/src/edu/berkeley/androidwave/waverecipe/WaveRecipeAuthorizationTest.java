@@ -76,16 +76,6 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
         descriptionMap = auth.getSensorDescriptionMaxPrecisionMap();
         assertNotNull(descriptionMap);
         assertEquals("sensorDescriptionMaxPrecisionMap size", 0, descriptionMap.size());
-
-        // sensorChannelDescriptionMaxRateMap
-        descriptionMap = auth.getSensorChannelDescriptionMaxRateMap();
-        assertNotNull(descriptionMap);
-        assertEquals("sensorChannelDescriptionMaxRateMap size", 0, descriptionMap.size());
-
-        // sensorChannelDescriptionMaxPrecisionMap
-        descriptionMap = auth.getSensorChannelDescriptionMaxPrecisionMap();
-        assertNotNull(descriptionMap);
-        assertEquals("sensorChannelDescriptionMaxPrecisionMap size", 0, descriptionMap.size());
     }
     
     /**
@@ -100,6 +90,9 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
         WaveRecipeAuthorizationInfo info = auth.asInfo();
         assertNotNull(info);
         
-        fail("test not finished yet");
+        assertEquals(recipeOne.getId(), info.recipeId);
+        assertEquals(recipeOne.getOutput(), info.recipeOutputDescription);
+        assertFalse("output max rate should not be negative", info.outputMaxRate > 0.0);
+        assertFalse("output max precision should not be negative", info.outputMaxPrecision > 0.0);
     }
 }
