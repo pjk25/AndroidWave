@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class WaveSensor {
-    protected final String BASE_VERSION = Build.DEVICE + "_" + Build.BOARD + "_" + Build.MODEL;
+    protected final String VERSION_BASE = Build.DEVICE + "_" + Build.BOARD + "_" + Build.MODEL;
     
     protected static Context mContext;
     protected static Set<WaveSensor> availableLocalSensors = null;
@@ -63,7 +63,7 @@ public class WaveSensor {
      * should allow identification of sensor hardware
      */
     public String getVersion() {
-        return BASE_VERSION;
+        return VERSION_BASE;
     }
     
     /**
