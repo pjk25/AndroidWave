@@ -9,6 +9,7 @@
 package edu.berkeley.androidwave.waveui;
 
 import edu.berkeley.androidwave.R;
+import edu.berkeley.androidwave.waveexception.WaveRecipeNotCachedException;
 import edu.berkeley.androidwave.waverecipe.WaveRecipe;
 import edu.berkeley.androidwave.waveservice.RecipeRetrievalResponder;
 import edu.berkeley.androidwave.waveservice.WaveService;
@@ -138,28 +139,26 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             String recipeId = i.getStringExtra(WaveService.RECIPE_ID_EXTRA);
 
             theRecipe = null;
-            File recipeCacheFile = mService.recipeCacheFileForId(recipeId);
-            if (recipeCacheFile != null) {
-                try {
-                    theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile.getPath());
-                    if (theRecipe == null) {
-                        setResult(RESULT_CANCELED);
-                        finish();
-                    } else {
-                        recipeName.setText(theRecipe.getName());
-                        recipeDescription.setText(theRecipe.getDescription());
-                        String recipeSigner = theRecipe.getCertificate().getSubjectDN().toString();
-                        recipeSig.setText("Signed by: "+recipeSigner);
-                        authButton.setEnabled(true);
-                        denyButton.setEnabled(true);
-                    }
-                } catch (Exception e) {
-                    Toast.makeText(RecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
+            try {
+                File recipeCacheFile = mService.recipeCacheFileForId(recipeId);
+                theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile.getPath());
+                if (theRecipe == null) {
+                    setResult(RESULT_CANCELED);
+                    finish();
+                } else {
+                    recipeName.setText(theRecipe.getName());
+                    recipeDescription.setText(theRecipe.getDescription());
+                    String recipeSigner = theRecipe.getCertificate().getSubjectDN().toString();
+                    recipeSig.setText("Signed by: "+recipeSigner);
+                    authButton.setEnabled(true);
+                    denyButton.setEnabled(true);
                 }
-            } else {
+            } catch (WaveRecipeNotCachedException nce) {
                 Toast.makeText(RecipeAuthorizationActivity.this, "Attempting to retrieve this recipe…", Toast.LENGTH_SHORT).show();
                 mService.beginRetrieveRecipeForID(recipeId, this);
+            } catch (Exception e) {
+                Toast.makeText(RecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
             }
         } else {
             setResult(RESULT_CANCELED);
