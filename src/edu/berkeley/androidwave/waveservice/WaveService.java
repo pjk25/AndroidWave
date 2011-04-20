@@ -96,6 +96,11 @@ public class WaveService extends Service {
      * and cache it
      */
     public void beginRetrieveRecipeForID(String id, RecipeRetrievalResponder r) {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ie) {
+            // do nothing, we just wanted to simulate a longer method
+        }
         r.handleRetrievalFailed(id, "beginRetrieveRecipeForID not implemented yet.");
     }
     
