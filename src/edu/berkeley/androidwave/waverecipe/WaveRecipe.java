@@ -227,6 +227,34 @@ public class WaveRecipe {
     }
     
     /**
+     * getInternalIdForSensor
+     * 
+     * gets an intenal Id String for a sensor description in this recipe
+     */
+    public String getInternalIdForSensor(WaveSensorDescription wsd) {
+        // we just use the index of the sensor in the sensors array
+        for (int i=0; i<sensors.length; i++) {
+            if (wsd == sensors[i]) {
+                return ""+i;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * getSensorForInternalId
+     */
+    public WaveSensorDescription getSensorForInternalId(String id) {
+        WaveSensorDescription wsd = null;
+        try {
+            wsd = sensors[Integer.valueOf(id).intValue()];
+        } catch (Exception e) {
+            // do nothing, wsd is already null
+        }
+        return wsd;
+    }
+    
+    /**
      * toString
      */
     @Override

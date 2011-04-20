@@ -121,4 +121,29 @@ public class WaveRecipeTest extends AndroidTestCase {
         assertNotNull("algorithmMainClass can be instantiated", algorithmInstanceAsObject);
         MoreAsserts.assertAssignableFrom(WaveRecipeAlgorithm.class, algorithmInstanceAsObject);
     }
+    
+    public void testToFromInternalId()
+            throws Exception {
+        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
+
+        // try getting an id for a sensordescription not associated with this recipe
+        WaveSensorDescription wrongDescription = new WaveSensorDescription(WaveSensorDescription.Type.MAGNETOMETER, "none");
+        String id = recipeOne.getInternalIdForSensor(wrongDescription);
+        assertNull("invalid sensor generates null id", id);
+
+        // now get a valid id
+        WaveSensorDescription wsd = recipeOne.getSensors()[0];
+        id = recipeOne.getInternalIdForSensor(wsd);
+        assertNotNull("valid sensor generates an id", id);
+        
+        // restore that sensor from the id we got
+        WaveSensorDescription restored = recipeOne.getSensorForInternalId(id);
+        assertNotNull("we should get a description from a valid id", restored);
+        assertEquals(wsd, restored);
+        
+        // make sure a bogus id returns a null sensor
+        restored = recipeOne.getSensorForInternalId("bogus");
+        assertNull("a bogus id should return null", restored);
+    }
 }
