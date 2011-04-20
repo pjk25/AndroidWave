@@ -63,7 +63,7 @@ public class WaveSensor {
      * should allow identification of sensor hardware
      */
     public String getVersion() {
-        return VERSION_BASE;
+        return VERSION_BASE + "_" + WaveSensorDescription.typeToString(type);
     }
     
     /**
@@ -135,6 +135,28 @@ public class WaveSensor {
             doesMatch &= (this.getChannelNamesArrayList().containsAll(wsdChannelNames));
         }
         return doesMatch;
+    }
+    
+    /**
+     * produce a locally unique Id, suitable for archiving an internal
+     * reference to this sensor
+     */
+    public String internalId() {
+        // the version should suffice
+        return this.getVersion();
+    }
+    
+    /**
+     * recover an available sensor from its internalId
+     */
+    public static WaveSensor getSensorForInternalId(Context context, String id) {
+        Set<WaveSensor> sensors = getAvailableLocalSensors(context);
+        for (WaveSensor s : sensors) {
+            if (s.getVersion().equals(id)) {
+                return s;
+            }
+        }
+        return null;
     }
     
     /**

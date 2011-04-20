@@ -37,7 +37,7 @@ public class AndroidWaveSensor extends WaveSensor {
     public String getVersion() {
         String name = androidSensor.getName();
         String version = "" + androidSensor.getVersion();
-        return VERSION_BASE + "_" + name + "_" + version;
+        return VERSION_BASE + "_" + WaveSensorDescription.typeToString(type) + "_" + name + "_" + version;
     }
     
     public Sensor getAndroidSensor() {

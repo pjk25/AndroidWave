@@ -18,6 +18,7 @@ import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -77,7 +78,7 @@ public class WaveSensorTest extends AndroidTestCase {
         String board = Build.BOARD;
         String model = Build.MODEL;
         
-        String expectedVersion = device + "_" + board + "_" + model;
+        String expectedVersion = device + "_" + board + "_" + model + "_ACCELEROMETER";
         
         assertEquals(expectedVersion, fakeAccelerometer.getVersion());
     }
@@ -109,7 +110,7 @@ public class WaveSensorTest extends AndroidTestCase {
          * here to ensure that this test fails on an actual device, until we
          * known accurate precision values for other devices
          */ 
-        assertEquals("accel version", "generic_unknown_sdk", fakeAccelerometer.getVersion());
+        assertEquals("accel version", "generic_unknown_sdk_ACCELEROMETER", fakeAccelerometer.getVersion());
         assertEquals("max accelerometer precision", (9.81/1024.0), fakeAccelerometer.getMaximumAvailablePrecision());
     }
     
@@ -126,7 +127,7 @@ public class WaveSensorTest extends AndroidTestCase {
          * here to ensure that this test fails on an actual device, until we
          * known accurate precision values for other devices
          */ 
-        assertEquals("accel version", "generic_unknown_sdk", fakeAccelerometer.getVersion());
+        assertEquals("accel version", "generic_unknown_sdk_ACCELEROMETER", fakeAccelerometer.getVersion());
         assertEquals("max accel sampling frequency", 10.0, fakeAccelerometer.getMaximumAvailableSamplingFrequency());
     }
     
@@ -249,5 +250,27 @@ public class WaveSensorTest extends AndroidTestCase {
         for (WaveSensor s : localSensors) {
             assertEquals(WaveSensorDescription.Type.ACCELEROMETER, s.getType());
         }
+    }
+    
+    @LargeTest
+    public void testToFromInternalId() {
+        Set<WaveSensor> localSensors = WaveSensor.getAvailableLocalSensors(getContext());
+        WaveSensor original = null;
+        Iterator<WaveSensor> it = localSensors.iterator();
+        if (it.hasNext()) {
+            original = it.next();
+            if (it.hasNext()) {
+                original = it.next();
+            }
+        }
+        assertNotNull(original);
+        String id = original.internalId();
+        assertNotNull(id);
+        
+        WaveSensor restored = WaveSensor.getSensorForInternalId(getContext(), "some_fake_id");
+        assertNull(restored);
+        
+        restored = WaveSensor.getSensorForInternalId(getContext(), id);
+        assertEquals("internalId for fakeAccelerometer restores fakeAccelerometer", original, restored);
     }
 } 
