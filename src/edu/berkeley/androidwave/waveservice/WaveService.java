@@ -3,6 +3,7 @@ package edu.berkeley.androidwave.waveservice;
 import edu.berkeley.androidwave.waveclient.IWaveServicePublic;
 import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
 import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
+import edu.berkeley.androidwave.waveexception.WaveRecipeNotCachedException;
 
 import android.app.Service;
 import android.content.Context;
@@ -107,12 +108,13 @@ public class WaveService extends Service {
     /**
      * recipeCacheFileForId
      */
-    public File recipeCacheFileForId(String id) {
+    public File recipeCacheFileForId(String id)
+            throws WaveRecipeNotCachedException {
         String[] c = WAVERECIPE_CACHE_DIR.split(File.separator, 2);
         File filesDir = getDir(c[0], Context.MODE_PRIVATE);
         File recipeFile = new File(filesDir, (c.length == 1 ? "" : c[1] + "/")+id+".waverecipe");
         if (!recipeFile.exists()) {
-            recipeFile = null;
+            throw new WaveRecipeNotCachedException(id);
         }
         return recipeFile;
     }
