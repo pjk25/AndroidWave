@@ -8,7 +8,9 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
-import java.util.Vector;
+import android.util.Log;
+import java.util.ArrayList;
+import org.json.*;
 
 /**
  * WaveSensorDescription
@@ -20,19 +22,32 @@ import java.util.Vector;
  */
 public class WaveSensorDescription {
     
+    private static final String TAG = WaveSensorDescription.class.getSimpleName();
+    
     public enum Type { ACCELEROMETER, MAGNETOMETER, LOCATION };
     
     protected Type type;
     
     protected String expectedUnits;
     
-    protected Vector<WaveSensorChannelDescription> channels;
+    protected ArrayList<WaveSensorChannelDescription> channels;
+    
+    public static String typeToString(Type t) {
+        String s;
+        switch (t) {
+            case ACCELEROMETER:     s = "ACCELEROMETER";    break;
+            case MAGNETOMETER:      s = "MAGNETOMETER";     break;
+            case LOCATION:          s = "LOCATION";         break;
+            default: throw new AssertionError(t);
+        }
+        return s;
+    }
     
     public WaveSensorDescription(Type t, String expectedUnits) {
         type = t;
         this.expectedUnits = expectedUnits;
         
-        channels = new Vector<WaveSensorChannelDescription>();
+        channels = new ArrayList<WaveSensorChannelDescription>();
     }
     
     /**
@@ -79,8 +94,27 @@ public class WaveSensorDescription {
     
     /**
      * localStringRepresentation
+     * 
+     * for now, we produce a JSON representation, as it will store
+     * easily in the app's SQLite db
      */
     protected String localStringRepresentation() {
-        return null;
+        JSONObject o = new JSONObject();
+        
+        try {
+            o.put("type", typeToString(type));
+            o.put("expectedUnits", expectedUnits);
+        
+            JSONArray a = new JSONArray();
+            for (WaveSensorChannelDescription cd : channels) {
+                a.put(cd.name);
+            }
+        
+            o.put("channels", a);
+        } catch (JSONException e) {
+            Log.w(TAG, "While producing localStringRepresentation for "+this, e);
+        }
+        
+        return o.toString();
     }
 }

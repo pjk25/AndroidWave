@@ -39,6 +39,12 @@ public class WaveSensorDescriptionTest extends AndroidTestCase {
         assertNotNull(wsd.getChannels());
     }
     
+    public void testHasChannels() {
+        assertFalse(wsd.hasChannels());
+        wsd.addChannel(new WaveSensorChannelDescription("x"));
+        assertTrue(wsd.hasChannels());
+    }
+    
     public void testExpectedUnits() {
         // fixture specific
         assertTrue(wsd.hasExpectedUnits());
@@ -55,8 +61,9 @@ public class WaveSensorDescriptionTest extends AndroidTestCase {
     }
     
     public void testLocalStringRepresentation() {
-        // the local string representation allows us to record an authorization
-        // in a simple serializable form on this device
-        assertEquals("", wsd.localStringRepresentation());
+        wsd.addChannel(new WaveSensorChannelDescription("x"));
+        wsd.addChannel(new WaveSensorChannelDescription("y"));
+        
+        assertEquals("{\"type\":\"ACCELEROMETER\",\"channels\":[\"x\",\"y\"],\"expectedUnits\":\"m\\/s^2\"}", wsd.localStringRepresentation());
     }
 }

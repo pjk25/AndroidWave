@@ -8,6 +8,8 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
+import org.json.JSONObject;
+
 /**
  * WaveSensorChannelDescription
  *
@@ -31,8 +33,11 @@ public class WaveSensorChannelDescription {
     
     /**
      * localStringRepresentation
+     * 
+     * for now, we produce a JSON representation, as it will store
+     * easily in the app's SQLite db
      */
     protected String localStringRepresentation() {
-        return null;
+        return JSONObject.quote(name);
     }
 }
