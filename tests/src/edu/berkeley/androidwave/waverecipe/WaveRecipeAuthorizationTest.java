@@ -10,11 +10,11 @@ package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
-import edu.berkeley.androidwave.waveservice.sensorengine.SensorEngine;
 
 import java.io.*;
 import java.util.HashMap;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
 /**
@@ -27,28 +27,22 @@ import android.test.suitebuilder.annotation.SmallTest;
  */
 public class WaveRecipeAuthorizationTest extends AndroidTestCase {
     
-    SensorEngine sensorEngine;
     WaveRecipe recipeOne;
+    WaveRecipeAuthorization auth;
     
     protected void setUp() throws Exception {
         File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
         recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
         
-        SensorEngine.init(getContext());
-        sensorEngine = SensorEngine.getInstance();
+        auth = new WaveRecipeAuthorization(recipeOne);
     }
     
     /**
      * ensure that a WaveRecipeAuthorization can be constructed with a
-     * {@code WaveRecipeLocalDeviceSupportInfo} argument
+     * {@code WaveRecipe} argument
      */
     @SmallTest
     public void testConstructor() throws Exception {
-        
-        WaveRecipeLocalDeviceSupportInfo supportInfo = sensorEngine.supportInfoForRecipe(recipeOne);
-        assertTrue(supportInfo.isSupported());
-        
-        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(supportInfo);
         assertNotNull(auth);
     }
     
@@ -61,11 +55,6 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
      */
     @SmallTest
     public void testDescriptionMapsInitialState() throws Exception {
-        WaveRecipeLocalDeviceSupportInfo supportInfo = sensorEngine.supportInfoForRecipe(recipeOne);
-        assertTrue(supportInfo.isSupported());
-        
-        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(supportInfo);
-        
         HashMap descriptionMap;
         // sensorDescriptionMaxRateMap
         descriptionMap = auth.getSensorDescriptionMaxRateMap();
@@ -84,9 +73,6 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
      */
     @SmallTest
     public void testAsInfo() {
-        WaveRecipeLocalDeviceSupportInfo supportInfo = sensorEngine.supportInfoForRecipe(recipeOne);
-        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(supportInfo);
-        
         WaveRecipeAuthorizationInfo info = auth.asInfo();
         assertNotNull(info);
         
@@ -94,5 +80,21 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
         assertEquals(recipeOne.getOutput(), info.recipeOutputDescription);
         assertFalse("output max rate should not be negative", info.outputMaxRate > 0.0);
         assertFalse("output max precision should not be negative", info.outputMaxPrecision > 0.0);
+    }
+    
+    /**
+     * test to/from JSON String
+     */
+    @MediumTest
+    public void testToFromJSONString() throws Exception {
+        WaveRecipeAuthorization original = auth;
+        
+        String jsonString = original.toJSONString();
+        
+        assertEquals("matched WaveRecipe object", recipeOne, original.recipe);
+        
+        WaveRecipeAuthorization restored = WaveRecipeAuthorization.fromJSONString(recipeOne, jsonString);
+        
+        assertEquals(original, restored);
     }
 }

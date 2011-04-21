@@ -30,10 +30,4 @@ public class WaveSensorChannelDescriptionTest extends AndroidTestCase {
     public void setUp() {
         wscd = new WaveSensorChannelDescription("x");
     }
-    
-    public void testLocalStringRepresentation() {
-        // the local string representation allows us to record an authorization
-        // in a simple serializable form on this device
-        assertEquals("\"x\"", wscd.localStringRepresentation());
-    }
 }

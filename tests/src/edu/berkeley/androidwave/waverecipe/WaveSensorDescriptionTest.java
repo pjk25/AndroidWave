@@ -59,11 +59,4 @@ public class WaveSensorDescriptionTest extends AndroidTestCase {
     public void testGetType() {
         assertEquals(WaveSensorDescription.Type.ACCELEROMETER, wsd.getType());
     }
-    
-    public void testLocalStringRepresentation() {
-        wsd.addChannel(new WaveSensorChannelDescription("x"));
-        wsd.addChannel(new WaveSensorChannelDescription("y"));
-        
-        assertEquals("{\"type\":\"ACCELEROMETER\",\"channels\":[\"x\",\"y\"],\"expectedUnits\":\"m\\/s^2\"}", wsd.localStringRepresentation());
-    }
 }

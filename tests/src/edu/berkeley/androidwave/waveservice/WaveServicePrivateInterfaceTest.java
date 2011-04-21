@@ -98,45 +98,4 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
             assertTrue(e instanceof WaveRecipeNotCachedException);
         }
     }
-    
-    
-    /**
-     * testWaveRecipeAuthorizationToFromJSONString
-     * 
-     * test archive/unarchive to JSON of an authorization (for write/restore
-     * from SQLite TEXT)
-     */
-    @MediumTest
-    public void testWaveRecipeAuthorizationToFromJSONString() {
-        
-        /**
-         * BASIC OUTLINE OF THIS TEST
-         * 
-         * 1. get a valid authorization object
-         *      a. construct a WaveRecipe
-         *      b. get its supportInfo
-         *      c. construct an Authorization and set rates and precisions
-         * 2. get its JSON
-         * 3. restore from the JSON
-         * 4. check for equality
-         */
-        
-        /*
-        // first construct an authorization object
-        WaveRecipeLocalDeviceSupportInfo supportInfo = sensorEngine.supportInfoForRecipe(recipeOne);
-        WaveRecipeAuthorization original = new WaveRecipeAuthorization(supportInfo);
-        HashMap rateMap = original.getSensorDescriptionMaxRateMap();
-        HashMap precisionMap = original.getSensorDescriptionMaxPrecisionMap();
-        
-        // now produce the JSON
-        String theJSON = original.asJSONString();
-        assertNotNull(theJSON);
-        
-        // now reproduce it
-        //      Note that this only works if the recipe associated with this
-        //      authorizaiton is cached on disk
-        WaveRecipeAuthorization restored = WaveRecipeAuthorization.constructFromJSONString(getContext(), jsonString);
-        assertEquals(original, restored);
-         */
-    }
 }

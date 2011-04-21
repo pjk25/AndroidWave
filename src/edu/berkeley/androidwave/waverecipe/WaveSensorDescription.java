@@ -91,30 +91,4 @@ public class WaveSensorDescription {
     public boolean addChannel(WaveSensorChannelDescription c) {
         return channels.add(c);
     }
-    
-    /**
-     * localStringRepresentation
-     * 
-     * for now, we produce a JSON representation, as it will store
-     * easily in the app's SQLite db
-     */
-    protected String localStringRepresentation() {
-        JSONObject o = new JSONObject();
-        
-        try {
-            o.put("type", typeToString(type));
-            o.put("expectedUnits", expectedUnits);
-        
-            JSONArray a = new JSONArray();
-            for (WaveSensorChannelDescription cd : channels) {
-                a.put(cd.name);
-            }
-        
-            o.put("channels", a);
-        } catch (JSONException e) {
-            Log.w(TAG, "While producing localStringRepresentation for "+this, e);
-        }
-        
-        return o.toString();
-    }
 }

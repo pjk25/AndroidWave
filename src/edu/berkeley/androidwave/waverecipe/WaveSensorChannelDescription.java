@@ -30,14 +30,4 @@ public class WaveSensorChannelDescription {
     public String getName() {
         return name;
     }
-    
-    /**
-     * localStringRepresentation
-     * 
-     * for now, we produce a JSON representation, as it will store
-     * easily in the app's SQLite db
-     */
-    protected String localStringRepresentation() {
-        return JSONObject.quote(name);
-    }
 }
