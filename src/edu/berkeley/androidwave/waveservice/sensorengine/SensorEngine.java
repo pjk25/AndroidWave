@@ -17,11 +17,14 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 public class SensorEngine implements SensorEventListener {
+    
+    private static final String TAG = SensorEngine.class.getSimpleName();
     
     protected static SensorEngine theInstance;
     
@@ -40,10 +43,20 @@ public class SensorEngine implements SensorEventListener {
         runningSensors = new HashMap<WaveSensor, Double>();
     }
     
-    public static void init(Context c) {
+    public static void init(Context c) { //throws Exception {
+        if (theInstance != null) {
+            Log.w(TAG, "SensorEngine.init() called more than once, dropping singleton instance "+theInstance);
+            //throw new Exception("SensorEngine.init can only be called once");
+        }
         theInstance = new SensorEngine(c);
     }
     
+    /**
+     * getInstance
+     * 
+     * Access the Singleton SensorEngine instance (without needing to supply
+     * a context object)
+     */
     public static SensorEngine getInstance() throws Exception {
         if (theInstance == null) {
             throw new Exception("SensorEngine.init not yet called.");

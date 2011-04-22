@@ -118,7 +118,17 @@ public class WaveService extends Service {
         }
         return recipeFile;
     }
-
+    
+    /**
+     * get a recipe by its ID.  In this form, a recipe is delivered
+     * immediately, or an exception is thrown
+     */
+    protected WaveRecipe getRecipeForId(String id)
+            throws Exception {
+        File f = recipeCacheFileForId(id);
+        return WaveRecipe.createFromDisk(this, f.getPath());
+    }
+    
     
     /**
      * WAVESERVICE PUBLIC METHODS

@@ -69,6 +69,11 @@ public class WaveRecipe {
      *
      * instantiate and return a WaveRecipe from an on disk location.  Should
      * throw an exception if the .waverecipe signature is invalid.
+     * 
+     * TODO: We should never have mulitple recipe objects floating around with
+     *       the same id.
+     * TODO: make this take a File instead of a String path
+     * TODO: throw a more specific Exception(s) upon error
      */
     public static WaveRecipe createFromDisk(Context context, String recipePath)
         throws Exception {

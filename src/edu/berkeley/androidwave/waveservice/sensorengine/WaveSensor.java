@@ -22,6 +22,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * TODO: make this class abstract, as well as the max precision and freq
+ *       methods.
+ */
 public class WaveSensor {
     protected final String VERSION_BASE = Build.DEVICE + "_" + Build.BOARD + "_" + Build.MODEL;
     
