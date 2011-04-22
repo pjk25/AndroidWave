@@ -14,6 +14,7 @@ import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
 import android.content.pm.Signature;
 import android.util.Log;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -50,6 +51,38 @@ public class WaveRecipeAuthorization {
     
     public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxPrecisionMap() {
         return sensorDescriptionMaxPrecisionMap;
+    }
+    
+    // Use @Override to avoid accidental overloading.
+    @Override public boolean equals(Object o) {
+        // Return true if the objects are identical.
+        // (This is just an optimization, not required for correctness.)
+        if (this == o) {
+            return true;
+        }
+
+        // Return false if the other object has the wrong type.
+        // This type may be an interface depending on the interface's specification.
+        if (!(o instanceof WaveRecipeAuthorization)) {
+            return false;
+        }
+
+        // Cast to the appropriate type.
+        // This will succeed because of the instanceof, and lets us access private fields.
+        WaveRecipeAuthorization lhs = (WaveRecipeAuthorization) o;
+
+        // Check each field. Primitive fields, reference fields, and nullable reference
+        // fields are all treated differently.
+        // TODO: write .equals for WaveRecipe
+        return recipe.getId().equals(lhs.recipe.getId()) &&
+            recipeClientName.equals(lhs.recipeClientName) &&
+            Arrays.equals(recipeClientSignatures, lhs.recipeClientSignatures) &&
+            sensorDescriptionMaxRateMap.equals(lhs.sensorDescriptionMaxRateMap) &&
+            sensorDescriptionMaxPrecisionMap.equals(lhs.sensorDescriptionMaxPrecisionMap);
+    }
+    
+    @Override public int hashCode() {
+        throw new UnsupportedOperationException();
     }
     
     /**

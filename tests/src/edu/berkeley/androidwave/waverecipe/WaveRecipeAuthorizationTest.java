@@ -13,6 +13,7 @@ import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
 
 import java.io.*;
 import java.util.HashMap;
+import android.content.pm.Signature;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -88,6 +89,11 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
     @MediumTest
     public void testToFromJSONString() throws Exception {
         WaveRecipeAuthorization original = auth;
+        // need to populate the recipeClient data in the recipe before
+        // creating json
+        auth.recipeClientName = "edu.berkeley.waveclientsample.WaveClientSample";
+        auth.recipeClientSignatures = new Signature[1];
+        auth.recipeClientSignatures[0] = new Signature("");
         
         String jsonString = original.toJSONString();
         
