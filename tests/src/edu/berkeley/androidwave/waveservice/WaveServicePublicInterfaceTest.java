@@ -33,7 +33,13 @@ import java.io.*;
  */
 public class WaveServicePublicInterfaceTest extends ServiceTestCase<WaveService> {
     
-    File cachedRecipe = null;
+    IBinder service;
+    IWaveServicePublic mService;
+    
+    File cachedRecipe;
+    String recipeId;
+    String clientKey;
+    
     
     public WaveServicePublicInterfaceTest() {
         super(WaveService.class);
@@ -42,6 +48,16 @@ public class WaveServicePublicInterfaceTest extends ServiceTestCase<WaveService>
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        
+        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
+        service = bindService(startIntent);
+        mService = IWaveServicePublic.Stub.asInterface(service);
+        
+        cachedRecipe = null;
+        recipeId = "edu.berkeley.waverecipe.AccelerometerMagnitude";
+        clientKey = "my_client_key";
+        
+        // TODO: clear the authorzation database
     }
     
     @Override
@@ -65,9 +81,8 @@ public class WaveServicePublicInterfaceTest extends ServiceTestCase<WaveService>
      */
     @SmallTest
     public void testPreconditions() {
-        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
-        IBinder service = bindService(startIntent);
         assertNotNull("service should not be null", service);
+        assertNotNull(mService);
     }
     
     /**
@@ -86,20 +101,12 @@ public class WaveServicePublicInterfaceTest extends ServiceTestCase<WaveService>
         };
         
         /**
-         * test the remote calls
+         * test the remote calls (without validating result)
          */
-        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
-        IBinder service = bindService(startIntent);
-        
-        IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
-        assertNotNull(mService);
-        
-        // for now just make the remote call, without validating the result
-        String recipeId = "edu.berkeley.waverecipe.AccelerometerMagnitude";
-        mService.isAuthorized(recipeId);
-        mService.getAuthorizationIntent(recipeId);
-        mService.registerRecipeOutputListener(recipeId, mListener);
-        mService.unregisterRecipeOutputListener(recipeId, mListener);
+        mService.isAuthorized(clientKey, recipeId);
+        mService.getAuthorizationIntent(recipeId, clientKey);
+        mService.registerRecipeOutputListener(clientKey, recipeId, mListener);
+        mService.unregisterRecipeOutputListener(clientKey, recipeId, mListener);
     }
     
     /**
@@ -107,12 +114,15 @@ public class WaveServicePublicInterfaceTest extends ServiceTestCase<WaveService>
      */
     @LargeTest
     public void testIsAuthorized() throws Exception {
-        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
-        IBinder service = bindService(startIntent); 
+        String recipeId = "edu.berkeley.waverecipe.AccelerometerMagnitude";
+        // null key should always be unauthorized
+        assertFalse(mService.isAuthorized(null, recipeId));
         
-        IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
+        // new key should be unauthorized
+        assertFalse(mService.isAuthorized(clientKey, recipeId));
         
-        assertFalse(mService.isAuthorized("edu.berkeley.waverecipe.AccelerometerMagnitude"));
+        // we need a way to insert the auth in the database
+        
         
         // need to simulate auth
         fail("test not finished");
@@ -123,12 +133,11 @@ public class WaveServicePublicInterfaceTest extends ServiceTestCase<WaveService>
      */
     @LargeTest
     public void testRetrieveAuthorization() throws Exception {
-        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
-        IBinder service = bindService(startIntent); 
+        WaveRecipeAuthorizationInfo auth;
+        auth = mService.retrieveAuthorizationInfo(null, recipeId);
+        assertNull("null key should return null auth", auth);
         
-        IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
-        
-        WaveRecipeAuthorizationInfo auth = mService.retrieveAuthorizationInfo("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        auth = mService.retrieveAuthorizationInfo(clientKey, recipeId);
         assertNull("Test is not authorized and should return null", auth);
         
         // need to simulate authorization and re-call
@@ -140,15 +149,11 @@ public class WaveServicePublicInterfaceTest extends ServiceTestCase<WaveService>
      */
     @LargeTest
     public void testGetAuthorizationIntent() throws Exception {
-        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
-        IBinder service = bindService(startIntent); 
-        
-        IWaveServicePublic mService = IWaveServicePublic.Stub.asInterface(service);
-        
-        Intent authIntent = mService.getAuthorizationIntent("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        Intent authIntent = mService.getAuthorizationIntent(recipeId, clientKey);
         
         assertNotNull(authIntent);
         assertEquals(WaveService.ACTION_REQUEST_RECIPE_AUTHORIZE, authIntent.getAction());
-        assertEquals("edu.berkeley.waverecipe.AccelerometerMagnitude", authIntent.getStringExtra(WaveService.RECIPE_ID_EXTRA));
+        assertEquals(recipeId, authIntent.getStringExtra(WaveService.RECIPE_ID_EXTRA));
+        assertEquals(clientKey, authIntent.getStringExtra(WaveService.CLIENT_KEY_EXTRA));
     }
 }

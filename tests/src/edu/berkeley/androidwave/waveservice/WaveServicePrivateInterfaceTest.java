@@ -29,7 +29,10 @@ import java.io.*;
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.WaveServicePrivateInterfaceTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService> {
+    
     File cachedRecipe = null;
+    
+    IBinder service;
     
     public WaveServicePrivateInterfaceTest() {
         super(WaveService.class);
@@ -38,6 +41,10 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
+        Intent startIntent = new Intent(Intent.ACTION_MAIN);
+        startIntent.setClass(getContext(), WaveService.class);
+        service = bindService(startIntent);
     }
     
     @Override
@@ -61,9 +68,6 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
      */
     @SmallTest
     public void testPreconditions() {
-        Intent startIntent = new Intent(Intent.ACTION_MAIN);
-        startIntent.setClass(getContext(), WaveService.class);
-        IBinder service = bindService(startIntent);
         assertNotNull("service should not be null", service);
     }
     
@@ -74,10 +78,6 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
      */
     @SmallTest
     public void testRecipeInCacheFileForId() throws Exception {
-        Intent startIntent = new Intent(Intent.ACTION_MAIN);
-        startIntent.setClass(getContext(), WaveService.class);
-        IBinder service = bindService(startIntent);
-        assertNotNull("service should not be null", service);
         WaveService s = getService();
         assertNotNull(s);
         
@@ -97,5 +97,35 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
         } catch (Exception e) {
             assertTrue(e instanceof WaveRecipeNotCachedException);
         }
+    }
+    
+    /**
+     * testPermitClientNameKeyPair
+     */
+    @MediumTest
+    public void testPermitClientNameKeyPair() {
+        WaveService s = getService();
+        assertNotNull(s);
+        
+        String packageNameOne = "edu.berkeley.waveclientsample";
+        String clientKeyOne = "some_random_key";
+        
+        String packageNameTwo = "com.android.somecoolapp";
+        String clientKeyTwo = "some_other_key";
+        
+        // note that the auth db should be empty
+        assertTrue(s.permitClientNameKeyPair(packageNameOne, clientKeyOne));
+        assertTrue(s.permitClientNameKeyPair(packageNameOne, clientKeyOne));
+        
+        assertFalse(s.permitClientNameKeyPair(packageNameOne, clientKeyTwo));
+        // here package two will attempt to use package one's key. This means
+        // that we will revoke the key completely for protection
+        assertFalse(s.permitClientNameKeyPair(packageNameTwo, clientKeyOne));
+        // and now packageone is blocked
+        assertFalse(s.permitClientNameKeyPair(packageNameOne, clientKeyOne));
+        
+        // now package two uses it's own key
+        assertTrue(s.permitClientNameKeyPair(packageNameTwo, clientKeyTwo));
+        assertTrue(s.permitClientNameKeyPair(packageNameTwo, clientKeyTwo));
     }
 }

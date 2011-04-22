@@ -45,6 +45,14 @@ public class WaveRecipeAuthorization {
         sensorDescriptionMaxPrecisionMap = new HashMap<WaveSensorDescription, Double>();
     }
     
+    public WaveRecipe getRecipe() {
+        return recipe;
+    }
+    
+    public String getRecipeClientName() {
+        return recipeClientName;
+    }
+    
     public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxRateMap() {
         return sensorDescriptionMaxRateMap;
     }

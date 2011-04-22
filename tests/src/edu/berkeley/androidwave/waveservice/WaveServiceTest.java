@@ -10,6 +10,7 @@ package edu.berkeley.androidwave.waveservice;
 
 
 import android.content.Intent;
+import android.os.IBinder;
 import android.test.ServiceTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -51,5 +52,20 @@ public class WaveServiceTest extends ServiceTestCase<WaveService> {
         Intent startIntent = new Intent();
         startIntent.setClass(getContext(), WaveService.class);
         startService(startIntent); 
+    }
+
+    @SmallTest
+    public void testPrivateBindable() {
+        Intent startIntent = new Intent(Intent.ACTION_MAIN);
+        startIntent.setClass(getContext(), WaveService.class);
+        IBinder service = bindService(startIntent);
+        assertNotNull("service should not be null", service);
+    }
+    
+    @SmallTest
+    public void testPublicBindable() {
+        Intent startIntent = new Intent(WaveService.ACTION_WAVE_SERVICE);
+        IBinder service = bindService(startIntent);
+        assertNotNull("service should not be null", service);
     }
 }

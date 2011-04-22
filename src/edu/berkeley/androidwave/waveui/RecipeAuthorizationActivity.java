@@ -137,28 +137,42 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             
             Intent i = getIntent();
             String recipeId = i.getStringExtra(WaveService.RECIPE_ID_EXTRA);
-
-            theRecipe = null;
-            try {
-                File recipeCacheFile = mService.recipeCacheFileForId(recipeId);
-                theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile.getPath());
-                if (theRecipe == null) {
-                    setResult(RESULT_CANCELED);
-                    finish();
-                } else {
-                    recipeName.setText(theRecipe.getName());
-                    recipeDescription.setText(theRecipe.getDescription());
-                    String recipeSigner = theRecipe.getCertificate().getSubjectDN().toString();
-                    recipeSig.setText("Signed by: "+recipeSigner);
-                    authButton.setEnabled(true);
-                    denyButton.setEnabled(true);
+            
+            // verify that authenticity of the requesting app
+            String callingPackage = getCallingPackage();
+            String clientKey = i.getStringExtra(WaveService.CLIENT_KEY_EXTRA);
+            if (mService.permitClientNameKeyPair(callingPackage, clientKey)) {
+                theRecipe = null;
+                try {
+                    File recipeCacheFile = mService.recipeCacheFileForId(recipeId);
+                    theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile.getPath());
+                    if (theRecipe == null) {
+                        setResult(RESULT_CANCELED);
+                        finish();
+                    } else {
+                        recipeName.setText(theRecipe.getName());
+                        recipeDescription.setText(theRecipe.getDescription());
+                        String recipeSigner = theRecipe.getCertificate().getSubjectDN().toString();
+                        recipeSig.setText("Signed by: "+recipeSigner);
+                        authButton.setEnabled(true);
+                        denyButton.setEnabled(true);
+                    }
+                } catch (WaveRecipeNotCachedException nce) {
+                    Toast.makeText(RecipeAuthorizationActivity.this, "Attempting to retrieve this recipe…", Toast.LENGTH_SHORT).show();
+                    mService.beginRetrieveRecipeForID(recipeId, this);
+                } catch (Exception e) {
+                    Toast.makeText(RecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
                 }
-            } catch (WaveRecipeNotCachedException nce) {
-                Toast.makeText(RecipeAuthorizationActivity.this, "Attempting to retrieve this recipe…", Toast.LENGTH_SHORT).show();
-                mService.beginRetrieveRecipeForID(recipeId, this);
-            } catch (Exception e) {
-                Toast.makeText(RecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
+            } else {
+                Toast.makeText(RecipeAuthorizationActivity.this, "Authentication failed for requesting package "+callingPackage, Toast.LENGTH_SHORT).show();
+                // TODO: toast in another thread so we can pause here
+                // try {
+                //     Thread.sleep(1000);
+                // } catch (InterruptedException ie) {}
+                
+                setResult(RESULT_CANCELED);
+                finish();
             }
         } else {
             setResult(RESULT_CANCELED);
@@ -168,6 +182,9 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
     
     private OnClickListener mAuthListener = new OnClickListener() {
         public void onClick(View v) {
+            // TODO: save the authorization here
+            
+            
             setResult(RESULT_OK, (new Intent()).setAction(ACTION_DID_AUTHORIZE));
             finish();
         }

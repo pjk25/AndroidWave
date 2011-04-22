@@ -37,6 +37,7 @@ public class RecipeAuthorizationActivityTest extends ActivityInstrumentationTest
     public void setUp() {
         Intent i = new Intent(WaveService.ACTION_REQUEST_RECIPE_AUTHORIZE);
         i.putExtra(WaveService.RECIPE_ID_EXTRA, "edu.berkeley.waverecipe.AccelerometerMagnitude");
+        i.putExtra(WaveService.CLIENT_KEY_EXTRA, "sahtsthoesntaeonstdeasnthioasnh");
         
         setActivityIntent(i);   // NOTE: Activities under test may not be started from within the UI thread. If your test method is annotated with UiThreadTest, then you must call setActivityIntent(Intent) from setUp().
     }
