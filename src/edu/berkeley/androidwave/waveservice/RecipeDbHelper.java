@@ -15,9 +15,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.*;
+import android.database.SQLException;
 import android.util.Log;
 import java.security.cert.X509Certificate;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -78,7 +79,7 @@ public class RecipeDbHelper {
         if (c.moveToFirst()) {
             for (int i=0; i<c.getCount(); i++) {
                 map.put(c.getString(0), c.getString(1));
-                c.moveToNext();
+                assert c.moveToNext() : c;
             }
         }
         
@@ -100,28 +101,33 @@ public class RecipeDbHelper {
     
     
     protected WaveRecipeAuthorization[] loadAuthorized(WaveService waveService) {
+        Log.d(TAG, "loadAuthorized(" + waveService + ")");
         // TODO: optimize query to select by timestamps
         Cursor c = database.query(RECIPE_AUTH_TABLE_NAME,
                                   AuthColumns.ALL,
                                   null, null, null, null, null);
+        
         ArrayList<WaveRecipeAuthorization> authorized = new ArrayList<WaveRecipeAuthorization>();
-        for (int i=0; i<c.getCount(); i++) {
-            Date authTime = Date.valueOf(c.getString(2));
-            Date revokedTime = Date.valueOf(c.getString(3));
-            Date now = new Date(System.currentTimeMillis());
-            if (now.after(authTime)) {
-                if (revokedTime == null || revokedTime.after(now)) {
-                    String recipeId = c.getString(0);
-                    String authInfoData = c.getString(5);
+        if (c.moveToFirst()) {
+            for (int i=0; i<c.getCount(); i++) {
+                Timestamp authTime = (c.isNull(2) ? null : Timestamp.valueOf(c.getString(2)));
+                Timestamp revokedTime = (c.isNull(3) ? null : Timestamp.valueOf(c.getString(3)));
+                Timestamp now = new Timestamp(System.currentTimeMillis());
+                if (now.after(authTime)) {
+                    if (revokedTime == null || revokedTime.after(now)) {
+                        String recipeId = c.getString(0);
+                        String authInfoData = c.getString(5);
                     
-                    try {
-                        WaveRecipe recipe = waveService.getRecipeForId(recipeId);
-                        WaveRecipeAuthorization auth = WaveRecipeAuthorization.fromJSONString(recipe, authInfoData);
-                        authorized.add(auth);
-                    } catch (Exception e) {
-                        Log.w(TAG, "Exception encountered while restoring WaveRecipeAuthorization from SQL database", e);
+                        try {
+                            WaveRecipe recipe = waveService.getRecipeForId(recipeId);
+                            WaveRecipeAuthorization auth = WaveRecipeAuthorization.fromJSONString(recipe, authInfoData);
+                            authorized.add(auth);
+                        } catch (Exception e) {
+                            Log.w(TAG, "Exception encountered while restoring WaveRecipeAuthorization from SQL database", e);
+                        }
                     }
                 }
+                assert c.moveToNext() : c;
             }
         }
         
@@ -136,17 +142,23 @@ public class RecipeDbHelper {
         // TODO: make sure the signature from this cert is enough to detect a change in the recipe package
         X509Certificate recipeCertificate = auth.getRecipe().getCertificate();
         
-        Date currentDate = new Date(System.currentTimeMillis());
+        Timestamp now = new Timestamp(System.currentTimeMillis());
         
         ContentValues cv = new ContentValues(AuthColumns.ALL.length);
         cv.put(AuthColumns.RECIPE_ID, auth.getRecipe().getId());
         cv.put(AuthColumns.SIGNATURE, recipeCertificate.getSignature());
-        cv.put(AuthColumns.AUTH_TS, currentDate.toString());
+        cv.put(AuthColumns.AUTH_TS, now.toString());
         cv.putNull(AuthColumns.REVOKED_TS);
-        cv.put(AuthColumns.MODIFIED_TS, currentDate.toString());
+        cv.put(AuthColumns.MODIFIED_TS, now.toString());
         cv.put(AuthColumns.AUTH_INFO_DATA, auth.toJSONString());
         
-        long row = database.insert(RECIPE_AUTH_TABLE_NAME, null, cv);
+        long row;
+        try {
+            row = database.insertOrThrow(RECIPE_AUTH_TABLE_NAME, null, cv);
+        } catch (SQLException e) {
+            Log.w(TAG, "Exception while saving authorization", e);
+            return false;
+        }
         
         return row >= 0;
     }
