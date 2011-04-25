@@ -11,12 +11,15 @@ package edu.berkeley.androidwave.waveui;
 import edu.berkeley.androidwave.R;
 import edu.berkeley.androidwave.waveexception.WaveRecipeNotCachedException;
 import edu.berkeley.androidwave.waverecipe.WaveRecipe;
+import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
 import edu.berkeley.androidwave.waveservice.RecipeRetrievalResponder;
 import edu.berkeley.androidwave.waveservice.WaveService;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.*;
 import android.content.ServiceConnection;
@@ -38,6 +41,9 @@ import java.io.File;
  * recipe
  * 
  * TODO: Handle download progress, failure and success updates from the service
+ * TODO: More clearly define the recipe portion of the UI
+ * TODO: Use dialogs instead of Toast where necessary file:///usr/local/android-sdk-mac_86/docs/guide/topics/ui/dialogs.html
+ * TODO: This activity should not run if the app is already authorized
  */
 public class RecipeAuthorizationActivity extends Activity implements RecipeRetrievalResponder {
     
@@ -47,6 +53,11 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
     protected WaveRecipe theRecipe;
     protected WaveService mService;
     protected boolean mBound = false;
+    
+    protected String clientKey;
+    protected String recipeClientName;
+    protected Signature[] recipeClientSignatures;
+    protected WaveRecipeAuthorization recipeAuthorization;
     
     // view refs
     TextView appName;
@@ -101,14 +112,17 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                 Log.d(getClass().getSimpleName(), "NameNotFoundException while getting info for calling activity", nnfe);
             }
             appName.setText(callingActivityName);
+            
+            // store the client's name and signature info for the authorization
+            recipeClientName = getCallingPackage();
         
             // get some signature information about the requesting app
             String callingActivitySigString = "Signed: Unknown";
             try {
                 PackageInfo pInfo = pm.getPackageInfo(getCallingPackage(), PackageManager.GET_SIGNATURES);
-                Signature[] sigs = pInfo.signatures;
-                if (sigs != null && sigs.length > 0) {
-                    String sigAscii = sigs[0].toCharsString();
+                recipeClientSignatures = pInfo.signatures;
+                if (recipeClientSignatures != null && recipeClientSignatures.length > 0) {
+                    String sigAscii = recipeClientSignatures[0].toCharsString();
                     callingActivitySigString = "Signed: "+sigAscii.substring(0,20)+"…";
                 }
             } catch (PackageManager.NameNotFoundException e) {
@@ -139,9 +153,8 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             String recipeId = i.getStringExtra(WaveService.RECIPE_ID_EXTRA);
             
             // verify that authenticity of the requesting app
-            String callingPackage = getCallingPackage();
-            String clientKey = i.getStringExtra(WaveService.CLIENT_KEY_EXTRA);
-            if (mService.permitClientNameKeyPair(callingPackage, clientKey)) {
+            clientKey = i.getStringExtra(WaveService.CLIENT_KEY_EXTRA);
+            if (mService.permitClientNameKeyPair(recipeClientName, clientKey)) {
                 theRecipe = null;
                 try {
                     File recipeCacheFile = mService.recipeCacheFileForId(recipeId);
@@ -150,7 +163,14 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                         setResult(RESULT_CANCELED);
                         finish();
                     } else {
-                        recipeName.setText(theRecipe.getName());
+                        // Create an authorization object
+                        recipeAuthorization = new WaveRecipeAuthorization(theRecipe);
+                        recipeAuthorization.setRecipeClientName(recipeClientName);
+                        recipeAuthorization.setRecipeClientSignatures(recipeClientSignatures);
+                        // TODO: assign granularity data with UI
+                        
+                        // update the UI
+                        recipeName.setText("Recipe: "+theRecipe.getName());
                         recipeDescription.setText(theRecipe.getDescription());
                         String recipeSigner = theRecipe.getCertificate().getSubjectDN().toString();
                         recipeSig.setText("Signed by: "+recipeSigner);
@@ -165,7 +185,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                     e.printStackTrace();
                 }
             } else {
-                Toast.makeText(RecipeAuthorizationActivity.this, "Authentication failed for requesting package "+callingPackage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(RecipeAuthorizationActivity.this, "Authentication failed for requesting package "+recipeClientName, Toast.LENGTH_SHORT).show();
                 // TODO: toast in another thread so we can pause here
                 // try {
                 //     Thread.sleep(1000);
@@ -182,11 +202,21 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
     
     private OnClickListener mAuthListener = new OnClickListener() {
         public void onClick(View v) {
-            // TODO: save the authorization here
-            
-            
-            setResult(RESULT_OK, (new Intent()).setAction(ACTION_DID_AUTHORIZE));
-            finish();
+            if (mService.saveAuthorization(clientKey, recipeAuthorization)) {
+                setResult(RESULT_OK, (new Intent()).setAction(ACTION_DID_AUTHORIZE));
+                finish();
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(RecipeAuthorizationActivity.this);
+                builder.setMessage("AndroidWave: internal error.")
+                       .setCancelable(false)
+                       .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                           public void onClick(DialogInterface dialog, int id) {
+                                setResult(RESULT_CANCELED);
+                               RecipeAuthorizationActivity.this.finish();
+                           }
+                       });
+                AlertDialog alert = builder.create();
+            }
         }
     };
     

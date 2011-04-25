@@ -53,6 +53,14 @@ public class WaveRecipeAuthorization {
         return recipeClientName;
     }
     
+    public void setRecipeClientName(String name) {
+        recipeClientName = name;
+    }
+    
+    public void setRecipeClientSignatures(Signature[] signatures) {
+        recipeClientSignatures = signatures;
+    }
+    
     public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxRateMap() {
         return sensorDescriptionMaxRateMap;
     }

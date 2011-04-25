@@ -219,7 +219,7 @@ public class WaveService extends Service {
      * saveAuthorization
      * 
      * save a new authorization.  Note that we don't check the validity of the
-     * client key
+     * client key, because this is a private method.
      */
     public synchronized boolean saveAuthorization(String clientKey, WaveRecipeAuthorization auth) {
         if (databaseHelper.saveAuthorization(auth)) {
