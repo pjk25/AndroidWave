@@ -27,7 +27,7 @@ public class RecipeDbHelper {
     
     private static final String TAG = "RecipeDbHelper";
     
-    protected static final String DATABASE_NAME = "androidwave_recipes.db";
+    protected static final String DATABASE_NAME = "user_recipes.db";
     protected static final int DATABASE_VERSION = 1;
     protected static final String RECIPE_CLIENT_KEYS_TABLE_NAME = "recipe_client_keys";
     protected static final String RECIPE_AUTH_TABLE_NAME = "recipe_auth";
