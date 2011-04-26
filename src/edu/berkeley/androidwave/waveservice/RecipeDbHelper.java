@@ -154,14 +154,15 @@ public class RecipeDbHelper {
         // TODO: make sure the signature from this cert is enough to detect a change in the recipe package
         X509Certificate recipeCertificate = auth.getRecipe().getCertificate();
         
-        Timestamp now = new Timestamp(System.currentTimeMillis());
+        Timestamp authorizedTs = new Timestamp(auth.getAuthorizedDate().getTime());
+        Timestamp modifiedTs = new Timestamp(auth.getModifiedDate().getTime());
         
         ContentValues cv = new ContentValues(AuthColumns.ALL.length);
         cv.put(AuthColumns.RECIPE_ID, auth.getRecipe().getId());
         cv.put(AuthColumns.SIGNATURE, recipeCertificate.getSignature());
-        cv.put(AuthColumns.AUTH_TS, now.toString());
+        cv.put(AuthColumns.AUTH_TS, authorizedTs.toString());
         cv.putNull(AuthColumns.REVOKED_TS);
-        cv.put(AuthColumns.MODIFIED_TS, now.toString());
+        cv.put(AuthColumns.MODIFIED_TS, modifiedTs.toString());
         cv.put(AuthColumns.AUTH_INFO_DATA, auth.toJSONString());
         
         long row;
