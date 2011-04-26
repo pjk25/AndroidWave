@@ -97,10 +97,11 @@ public class RecipeDbHelper {
     }
     
     protected synchronized boolean removeClientKeyEntry(String key) {
-        // null implementation
-        return false;
+        String[] whereArgs = { key };
+        long count = database.delete(RECIPE_CLIENT_KEYS_TABLE_NAME, KeysColumns.CLIENT_KEY+"==?", whereArgs);
+        assert count < 2 : key;
+        return count == 1;
     }
-    
     
     protected WaveRecipeAuthorization[] loadAuthorized(WaveService waveService) {
         Log.d(TAG, "loadAuthorized(" + waveService + ")");
