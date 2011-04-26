@@ -97,11 +97,11 @@ public class RecipeDbHelper {
         try {
             result = database.insertOrThrow(RECIPE_CLIENT_KEYS_TABLE_NAME, null, cv);
         } catch (SQLException e) {
-            Log.w(TAG, "SQLException while storing ClientKeyNameEntry", e);
+            Log.w(TAG, "SQLException while storing "+cv, e);
             return false;
         }
-        Log.d(TAG, "storeClientKeyNameEntry("+key+", "+name+") => "+(result == 1));
-        return result == 1;
+        
+        return result >= 0;
     }
     
     protected synchronized boolean removeClientKeyEntry(String key) {
@@ -207,13 +207,13 @@ public class RecipeDbHelper {
             
             db.execSQL("CREATE TABLE " + RECIPE_CLIENT_KEYS_TABLE_NAME + " ("
                     + KeysColumns._ID + " INTEGER PRIMARY KEY,"
-                    + KeysColumns.CLIENT_KEY + " TEXT UNIQUE,"
-                    + KeysColumns.CLIENT_NAME + " TEXT UNIQUE"
+                    + KeysColumns.CLIENT_KEY + " TEXT UNIQUE NOT NULL,"
+                    + KeysColumns.CLIENT_NAME + " TEXT UNIQUE NOT NULL"
                     + ");");
             
             db.execSQL("CREATE TABLE " + RECIPE_AUTH_TABLE_NAME + " ("
                     + AuthColumns._ID + " INTEGER PRIMARY KEY,"
-                    + AuthColumns.RECIPE_ID + " TEXT UNIQUE,"
+                    + AuthColumns.RECIPE_ID + " TEXT UNIQUE NOT NULL,"
                     + AuthColumns.SIGNATURE + " BLOB,"
                     + AuthColumns.AUTH_TS + " TEXT,"
                     + AuthColumns.REVOKED_TS + " TEXT,"
