@@ -61,8 +61,6 @@ public class RecipeDbHelperTest extends AndroidTestCase {
         // assertEquals("2 saved entries", 2, clientKeyNameMap.size());
         assertEquals("1 saved entries", 1, clientKeyNameMap.size());
         
-        System.out.println(clientKeyNameMap.toString());
-        
         assertTrue(clientKeyNameMap.containsKey(someKey));
         assertTrue(clientKeyNameMap.containsValue(someName));
         assertEquals(someName, clientKeyNameMap.get(someKey));
@@ -73,7 +71,7 @@ public class RecipeDbHelperTest extends AndroidTestCase {
     }
     
     public void testAuthStorage() {
-        
+        fail("test not written yet");
     }
     
     public void testPreconditions() {

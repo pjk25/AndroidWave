@@ -27,10 +27,10 @@ public class RecipeDbHelper {
     
     private static final String TAG = "RecipeDbHelper";
     
-    private static final String DATABASE_NAME = "androidwave_recipes.db";
-    private static final int DATABASE_VERSION = 1;
-    private static final String RECIPE_CLIENT_KEYS_TABLE_NAME = "recipe_client_keys";
-    private static final String RECIPE_AUTH_TABLE_NAME = "recipe_auth";
+    protected static final String DATABASE_NAME = "androidwave_recipes.db";
+    protected static final int DATABASE_VERSION = 1;
+    protected static final String RECIPE_CLIENT_KEYS_TABLE_NAME = "recipe_client_keys";
+    protected static final String RECIPE_AUTH_TABLE_NAME = "recipe_auth";
     
     protected SQLiteDatabase database;
     
@@ -81,9 +81,10 @@ public class RecipeDbHelper {
         if (c.moveToFirst()) {
             for (int i=0; i<c.getCount(); i++) {
                 map.put(c.getString(0), c.getString(1));
-                assert c.moveToNext() : c;
+                c.moveToNext();
             }
         }
+        c.close();
         
         return map;
     }
@@ -99,6 +100,7 @@ public class RecipeDbHelper {
             Log.w(TAG, "SQLException while storing ClientKeyNameEntry", e);
             return false;
         }
+        Log.d(TAG, "storeClientKeyNameEntry("+key+", "+name+") => "+(result == 1));
         return result == 1;
     }
     
@@ -136,9 +138,10 @@ public class RecipeDbHelper {
                         }
                     }
                 }
-                assert c.moveToNext() : c;
+                c.moveToNext();
             }
         }
+        c.close();
         
         return authorized.toArray(new WaveRecipeAuthorization[0]);
     }
