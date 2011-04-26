@@ -15,6 +15,7 @@ import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 import android.content.pm.Signature;
 import android.util.Log;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -34,6 +35,9 @@ public class WaveRecipeAuthorization {
     
     protected String recipeClientName;
     protected Signature[] recipeClientSignatures;
+    
+    protected Date authorizedDate;
+    protected Date modifiedDate;
     
     protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxRateMap;
     protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxPrecisionMap;
@@ -59,6 +63,22 @@ public class WaveRecipeAuthorization {
     
     public void setRecipeClientSignatures(Signature[] signatures) {
         recipeClientSignatures = signatures;
+    }
+    
+    public Date getAuthorizedDate() {
+        return authorizedDate;
+    }
+    
+    public void setAuthorizedDate(Date d) {
+        authorizedDate = d;
+    }
+    
+    public Date getModifiedDate() {
+        return modifiedDate;
+    }
+    
+    public void setModifiedDate(Date d) {
+        modifiedDate = d;
     }
     
     public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxRateMap() {
@@ -93,6 +113,8 @@ public class WaveRecipeAuthorization {
         return recipe.getId().equals(lhs.recipe.getId()) &&
             recipeClientName.equals(lhs.recipeClientName) &&
             Arrays.equals(recipeClientSignatures, lhs.recipeClientSignatures) &&
+            (authorizedDate == null ? lhs.authorizedDate == null : authorizedDate.equals(lhs.authorizedDate)) &&
+            (modifiedDate == null ? lhs.modifiedDate == null : modifiedDate.equals(lhs.modifiedDate)) &&
             sensorDescriptionMaxRateMap.equals(lhs.sensorDescriptionMaxRateMap) &&
             sensorDescriptionMaxPrecisionMap.equals(lhs.sensorDescriptionMaxPrecisionMap);
     }
@@ -105,7 +127,7 @@ public class WaveRecipeAuthorization {
      * Convert this authorization for use by wave clients.
      */
     public WaveRecipeAuthorizationInfo asInfo() {
-        WaveRecipeAuthorizationInfo info = new WaveRecipeAuthorizationInfo(recipe.getId());
+        WaveRecipeAuthorizationInfo info = new WaveRecipeAuthorizationInfo(recipe.getId(), authorizedDate, modifiedDate);
         
         info.recipeOutputDescription = recipe.getOutput();
         
@@ -141,6 +163,10 @@ public class WaveRecipeAuthorization {
                 sigs.put(recipeClientSignatures[i].toCharsString());
             }
             asJson.put("recipeClientSignatures", sigs);
+            // authorizedDate
+            asJson.put("authorizedDate", authorizedDate.getTime());
+            // modifiedDate
+            asJson.put("modifiedDate", modifiedDate.getTime());
             // rateMap
             asJson.put("sensorDescriptionMaxRateMap", sensorDescriptionMaxRateMapAsJSON());
             // precesionMap
@@ -170,6 +196,9 @@ public class WaveRecipeAuthorization {
             for (int i=0; i<a.length(); i++) {
                 auth.recipeClientSignatures[i] = new Signature(a.getString(i));
             }
+            
+            auth.authorizedDate = new Date(o.getLong("authorizedDate"));
+            auth.modifiedDate = new Date(o.getLong("modifiedDate"));
             
             Iterator it;
             

@@ -16,6 +16,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.test.suitebuilder.annotation.SmallTest;
 import java.io.*;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -30,13 +31,15 @@ public class WaveRecipeAuthorizationInfoTest extends AndroidTestCase {
     
     @SmallTest
     public void testEquals() throws Exception {
-        WaveRecipeAuthorizationInfo one = new WaveRecipeAuthorizationInfo("edu.berkeley.myrecipe");
+        Date now = new Date();
+        
+        WaveRecipeAuthorizationInfo one = new WaveRecipeAuthorizationInfo("edu.berkeley.myrecipe", now, now);
         one.outputMaxRate = 10.0;
         one.outputMaxPrecision = 0.01;
         one.recipeOutputDescription = new WaveRecipeOutputDescription("angle", "rad/s");
         one.recipeOutputDescription.addChannel(new WaveRecipeOutputChannelDescription("phi"));
 
-        WaveRecipeAuthorizationInfo two = new WaveRecipeAuthorizationInfo("edu.berkeley.myrecipe");
+        WaveRecipeAuthorizationInfo two = new WaveRecipeAuthorizationInfo("edu.berkeley.myrecipe", now, now);
         two.outputMaxRate = 10.0;
         two.outputMaxPrecision = 0.01;
         two.recipeOutputDescription = new WaveRecipeOutputDescription("angle", "rad/s");
@@ -44,7 +47,7 @@ public class WaveRecipeAuthorizationInfoTest extends AndroidTestCase {
         
         assertEquals(one, two);
         
-        WaveRecipeAuthorizationInfo three = new WaveRecipeAuthorizationInfo("edu.berkeley.myotherrecipe");
+        WaveRecipeAuthorizationInfo three = new WaveRecipeAuthorizationInfo("edu.berkeley.myotherrecipe", now, now);
         three.outputMaxRate = 10.0;
         three.outputMaxPrecision = 0.01;
         three.recipeOutputDescription = new WaveRecipeOutputDescription("speed", "m/s");
@@ -54,9 +57,11 @@ public class WaveRecipeAuthorizationInfoTest extends AndroidTestCase {
     
     @SmallTest
     public void testParcelable() throws Exception {
+        Date now = new Date();
+        
         Parcel p = Parcel.obtain();
         
-        WaveRecipeAuthorizationInfo original = new WaveRecipeAuthorizationInfo("edu.berkeley.myrecipe");
+        WaveRecipeAuthorizationInfo original = new WaveRecipeAuthorizationInfo("edu.berkeley.myrecipe", now, now);
         original.outputMaxRate = 10.0;
         original.outputMaxPrecision = 0.01;
         WaveRecipeOutputDescription od = new WaveRecipeOutputDescription("angle", "rad/s");

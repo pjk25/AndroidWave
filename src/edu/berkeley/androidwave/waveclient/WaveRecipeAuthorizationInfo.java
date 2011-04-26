@@ -12,6 +12,7 @@ import android.content.pm.Signature;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -22,6 +23,9 @@ import java.util.HashMap;
 public class WaveRecipeAuthorizationInfo implements Parcelable {
     
     public String recipeId;
+    
+    public Date authorizedDate;
+    public Date modifiedDate;
 
     public WaveRecipeOutputDescription recipeOutputDescription;
     
@@ -31,10 +35,12 @@ public class WaveRecipeAuthorizationInfo implements Parcelable {
     /**
      * Constructor
      */
-    public WaveRecipeAuthorizationInfo(String id) {
+    public WaveRecipeAuthorizationInfo(String id, Date authorizedDate, Date modifiedDate) {
         outputMaxRate = -1.0;
         outputMaxPrecision = -1.0;
         recipeId = id;
+        this.authorizedDate = authorizedDate;
+        this.modifiedDate = modifiedDate;
     }
     
     // Use @Override to avoid accidental overloading.
@@ -58,6 +64,8 @@ public class WaveRecipeAuthorizationInfo implements Parcelable {
         // Check each field. Primitive fields, reference fields, and nullable reference
         // fields are all treated differently.
         return recipeId.equals(lhs.recipeId) &&
+            authorizedDate.equals(lhs.authorizedDate) &&
+            modifiedDate.equals(lhs.modifiedDate) &&
             outputMaxRate == lhs.outputMaxRate &&
             outputMaxPrecision == lhs.outputMaxPrecision &&
             (recipeOutputDescription == null ? lhs.recipeOutputDescription == null
@@ -72,6 +80,8 @@ public class WaveRecipeAuthorizationInfo implements Parcelable {
 
         // Include a hash for each field.
         result = 31 * result + recipeId.hashCode();
+        result = 31 * result + authorizedDate.hashCode();
+        result = 31 * result + modifiedDate.hashCode();
         result = 31 * result + (recipeOutputDescription == null ? 0 : recipeOutputDescription.hashCode());
 
         doubleFieldBits = Double.doubleToLongBits(outputMaxRate);
@@ -85,6 +95,8 @@ public class WaveRecipeAuthorizationInfo implements Parcelable {
     @Override public String toString() {
         return getClass().getName() + "[" +
             "recipeId=" + recipeId + ", " +
+            "authorizedDate=" + authorizedDate + ", " +
+            "modifiedDate=" + modifiedDate + ", " +
             "outputMaxRate=" + outputMaxRate + ", " +
             "outputMaxPrecision=" + outputMaxPrecision + ", " +
             "recipeOutputDescription=" + recipeOutputDescription +
@@ -100,6 +112,8 @@ public class WaveRecipeAuthorizationInfo implements Parcelable {
     
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(recipeId);
+        dest.writeLong(authorizedDate.getTime());
+        dest.writeLong(modifiedDate.getTime());
         dest.writeParcelable(recipeOutputDescription, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
         dest.writeDouble(outputMaxRate);
         dest.writeDouble(outputMaxPrecision);
@@ -117,6 +131,8 @@ public class WaveRecipeAuthorizationInfo implements Parcelable {
     
     private WaveRecipeAuthorizationInfo(Parcel in) {
         recipeId = in.readString();
+        authorizedDate = new Date(in.readLong());
+        modifiedDate = new Date(in.readLong());
         recipeOutputDescription = in.readParcelable(WaveRecipeOutputDescription.class.getClassLoader());
         outputMaxRate = in.readDouble();
         outputMaxPrecision = in.readDouble();

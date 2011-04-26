@@ -11,12 +11,13 @@ package edu.berkeley.androidwave.waverecipe;
 import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
 
-import java.io.*;
-import java.util.HashMap;
 import android.content.pm.Signature;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import java.io.*;
+import java.util.Date;
+import java.util.HashMap;
 
 /**
  * WaveRecipeAuthorizationTest
@@ -94,6 +95,10 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
         auth.recipeClientName = "edu.berkeley.waveclientsample.WaveClientSample";
         auth.recipeClientSignatures = new Signature[1];
         auth.recipeClientSignatures[0] = new Signature("");
+        
+        Date now = new Date();
+        auth.authorizedDate = now;
+        auth.modifiedDate = now;
         
         String jsonString = original.toJSONString();
         
