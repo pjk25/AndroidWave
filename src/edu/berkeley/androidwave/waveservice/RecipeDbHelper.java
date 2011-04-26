@@ -42,6 +42,8 @@ public class RecipeDbHelper {
         // public static final String _COUNT = "_count";
         public static final String CLIENT_KEY = "client_key";
         public static final String CLIENT_NAME = "client_name";
+        
+        public static final String[] ALL = {CLIENT_KEY, CLIENT_NAME};
     }
     
     static final class AuthColumns {
@@ -53,6 +55,10 @@ public class RecipeDbHelper {
         public static final String REVOKED_TS = "revoked";
         public static final String MODIFIED_TS = "modified";
         public static final String AUTH_INFO_DATA = "auth_info_data";
+        
+        public static final String[] ALL = {RECIPE_ID, SIGNATURE,
+                                            AUTH_TS, REVOKED_TS, MODIFIED_TS,
+                                            AUTH_INFO_DATA};
     }
     
     private DatabaseHelper mOpenHelper;
@@ -70,7 +76,7 @@ public class RecipeDbHelper {
         Map<String, String> map = new HashMap<String, String>();
 
         Cursor c = database.query(RECIPE_CLIENT_KEYS_TABLE_NAME,
-                                  null,
+                                  KeysColumns.ALL,
                                   null,  null, null, null, null);
         if (c.moveToFirst()) {
             for (int i=0; i<c.getCount(); i++) {
@@ -107,7 +113,7 @@ public class RecipeDbHelper {
         Log.d(TAG, "loadAuthorized(" + waveService + ")");
         // TODO: optimize query to select by timestamps
         Cursor c = database.query(RECIPE_AUTH_TABLE_NAME,
-                                  null,
+                                  AuthColumns.ALL,
                                   null, null, null, null, null);
         
         ArrayList<WaveRecipeAuthorization> authorized = new ArrayList<WaveRecipeAuthorization>();
@@ -147,7 +153,7 @@ public class RecipeDbHelper {
         
         Timestamp now = new Timestamp(System.currentTimeMillis());
         
-        ContentValues cv = new ContentValues(7);
+        ContentValues cv = new ContentValues(AuthColumns.ALL.length);
         cv.put(AuthColumns.RECIPE_ID, auth.getRecipe().getId());
         cv.put(AuthColumns.SIGNATURE, recipeCertificate.getSignature());
         cv.put(AuthColumns.AUTH_TS, now.toString());
