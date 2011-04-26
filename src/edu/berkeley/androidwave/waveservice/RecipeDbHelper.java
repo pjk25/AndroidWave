@@ -86,8 +86,14 @@ public class RecipeDbHelper {
         ContentValues cv = new ContentValues(2);
         cv.put(KeysColumns.CLIENT_KEY, key);
         cv.put(KeysColumns.CLIENT_NAME, name);
-        long result = database.insert(RECIPE_CLIENT_KEYS_TABLE_NAME, null, cv);
-        return result >= 0;
+        long result;
+        try {
+            result = database.insertOrThrow(RECIPE_CLIENT_KEYS_TABLE_NAME, null, cv);
+        } catch (SQLException e) {
+            Log.w(TAG, "SQLException while storing ClientKeyNameEntry", e);
+            return false;
+        }
+        return result == 1;
     }
     
     protected synchronized boolean removeClientKeyEntry(String key) {
