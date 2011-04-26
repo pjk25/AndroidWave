@@ -185,14 +185,18 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                     e.printStackTrace();
                 }
             } else {
-                Toast.makeText(RecipeAuthorizationActivity.this, "Authentication failed for requesting package "+recipeClientName, Toast.LENGTH_SHORT).show();
-                // TODO: toast in another thread so we can pause here
-                // try {
-                //     Thread.sleep(1000);
-                // } catch (InterruptedException ie) {}
-                
-                setResult(RESULT_CANCELED);
-                finish();
+                AlertDialog.Builder builder = new AlertDialog.Builder(RecipeAuthorizationActivity.this);
+                String[] pParts = recipeClientName.split(".");
+                String shortName = (pParts.length > 0 ? pParts[pParts.length-1] : recipeClientName);
+                builder.setMessage("Authentication failed for requesting package "+recipeClientName+".\n\n"+shortName+" has either been re-installed, or is attempting to use another app's key.")
+                       .setCancelable(false)
+                       .setPositiveButton("Reject", new DialogInterface.OnClickListener() {
+                           public void onClick(DialogInterface dialog, int id) {
+                               setResult(RESULT_CANCELED);
+                               RecipeAuthorizationActivity.this.finish();
+                           }
+                       });
+                AlertDialog alert = builder.create();
             }
         } else {
             setResult(RESULT_CANCELED);
