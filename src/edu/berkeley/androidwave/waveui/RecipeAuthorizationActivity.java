@@ -47,12 +47,16 @@ import java.io.File;
  */
 public class RecipeAuthorizationActivity extends Activity implements RecipeRetrievalResponder {
     
+    private static final String TAG = RecipeAuthorizationActivity.class.getSimpleName();
+    
     public static final String ACTION_DID_AUTHORIZE = "edu.berkeley.androidwave.intent.action.DID_AUTHORIZE";
     public static final String ACTION_DID_DENY = "edu.berkeley.androidwave.intent.action.DID_DENY";
     
     protected WaveRecipe theRecipe;
     protected WaveService mService;
     protected boolean mBound = false;
+    
+    private boolean createDidSucceed;
     
     protected String clientKey;
     protected String recipeClientName;
@@ -90,18 +94,13 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
         denyButton.setOnClickListener(mDenyListener);
         
         // connect to WaveService
+        createDidSucceed = true;
         Intent sIntent = new Intent(Intent.ACTION_MAIN);
         sIntent.setClass(this, WaveService.class);
         try {
             bindService(sIntent, mConnection, Context.BIND_AUTO_CREATE);
             // we have to wait for onCreate to finish before the binding happens
-        } catch (Exception e) {
-            Toast.makeText(RecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
-            System.out.println("Encountered excepting during bindService in RecipeAuthorizationActivity with "+sIntent);
-            e.printStackTrace();
-        }
-        
-        try {
+            
             // get some name information about the requesting app
             PackageManager pm = getPackageManager();
             String callingActivityName = "From: Unknown application";
@@ -110,9 +109,10 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                 callingActivityName = "From: "+aInfo.loadLabel(pm);
             } catch (PackageManager.NameNotFoundException nnfe) {
                 Log.d(getClass().getSimpleName(), "NameNotFoundException while getting info for calling activity", nnfe);
+                createDidSucceed = false;
             }
             appName.setText(callingActivityName);
-            
+        
             // store the client's name and signature info for the authorization
             recipeClientName = getCallingPackage();
         
@@ -127,10 +127,14 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                 }
             } catch (PackageManager.NameNotFoundException e) {
                 Log.d(getClass().getSimpleName(), "Exception while getting signature info for calling package", e);
+                createDidSucceed = false;
             }
             appSig.setText(callingActivitySigString);
+            
         } catch (Exception e) {
-            Log.d(getClass().getSimpleName(), "Exeption while getting info for calling activity", e);
+            Toast.makeText(RecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "Exception during onCreate()", e);
+            createDidSucceed = false;
         }
     }
     
@@ -146,7 +150,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
     
     private void afterBind() {
         // check in with the service about the status of this recipe
-        if (mBound) {
+        if (mBound && createDidSucceed) {
             Log.d(getClass().getSimpleName(), "RecipeAuthorizationActivity has bound to "+mService);
             
             Intent i = getIntent();
