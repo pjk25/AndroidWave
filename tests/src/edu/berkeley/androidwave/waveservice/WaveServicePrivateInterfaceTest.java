@@ -77,7 +77,7 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
      * This test evidences the caching structure
      */
     @SmallTest
-    public void testRecipeInCacheFileForId() throws Exception {
+    public void testRecipeCacheFileForId() throws Exception {
         WaveService s = getService();
         assertNotNull(s);
         
