@@ -191,6 +191,7 @@ public class WaveService extends Service {
     public synchronized boolean permitClientNameKeyPair(String packageName, String key) {
         // first, see if we have a stored key for that packageName
         if (clientKeyNameMap.containsValue(packageName)) {
+            Log.d(TAG, "Checking key for previously registered package "+packageName);
             // see if the proposed key is correct
             if (clientKeyNameMap.containsKey(key) && clientKeyNameMap.get(key).equals(packageName)) {
                 return true;
@@ -198,6 +199,7 @@ public class WaveService extends Service {
                 return false;
             }
         } else if (clientKeyNameMap.containsKey(key)) {
+            Log.d(TAG, ""+packageName+" attempted use of another package's key. Removing key.");
             // we must make sure the secret key is not already in use. If a
             // conflict is detected, this means that a new client randomly
             // chose a key matching that of another client.  The safest thing
@@ -206,9 +208,12 @@ public class WaveService extends Service {
             // another possibly would be to make the stored key a secure hash
             // of the client name and it's key, to avoid collisions of this
             // sort.
-            databaseHelper.removeClientKeyEntry(key);
+            if (!databaseHelper.removeClientKeyEntry(key)) {
+                Log.w(TAG, "Failed to remove conflicting client key from database");
+            }
             clientKeyNameMap.remove(key);
         } else if (databaseHelper.storeClientKeyNameEntry(key, packageName)) {
+            Log.w(TAG, "Storing new key for "+packageName);
             clientKeyNameMap.put(key, packageName);
             return true;
         }
@@ -236,6 +241,22 @@ public class WaveService extends Service {
     public synchronized boolean updateAuthorization(WaveRecipeAuthorization auth) {
         // null implementation
         return false;
+    }
+    
+    /**
+     * resets the authorization system to a clean install state.  Database
+     * info and caches are wiped.
+     */
+    protected synchronized void resetDatabase() {
+        Log.d(TAG, "begin resetDatabase()");
+        
+        databaseHelper.emptyDatabase();
+        
+        clientKeyNameMap = new HashMap<String, String>();
+        validAuthorizationsByClientKey = new HashMap<String, Set>();
+        revokedAuthorizationsByClientKey = new HashMap<String, Set>();
+        
+        Log.d(TAG, "end resetDatabase()");
     }
     
     /**

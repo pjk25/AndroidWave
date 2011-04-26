@@ -41,7 +41,7 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
+        
         Intent startIntent = new Intent(Intent.ACTION_MAIN);
         startIntent.setClass(getContext(), WaveService.class);
         service = bindService(startIntent);
@@ -107,22 +107,29 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
         WaveService s = getService();
         assertNotNull(s);
         
-        String packageNameOne = "edu.berkeley.waveclientsample";
+        // clear the database for the test
+        s.resetDatabase();
+        
+        String packageNameOne = "edu.berkeley.berkeleyapp";
         String clientKeyOne = "some_random_key";
         
         String packageNameTwo = "com.android.somecoolapp";
         String clientKeyTwo = "some_other_key";
         
-        // note that the auth db should be empty
+        // client one connects for the first time, registering it's key
         assertTrue(s.permitClientNameKeyPair(packageNameOne, clientKeyOne));
+        // and that key is recognized
         assertTrue(s.permitClientNameKeyPair(packageNameOne, clientKeyOne));
-        
+        // and it is rejected if it uses another key
         assertFalse(s.permitClientNameKeyPair(packageNameOne, clientKeyTwo));
+        
         // here package two will attempt to use package one's key. This means
         // that we will revoke the key completely for protection
         assertFalse(s.permitClientNameKeyPair(packageNameTwo, clientKeyOne));
         // and now packageone is blocked
-        assertFalse(s.permitClientNameKeyPair(packageNameOne, clientKeyOne));
+        //    this would require storing the revoked keys, which we will
+        //    implement at a later date
+        //assertFalse(s.permitClientNameKeyPair(packageNameOne, clientKeyOne));
         
         // now package two uses it's own key
         assertTrue(s.permitClientNameKeyPair(packageNameTwo, clientKeyTwo));

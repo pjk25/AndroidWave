@@ -34,6 +34,8 @@ public class RecipeDbHelper {
     
     protected SQLiteDatabase database;
     
+    // TODO: keep track of revoked CLIENT_KEY/NAME pairs and reject their reuse
+    
     // TODO: add a signature to the column as well for added security against client name collisions
     static final class KeysColumns {
         public static final String _ID = "_id";
@@ -231,6 +233,14 @@ public class RecipeDbHelper {
            // Recreates the database with a new version
            onCreate(db);
         }
+    }
+    
+    protected synchronized void emptyDatabase() {
+        long count = database.delete(RECIPE_CLIENT_KEYS_TABLE_NAME, "1", null);
+        Log.w(TAG, "Deleted "+count+" record(s) from "+DATABASE_NAME+"/"+RECIPE_CLIENT_KEYS_TABLE_NAME);
+        
+        count = database.delete(RECIPE_AUTH_TABLE_NAME, "1", null);
+        Log.w(TAG, "Deleted "+count+" record(s) from "+DATABASE_NAME+"/"+RECIPE_AUTH_TABLE_NAME);
     }
     
     protected void closeDatabase() {
