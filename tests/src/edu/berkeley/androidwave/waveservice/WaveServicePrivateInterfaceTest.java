@@ -11,8 +11,11 @@ package edu.berkeley.androidwave.waveservice;
 import edu.berkeley.androidwave.PrivateAccessor;
 import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waveexception.WaveRecipeNotCachedException;
+import edu.berkeley.androidwave.waverecipe.WaveRecipe;
+import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
 
 import android.content.Intent;
+import android.content.pm.Signature;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.test.ServiceTestCase;
@@ -20,6 +23,8 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import java.io.*;
+import java.util.Date;
+import java.util.Set;
 
 /**
  * This is a simple framework for a test of a Service.  See {@link android.test.ServiceTestCase
@@ -134,5 +139,36 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
         // now package two uses it's own key
         assertTrue(s.permitClientNameKeyPair(packageNameTwo, clientKeyTwo));
         assertTrue(s.permitClientNameKeyPair(packageNameTwo, clientKeyTwo));
+    }
+    
+    /**
+     * testSaveAuthorization
+     */
+    @MediumTest
+    public void testSaveAuthorization() throws Exception {
+        WaveService s = getService();
+        assertNotNull(s);
+        
+        s.resetDatabase();
+        
+        String clientPackageName = "edu.berkeley.waveapps.fitness";
+        String clientKey = "theaoceoahcrdiaoq,.hucu";
+        
+        assertTrue(s.permitClientNameKeyPair(clientPackageName, clientKey));
+        
+        cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveService.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
+        WaveRecipe recipe = s.getRecipeForId("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
+        
+        Date now = new Date();
+        auth.setRecipeClientName("edu.berkeley.waveapps.fitness");
+        auth.setRecipeClientSignatures(new Signature[] { new Signature("theatihceadocdttheaotnhai") });
+        auth.setAuthorizedDate(now);
+        auth.setModifiedDate(now);
+        
+        assertTrue(s.saveAuthorization(clientKey, auth));
+        assertTrue(s.validAuthorizationsByClientKey.containsKey(clientKey));
+        Set<WaveRecipeAuthorization> authSet = (Set<WaveRecipeAuthorization>)s.validAuthorizationsByClientKey.get(clientKey);
+        assertTrue(authSet.contains(auth));
     }
 }
