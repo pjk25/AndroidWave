@@ -12,6 +12,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
@@ -44,6 +45,7 @@ public class WaveService extends Service {
     protected RecipeDbHelper databaseHelper;
     
     protected Map<String, String> clientKeyNameMap;
+    protected ArrayList<WaveRecipeAuthorization> authorizations;
     protected Map<String, Set<WaveRecipeAuthorization> > validAuthorizationsByClientKey;
     protected Map<String, Set<WaveRecipeAuthorization> > revokedAuthorizationsByClientKey;
     
@@ -69,13 +71,16 @@ public class WaveService extends Service {
             clientNameKeyMap.put(entry.getValue(), entry.getKey());
         }
         
-        WaveRecipeAuthorization[] validAuthorizations = databaseHelper.loadAuthorized(this); // the waveservice is passed so that we can load recipes
+        authorizations = new ArrayList<WaveRecipeAuthorization>();
+        
+        ArrayList<WaveRecipeAuthorization> validAuthorizations = databaseHelper.loadAuthorized(this); // the waveservice is passed so that we can load recipes
+        authorizations.addAll(validAuthorizations);
+        
         // sort the authorizations by client name
         // maybe we should have a different table for each clientName?
         validAuthorizationsByClientKey = new HashMap<String, Set<WaveRecipeAuthorization> >();
-        for (int i=0; i<validAuthorizations.length; i++) {
-            WaveRecipeAuthorization auth = validAuthorizations[i];
-            String clientName = auth.getRecipeClientName();
+        for (WaveRecipeAuthorization auth : validAuthorizations) {
+            String clientName = auth.getRecipeClientName().getPackageName();
             if (clientNameKeyMap.containsKey(clientName)) {
                 String clientKey = clientNameKeyMap.get(clientName);
                 if (!validAuthorizationsByClientKey.containsKey(clientKey)) {
@@ -133,8 +138,8 @@ public class WaveService extends Service {
      * Get an array of all recipes in-use as well as locally installed/stored
      * recipes. @see edu.berkeley.androidwave.waverecipe.WaveRecipe
      */
-    public WaveRecipeAuthorization[] deviceRecipeAuthorizations() {
-        return null;
+    public ArrayList<WaveRecipeAuthorization> recipeAuthorizations() {
+        return authorizations;
     }
     
     
@@ -230,6 +235,8 @@ public class WaveService extends Service {
      */
     public synchronized boolean saveAuthorization(String clientKey, WaveRecipeAuthorization auth) {
         if (databaseHelper.saveAuthorization(auth)) {
+            authorizations.add(auth);
+            
             if (!validAuthorizationsByClientKey.containsKey(clientKey)) {
                 validAuthorizationsByClientKey.put(clientKey, new HashSet<WaveRecipeAuthorization>());
             }
@@ -255,6 +262,7 @@ public class WaveService extends Service {
         databaseHelper.emptyDatabase();
         
         clientKeyNameMap = new HashMap<String, String>();
+        authorizations = new ArrayList<WaveRecipeAuthorization>();
         validAuthorizationsByClientKey = new HashMap<String, Set<WaveRecipeAuthorization> >();
         revokedAuthorizationsByClientKey = new HashMap<String, Set<WaveRecipeAuthorization> >();
         

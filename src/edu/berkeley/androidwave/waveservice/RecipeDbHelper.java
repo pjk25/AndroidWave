@@ -111,7 +111,7 @@ public class RecipeDbHelper {
         return count == 1;
     }
     
-    protected WaveRecipeAuthorization[] loadAuthorized(WaveService waveService) {
+    protected ArrayList<WaveRecipeAuthorization> loadAuthorized(WaveService waveService) {
         Log.d(TAG, "loadAuthorized(" + waveService + ")");
         // TODO: optimize query to select by timestamps
         Cursor c = database.query(RECIPE_AUTH_TABLE_NAME,
@@ -143,7 +143,7 @@ public class RecipeDbHelper {
         }
         c.close();
         
-        return authorized.toArray(new WaveRecipeAuthorization[0]);
+        return authorized;
     }
     
     protected WaveRecipeAuthorization[] loadRevoked() {
