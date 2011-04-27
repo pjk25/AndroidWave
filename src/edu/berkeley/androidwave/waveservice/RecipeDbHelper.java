@@ -219,10 +219,10 @@ public class RecipeDbHelper {
                     + AuthColumns._ID + " INTEGER PRIMARY KEY,"
                     + AuthColumns.RECIPE_ID + " TEXT UNIQUE NOT NULL,"
                     + AuthColumns.SIGNATURE + " BLOB,"
-                    + AuthColumns.AUTH_TS + " TEXT,"
+                    + AuthColumns.AUTH_TS + " TEXT NOT NULL,"
                     + AuthColumns.REVOKED_TS + " TEXT,"
-                    + AuthColumns.MODIFIED_TS + " TEXT,"
-                    + AuthColumns.AUTH_INFO_DATA + " TEXT"
+                    + AuthColumns.MODIFIED_TS + " TEXT NOT NULL,"
+                    + AuthColumns.AUTH_INFO_DATA + " TEXT NOT NULL"
                     + ");");
         }
 

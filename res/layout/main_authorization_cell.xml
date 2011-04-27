@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:orientation="vertical">
+
+     <TextView android:id="@+id/recipe_name"
+         android:textSize="16sp"
+         android:textStyle="bold"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:text="Recipe Name" />
+     <TextView android:id="@+id/recipe_id"
+         android:textSize="8sp"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:text="Recipe ID" />
+
+     <TextView android:id="@+id/client_name"
+         android:textSize="16sp"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:text="Client Name" />
+     <TextView android:id="@+id/client_package"
+         android:textSize="8sp"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:text="Client Package" />
+ </LinearLayout>

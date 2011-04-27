@@ -5,4 +5,7 @@
     <string name="main_activity_title">AndroidWave Manager</string>
     <string name="auth_activity_name">AndroidWave - Recipe Authorization Request</string>
     <string name="wave_service_permission_description">Uses the AndroidWave system for recipe authorization.</string>
+    <string name="androidwave_welcome">
+        Welcome to the AndroidWave Manager.\n\nYour recipes are loading...
+    </string>
 </resources>
