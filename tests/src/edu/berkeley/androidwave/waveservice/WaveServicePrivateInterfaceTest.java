@@ -14,6 +14,7 @@ import edu.berkeley.androidwave.waveexception.WaveRecipeNotCachedException;
 import edu.berkeley.androidwave.waverecipe.WaveRecipe;
 import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.Signature;
 import android.os.IBinder;
@@ -161,7 +162,7 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
         WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
         
         Date now = new Date();
-        auth.setRecipeClientName("edu.berkeley.waveapps.fitness");
+        auth.setRecipeClientName(new ComponentName("edu.berkeley.waveapps.fitness", ".FitnessActivity"));
         auth.setRecipeClientSignatures(new Signature[] { new Signature("theatihceadocdttheaotnhai") });
         auth.setAuthorizedDate(now);
         auth.setModifiedDate(now);

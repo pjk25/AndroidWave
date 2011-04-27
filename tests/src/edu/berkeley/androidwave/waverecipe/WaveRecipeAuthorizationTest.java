@@ -11,6 +11,7 @@ package edu.berkeley.androidwave.waverecipe;
 import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
 
+import android.content.ComponentName;
 import android.content.pm.Signature;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -92,7 +93,7 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
         WaveRecipeAuthorization original = auth;
         // need to populate the recipeClient data in the recipe before
         // creating json
-        auth.recipeClientName = "edu.berkeley.waveclientsample.WaveClientSample";
+        auth.recipeClientName = new ComponentName("edu.berkeley.waveclientsample.WaveClientSample", ".SomeActivity");
         auth.recipeClientSignatures = new Signature[1];
         auth.recipeClientSignatures[0] = new Signature("");
         

@@ -59,7 +59,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
     private boolean createDidSucceed;
     
     protected String clientKey;
-    protected String recipeClientName;
+    protected ComponentName recipeClientName;
     protected Signature[] recipeClientSignatures;
     protected WaveRecipeAuthorization recipeAuthorization;
     
@@ -101,21 +101,20 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             bindService(sIntent, mConnection, Context.BIND_AUTO_CREATE);
             // we have to wait for onCreate to finish before the binding happens
             
+            recipeClientName = getCallingActivity();
+            
             // get some name information about the requesting app
             PackageManager pm = getPackageManager();
             String callingActivityName = "From: Unknown application";
             try {
-                ActivityInfo aInfo = pm.getActivityInfo(getCallingActivity(), 0);   // may need flag PackageManager.GET_META_DATA
+                ActivityInfo aInfo = pm.getActivityInfo(recipeClientName, 0);   // may need flag PackageManager.GET_META_DATA
                 callingActivityName = "From: "+aInfo.loadLabel(pm);
             } catch (PackageManager.NameNotFoundException nnfe) {
                 Log.d(getClass().getSimpleName(), "NameNotFoundException while getting info for calling activity", nnfe);
                 createDidSucceed = false;
             }
             appName.setText(callingActivityName);
-        
-            // store the client's name and signature info for the authorization
-            recipeClientName = getCallingPackage();
-        
+            
             // get some signature information about the requesting app
             String callingActivitySigString = "Signed: Unknown";
             try {
@@ -158,7 +157,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             
             // verify that authenticity of the requesting app
             clientKey = i.getStringExtra(WaveService.CLIENT_KEY_EXTRA);
-            if (mService.permitClientNameKeyPair(recipeClientName, clientKey)) {
+            if (mService.permitClientNameKeyPair(recipeClientName.getPackageName(), clientKey)) {
                 theRecipe = null;
                 try {
                     File recipeCacheFile = mService.recipeCacheFileForId(recipeId);
@@ -190,9 +189,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                 }
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(RecipeAuthorizationActivity.this);
-                String[] pParts = recipeClientName.split(".");
-                String shortName = (pParts.length > 0 ? pParts[pParts.length-1] : recipeClientName);
-                builder.setMessage("Authentication failed for requesting package "+recipeClientName+".\n\n"+shortName+" has either been re-installed, or is attempting to use another app's key.")
+                builder.setMessage("Authentication failed for requesting package "+recipeClientName.getPackageName()+".\n\nIt has either been reset, re-installed, or is attempting to use another app's key.")
                        .setCancelable(false)
                        .setPositiveButton("Reject", new DialogInterface.OnClickListener() {
                            public void onClick(DialogInterface dialog, int id) {

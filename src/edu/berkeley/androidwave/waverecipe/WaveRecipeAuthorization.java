@@ -12,6 +12,7 @@ import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
 import edu.berkeley.androidwave.waverecipe.granularitytable.GranularityTable;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
+import android.content.ComponentName;
 import android.content.pm.Signature;
 import android.util.Log;
 import java.util.Arrays;
@@ -33,7 +34,7 @@ public class WaveRecipeAuthorization {
     
     protected WaveRecipe recipe;
     
-    protected String recipeClientName;
+    protected ComponentName recipeClientName;
     protected Signature[] recipeClientSignatures;
     
     protected Date authorizedDate;
@@ -53,11 +54,11 @@ public class WaveRecipeAuthorization {
         return recipe;
     }
     
-    public String getRecipeClientName() {
+    public ComponentName getRecipeClientName() {
         return recipeClientName;
     }
     
-    public void setRecipeClientName(String name) {
+    public void setRecipeClientName(ComponentName name) {
         recipeClientName = name;
     }
     
@@ -77,6 +78,7 @@ public class WaveRecipeAuthorization {
         return modifiedDate;
     }
     
+    // TODO: automatically updated modified date when fields change
     public void setModifiedDate(Date d) {
         modifiedDate = d;
     }
@@ -168,10 +170,12 @@ public class WaveRecipeAuthorization {
     protected JSONObject toJSON() {
         JSONObject asJson = new JSONObject();
         try {
-            asJson.put("recipeId", recipe.getId());
+            // recipeId
+            asJson.put("recipe_recipeId", recipe.getId());
 
             // clientName
-            asJson.put("recipeClientName", recipeClientName);
+            asJson.put("recipeClientName_packageName", recipeClientName.getPackageName());
+            asJson.put("recipeClientName_className", recipeClientName.getClassName());
             // clientSignatures
             JSONArray sigs = new JSONArray();
             for (int i=0; i<recipeClientSignatures.length; i++) {
@@ -198,13 +202,15 @@ public class WaveRecipeAuthorization {
         JSONObject o = new JSONObject(jsonString);
         WaveRecipeAuthorization auth = null;
         try {
-            String recipeId = o.getString("recipeId");
+            String recipeId = o.getString("recipe_recipeId");
             if (!recipeId.equals(recipe.getId())) {
-                throw new Exception("recipe does not match recipeId in jsonString");
+                throw new Exception("recipe does not match recipe_recipeId in jsonString");
             }
             auth = new WaveRecipeAuthorization(recipe);
             
-            auth.recipeClientName = o.getString("recipeClientName");
+            String packageName = o.getString("recipeClientName_packageName");
+            String className = o.getString("recipeClientName_className");
+            auth.recipeClientName = new ComponentName(packageName, className);
             
             JSONArray a = o.getJSONArray("recipeClientSignatures");
             auth.recipeClientSignatures = new Signature[a.length()];
