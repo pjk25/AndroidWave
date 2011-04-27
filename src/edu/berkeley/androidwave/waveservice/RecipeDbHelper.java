@@ -151,24 +151,27 @@ public class RecipeDbHelper {
     }
     
     protected boolean saveAuthorization(WaveRecipeAuthorization auth) {
-        // TODO: make sure the signature from this cert is enough to detect a change in the recipe package
-        X509Certificate recipeCertificate = auth.getRecipe().getCertificate();
-        
-        Timestamp authorizedTs = new Timestamp(auth.getAuthorizedDate().getTime());
-        Timestamp modifiedTs = new Timestamp(auth.getModifiedDate().getTime());
-        
-        ContentValues cv = new ContentValues(AuthColumns.ALL.length);
-        cv.put(AuthColumns.RECIPE_ID, auth.getRecipe().getId());
-        cv.put(AuthColumns.SIGNATURE, recipeCertificate.getSignature());
-        cv.put(AuthColumns.AUTH_TS, authorizedTs.toString());
-        cv.putNull(AuthColumns.REVOKED_TS);
-        cv.put(AuthColumns.MODIFIED_TS, modifiedTs.toString());
-        cv.put(AuthColumns.AUTH_INFO_DATA, auth.toJSONString());
-        
-        long row;
+        long row = -1;
         try {
+            // TODO: make sure the signature from this cert is enough to detect a change in the recipe package
+            X509Certificate recipeCertificate = auth.getRecipe().getCertificate();
+        
+            Timestamp authorizedTs = new Timestamp(auth.getAuthorizedDate().getTime());
+            Timestamp modifiedTs = new Timestamp(auth.getModifiedDate().getTime());
+        
+            ContentValues cv = new ContentValues(AuthColumns.ALL.length);
+            cv.put(AuthColumns.RECIPE_ID, auth.getRecipe().getId());
+            cv.put(AuthColumns.SIGNATURE, recipeCertificate.getSignature());
+            cv.put(AuthColumns.AUTH_TS, authorizedTs.toString());
+            cv.putNull(AuthColumns.REVOKED_TS);
+            cv.put(AuthColumns.MODIFIED_TS, modifiedTs.toString());
+            cv.put(AuthColumns.AUTH_INFO_DATA, auth.toJSONString());
+        
             row = database.insertOrThrow(RECIPE_AUTH_TABLE_NAME, null, cv);
-        } catch (SQLException e) {
+        } catch (SQLException se) {
+            Log.w(TAG, "SQLException while saving authorization", se);
+            return false;
+        } catch (Exception e) {
             Log.w(TAG, "Exception while saving authorization", e);
             return false;
         }

@@ -33,6 +33,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
+import java.util.Date;
 
 /**
  * RecipeAuthorizationActivity
@@ -207,6 +208,10 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
     
     private OnClickListener mAuthListener = new OnClickListener() {
         public void onClick(View v) {
+            Date now = new Date();
+            recipeAuthorization.setAuthorizedDate(now);
+            recipeAuthorization.setModifiedDate(now);
+            
             if (mService.saveAuthorization(clientKey, recipeAuthorization)) {
                 setResult(RESULT_OK, (new Intent()).setAction(ACTION_DID_AUTHORIZE));
                 finish();
