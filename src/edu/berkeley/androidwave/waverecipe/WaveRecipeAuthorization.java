@@ -120,7 +120,22 @@ public class WaveRecipeAuthorization {
     }
     
     @Override public int hashCode() {
-        throw new UnsupportedOperationException();
+        // Start with a non-zero constant.
+        int result = 17;
+
+        // Include a hash for each field.
+        result = 31 * result + recipe.hashCode();
+
+        result = 31 * result + (recipeClientName == null ? 0 : recipeClientName.hashCode());
+        result = 31 * result + (recipeClientSignatures == null ? 0 : recipeClientSignatures.hashCode());
+
+        result = 31 * result + (authorizedDate == null ? 0 : authorizedDate.hashCode());
+        result = 31 * result + (modifiedDate == null ? 0 : modifiedDate.hashCode());
+
+        result = 31 * result + sensorDescriptionMaxRateMap.hashCode();
+        result = 31 * result + sensorDescriptionMaxPrecisionMap.hashCode();
+
+        return result;
     }
     
     /**

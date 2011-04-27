@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.HashSet;
 
 import edu.berkeley.androidwave.waverecipe.*;
 
@@ -44,8 +44,8 @@ public class WaveService extends Service {
     protected RecipeDbHelper databaseHelper;
     
     protected Map<String, String> clientKeyNameMap;
-    protected Map<String, Set> validAuthorizationsByClientKey;
-    protected Map<String, Set> revokedAuthorizationsByClientKey;
+    protected Map<String, Set<WaveRecipeAuthorization> > validAuthorizationsByClientKey;
+    protected Map<String, Set<WaveRecipeAuthorization> > revokedAuthorizationsByClientKey;
     
     protected void throwNotImplemented() {
         String className = getClass().getName();
@@ -55,6 +55,8 @@ public class WaveService extends Service {
     
     @Override
     public void onCreate() {
+        Log.d(TAG, "onCreate()");
+        
         /**
          * open up our sqlite database and restore the saved authorizations
          */
@@ -70,14 +72,14 @@ public class WaveService extends Service {
         WaveRecipeAuthorization[] validAuthorizations = databaseHelper.loadAuthorized(this); // the waveservice is passed so that we can load recipes
         // sort the authorizations by client name
         // maybe we should have a different table for each clientName?
-        validAuthorizationsByClientKey = new HashMap<String, Set>();
+        validAuthorizationsByClientKey = new HashMap<String, Set<WaveRecipeAuthorization> >();
         for (int i=0; i<validAuthorizations.length; i++) {
             WaveRecipeAuthorization auth = validAuthorizations[i];
             String clientName = auth.getRecipeClientName();
             if (clientNameKeyMap.containsKey(clientName)) {
                 String clientKey = clientNameKeyMap.get(clientName);
                 if (!validAuthorizationsByClientKey.containsKey(clientKey)) {
-                    validAuthorizationsByClientKey.put(clientKey, new TreeSet<WaveRecipeAuthorization>());
+                    validAuthorizationsByClientKey.put(clientKey, new HashSet<WaveRecipeAuthorization>());
                 }
                 Set<WaveRecipeAuthorization> auths = validAuthorizationsByClientKey.get(clientKey);
                 auths.add(auth);
@@ -229,7 +231,7 @@ public class WaveService extends Service {
     public synchronized boolean saveAuthorization(String clientKey, WaveRecipeAuthorization auth) {
         if (databaseHelper.saveAuthorization(auth)) {
             if (!validAuthorizationsByClientKey.containsKey(clientKey)) {
-                validAuthorizationsByClientKey.put(clientKey, new TreeSet<WaveRecipeAuthorization>());
+                validAuthorizationsByClientKey.put(clientKey, new HashSet<WaveRecipeAuthorization>());
             }
             Set<WaveRecipeAuthorization> auths = validAuthorizationsByClientKey.get(clientKey);
             auths.add(auth);
@@ -253,8 +255,8 @@ public class WaveService extends Service {
         databaseHelper.emptyDatabase();
         
         clientKeyNameMap = new HashMap<String, String>();
-        validAuthorizationsByClientKey = new HashMap<String, Set>();
-        revokedAuthorizationsByClientKey = new HashMap<String, Set>();
+        validAuthorizationsByClientKey = new HashMap<String, Set<WaveRecipeAuthorization> >();
+        revokedAuthorizationsByClientKey = new HashMap<String, Set<WaveRecipeAuthorization> >();
         
         Log.d(TAG, "end resetDatabase()");
     }
@@ -327,5 +329,4 @@ public class WaveService extends Service {
              return false;
          }
      };
-     
 }
