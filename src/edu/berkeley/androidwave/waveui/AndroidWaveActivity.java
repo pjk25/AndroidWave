@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
 
@@ -34,6 +35,8 @@ public class AndroidWaveActivity extends ListActivity {
     protected AndroidWaveActivityListAdapter listAdapter;
     
     // UI outlets
+    protected ListView listView;
+    protected TextView emptyView;
 
     /** Called when the activity is first created. */
     @Override
@@ -45,6 +48,8 @@ public class AndroidWaveActivity extends ListActivity {
         
         
         // connect the UI outlets
+        listView = getListView();
+        emptyView = (TextView) listView.getEmptyView();
 
         // set up the ListAdapter
         listAdapter = new AndroidWaveActivityListAdapter(this, R.layout.main_authorization_cell, authorizations);
@@ -75,7 +80,7 @@ public class AndroidWaveActivity extends ListActivity {
         Log.d(TAG, "afterBind()");
         // populate the list of authorizations
         authorizations = mService.recipeAuthorizations();
-        Toast.makeText(AndroidWaveActivity.this, "Loaded "+authorizations.size()+" recipe(s)", Toast.LENGTH_SHORT).show();
+        Toast.makeText(AndroidWaveActivity.this, "Loaded "+authorizations.size()+" recipe"+(authorizations.size() == 1 ? "" : "s"), Toast.LENGTH_SHORT).show();
 
         if (authorizations.size() > 0) {
             Runnable r = new Runnable() {
@@ -90,8 +95,8 @@ public class AndroidWaveActivity extends ListActivity {
             
             runOnUiThread(r);
         } else {
-            Toast.makeText(AndroidWaveActivity.this, "You currently have not yet authorized any recipes.", Toast.LENGTH_SHORT).show();
-            // TODO: set background text to "You currently have not yet authorized any recipes.  Any recipes that have been authorized will appear here."
+            // update the empty view with a more descriptive message
+            emptyView.setText(R.string.androidwave_no_recipes);
         }
     }
     
