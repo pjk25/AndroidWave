@@ -150,7 +150,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
     
     private void afterBind() {
         // check in with the service about the status of this recipe
-        if (mBound && createDidSucceed) {
+        if (createDidSucceed) {
             Log.d(getClass().getSimpleName(), "RecipeAuthorizationActivity has bound to "+mService);
             
             Intent i = getIntent();
