@@ -60,7 +60,7 @@ public class AndroidWaveActivityListAdapter extends ArrayAdapter<WaveRecipeAutho
             TextView clientPackageTextView = (TextView) v.findViewById(R.id.client_package);
             
             WaveRecipe recipe = auth.getRecipe();
-            recipeNameTextView.setText(recipe.getName());
+            recipeNameTextView.setText("Recipe: "+recipe.getName());
             recipeIdTextView.setText(recipe.getId());
             
             ComponentName clientName = auth.getRecipeClientName();
@@ -68,7 +68,7 @@ public class AndroidWaveActivityListAdapter extends ArrayAdapter<WaveRecipeAutho
             PackageManager pm = getContext().getPackageManager();
             try {
                 ActivityInfo aInfo = pm.getActivityInfo(clientName, 0);   // may need flag PackageManager.GET_META_DATA
-                clientLabel = "From: "+aInfo.loadLabel(pm);
+                clientLabel = "App: "+aInfo.loadLabel(pm);
             } catch (PackageManager.NameNotFoundException nnfe) {
                 Log.d(TAG, "NameNotFoundException while getting info for calling activity", nnfe);
             }
