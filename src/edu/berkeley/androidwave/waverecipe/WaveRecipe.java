@@ -106,13 +106,13 @@ public class WaveRecipe {
         if (entry == null) {
             throw new InvalidSignatureException("Recipe has no AndroidManifest.xml");
         }
-        Log.d("WaveRecipe", "Looking for signatures in "+recipePath+":"+entry.getName());
+        //Log.d("WaveRecipe", "Looking for signatures in "+recipePath+":"+entry.getName());
         // http://androidcracking.blogspot.com/2010/12/getting-apk-signature-outside-of.html
         Certificate[] certs = loadCertificates(recipeApk, entry, readBuffer);
         if (certs == null || certs.length == 0) {
             throw new InvalidSignatureException("No signatures found for AndroidManifest.xml");
         }
-        Log.d("WaveRecipe", "Discovered signature of type: "+certs[0].getType());
+        //Log.d("WaveRecipe", "Discovered signature of type: "+certs[0].getType());
         if (!certs[0].getType().equals(X509_TYPE)) {
             throw new InvalidSignatureException("AndroidManifest.xml signature is not an X509 Certificate");
         }
