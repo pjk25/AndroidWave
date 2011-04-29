@@ -5,6 +5,7 @@ import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
 import edu.berkeley.androidwave.waveservice.WaveService;
 
 import android.app.ListActivity;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +30,8 @@ public class AndroidWaveActivity extends ListActivity {
     
     private final String TAG = AndroidWaveActivity.class.getSimpleName();
 
+    private static final int REQUEST_CODE_EDIT_RECIPE = 1;
+
     protected WaveService mService;
     protected boolean mBound = false;
     
@@ -43,7 +47,6 @@ public class AndroidWaveActivity extends ListActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setTitle(R.string.main_activity_title);
         setContentView(R.layout.main);
         
         
@@ -97,6 +100,35 @@ public class AndroidWaveActivity extends ListActivity {
         } else {
             // update the empty view with a more descriptive message
             emptyView.setText(R.string.androidwave_no_recipes);
+        }
+    }
+    
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        WaveRecipeAuthorization clickedAuth = listAdapter.getItem(position);
+        
+        Intent i = new Intent(Intent.ACTION_EDIT);
+        i.setPackage("edu.berkeley.androidwave");
+        i.putExtra(ViewRecipeAuthorizationActivity.RECIPE_ID_EXTRA, clickedAuth.getRecipe().getId());
+        i.putExtra(ViewRecipeAuthorizationActivity.CLIENT_NAME_EXTRA, clickedAuth.getRecipeClientName());
+        try {
+            startActivityForResult(i, REQUEST_CODE_EDIT_RECIPE);
+        } catch (ActivityNotFoundException anfe) {
+            Toast.makeText(AndroidWaveActivity.this, "Error launching Wave UI", Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "ActivityNotFoundException raised while starting Recipe Edit UI", anfe);
+        }
+    }
+    
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_EDIT_RECIPE) {
+            if (resultCode == RESULT_OK) {
+                // Edit was confirmed
+                Toast.makeText(AndroidWaveActivity.this, "Edit confirmed", Toast.LENGTH_SHORT).show();
+                listAdapter.notifyDataSetChanged();
+            } else {
+                // Edit was cancelled
+                Toast.makeText(AndroidWaveActivity.this, "Edit cancelled.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
     

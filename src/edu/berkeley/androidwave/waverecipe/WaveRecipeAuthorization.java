@@ -38,6 +38,7 @@ public class WaveRecipeAuthorization {
     protected Signature[] recipeClientSignatures;
     
     protected Date authorizedDate;
+    protected Date revokedDate;
     protected Date modifiedDate;
     
     protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxRateMap;
@@ -62,6 +63,10 @@ public class WaveRecipeAuthorization {
         recipeClientName = name;
     }
     
+    public Signature[] getRecipeClientSignatures() {
+        return recipeClientSignatures;
+    }
+    
     public void setRecipeClientSignatures(Signature[] signatures) {
         recipeClientSignatures = signatures;
     }
@@ -72,6 +77,14 @@ public class WaveRecipeAuthorization {
     
     public void setAuthorizedDate(Date d) {
         authorizedDate = d;
+    }
+    
+    public Date getRevokedDate() {
+        return revokedDate;
+    }
+    
+    public void setRevokedDate(Date d) {
+        revokedDate = d;
     }
     
     public Date getModifiedDate() {
@@ -89,6 +102,29 @@ public class WaveRecipeAuthorization {
     
     public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxPrecisionMap() {
         return sensorDescriptionMaxPrecisionMap;
+    }
+    
+    /**
+     * validForDate
+     * 
+     * An authorization is valid if it has an authorized date, that authorized
+     * date is before the supplied date, and the revoked date is after the
+     * supplied date (if a revoked date is not null)
+     */
+    public boolean validForDate(Date d) {
+        if (authorizedDate == null) {
+            return false;
+        }
+        if (d.before(authorizedDate)) {
+            return false;
+        }
+        
+        if (d.after(authorizedDate)) {
+            if (revokedDate == null || d.before(revokedDate)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     // Use @Override to avoid accidental overloading.
@@ -116,7 +152,8 @@ public class WaveRecipeAuthorization {
             recipeClientName.equals(lhs.recipeClientName) &&
             Arrays.equals(recipeClientSignatures, lhs.recipeClientSignatures) &&
             (authorizedDate == null ? lhs.authorizedDate == null : authorizedDate.equals(lhs.authorizedDate)) &&
-            (modifiedDate == null ? lhs.modifiedDate == null : modifiedDate.equals(lhs.modifiedDate)) &&
+            (revokedDate == null ? lhs.revokedDate == null : revokedDate.equals(lhs.revokedDate)) &&
+            modifiedDate.equals(lhs.modifiedDate) &&
             sensorDescriptionMaxRateMap.equals(lhs.sensorDescriptionMaxRateMap) &&
             sensorDescriptionMaxPrecisionMap.equals(lhs.sensorDescriptionMaxPrecisionMap);
     }
@@ -132,7 +169,8 @@ public class WaveRecipeAuthorization {
         result = 31 * result + (recipeClientSignatures == null ? 0 : recipeClientSignatures.hashCode());
 
         result = 31 * result + (authorizedDate == null ? 0 : authorizedDate.hashCode());
-        result = 31 * result + (modifiedDate == null ? 0 : modifiedDate.hashCode());
+        result = 31 * result + (revokedDate == null ? 0 : revokedDate.hashCode());
+        result = 31 * result + modifiedDate.hashCode();
 
         result = 31 * result + sensorDescriptionMaxRateMap.hashCode();
         result = 31 * result + sensorDescriptionMaxPrecisionMap.hashCode();
@@ -144,7 +182,7 @@ public class WaveRecipeAuthorization {
      * Convert this authorization for use by wave clients.
      */
     public WaveRecipeAuthorizationInfo asInfo() {
-        WaveRecipeAuthorizationInfo info = new WaveRecipeAuthorizationInfo(recipe.getId(), authorizedDate, modifiedDate);
+        WaveRecipeAuthorizationInfo info = new WaveRecipeAuthorizationInfo(recipe.getId(), authorizedDate, modifiedDate); // revoked Date not supplied as clients won't recieve info for revoked authorizations
         
         info.recipeOutputDescription = recipe.getOutput();
         
@@ -184,6 +222,10 @@ public class WaveRecipeAuthorization {
             asJson.put("recipeClientSignatures", sigs);
             // authorizedDate
             asJson.put("authorizedDate", authorizedDate.getTime());
+            // revokedDate
+            if (revokedDate != null) {
+                asJson.put("revokedDate", revokedDate.getTime());
+            }
             // modifiedDate
             asJson.put("modifiedDate", modifiedDate.getTime());
             // rateMap
@@ -199,6 +241,7 @@ public class WaveRecipeAuthorization {
     public static WaveRecipeAuthorization fromJSONString(WaveRecipe recipe, String jsonString)
             throws Exception {
         
+        // TODO: handle these that fail, or update them
         JSONObject o = new JSONObject(jsonString);
         WaveRecipeAuthorization auth = null;
         try {
@@ -219,6 +262,11 @@ public class WaveRecipeAuthorization {
             }
             
             auth.authorizedDate = new Date(o.getLong("authorizedDate"));
+            if (o.has("revokedDate")) {
+                auth.revokedDate = new Date(o.getLong("revokedDate"));
+            } else {
+                auth.revokedDate = null;
+            }
             auth.modifiedDate = new Date(o.getLong("modifiedDate"));
             
             Iterator it;

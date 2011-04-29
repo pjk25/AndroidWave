@@ -6,6 +6,7 @@ import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
 import edu.berkeley.androidwave.waveexception.WaveRecipeNotCachedException;
 
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
@@ -14,6 +15,7 @@ import android.util.Log;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
@@ -59,40 +61,44 @@ public class WaveService extends Service {
     public void onCreate() {
         Log.d(TAG, "onCreate()");
         
-        /**
-         * open up our sqlite database and restore the saved authorizations
-         */
-        databaseHelper = new RecipeDbHelper(this);
+        try {
+            /**
+             * open up our sqlite database and restore the saved authorizations
+             */
+            databaseHelper = new RecipeDbHelper(this);
         
-        clientKeyNameMap = databaseHelper.loadClientKeyNameMap();
-        // invert the map for this portion
-        HashMap<String, String> clientNameKeyMap = new HashMap<String, String>();
-        for (Map.Entry<String, String> entry : clientKeyNameMap.entrySet()) {
-            clientNameKeyMap.put(entry.getValue(), entry.getKey());
-        }
-        
-        authorizations = new ArrayList<WaveRecipeAuthorization>();
-        
-        ArrayList<WaveRecipeAuthorization> validAuthorizations = databaseHelper.loadAuthorized(this); // the waveservice is passed so that we can load recipes
-        authorizations.addAll(validAuthorizations);
-        
-        // sort the authorizations by client name
-        // maybe we should have a different table for each clientName?
-        validAuthorizationsByClientKey = new HashMap<String, Set<WaveRecipeAuthorization> >();
-        for (WaveRecipeAuthorization auth : validAuthorizations) {
-            String clientName = auth.getRecipeClientName().getPackageName();
-            if (clientNameKeyMap.containsKey(clientName)) {
-                String clientKey = clientNameKeyMap.get(clientName);
-                if (!validAuthorizationsByClientKey.containsKey(clientKey)) {
-                    validAuthorizationsByClientKey.put(clientKey, new HashSet<WaveRecipeAuthorization>());
-                }
-                Set<WaveRecipeAuthorization> auths = validAuthorizationsByClientKey.get(clientKey);
-                auths.add(auth);
-            } else {
-                Log.d(TAG, "Could not find key for recipe client with name "+clientName+" skipping stored auth "+auth);
+            clientKeyNameMap = databaseHelper.loadClientKeyNameMap();
+            // invert the map for this portion
+            HashMap<String, String> clientNameKeyMap = new HashMap<String, String>();
+            for (Map.Entry<String, String> entry : clientKeyNameMap.entrySet()) {
+                clientNameKeyMap.put(entry.getValue(), entry.getKey());
             }
+        
+            authorizations = new ArrayList<WaveRecipeAuthorization>();
+        
+            ArrayList<WaveRecipeAuthorization> validAuthorizations = databaseHelper.loadAuthorized(this); // the waveservice is passed so that we can load recipes
+            authorizations.addAll(validAuthorizations);
+        
+            // sort the authorizations by client name
+            // maybe we should have a different table for each clientName?
+            validAuthorizationsByClientKey = new HashMap<String, Set<WaveRecipeAuthorization> >();
+            for (WaveRecipeAuthorization auth : validAuthorizations) {
+                String clientName = auth.getRecipeClientName().getPackageName();
+                if (clientNameKeyMap.containsKey(clientName)) {
+                    String clientKey = clientNameKeyMap.get(clientName);
+                    if (!validAuthorizationsByClientKey.containsKey(clientKey)) {
+                        validAuthorizationsByClientKey.put(clientKey, new HashSet<WaveRecipeAuthorization>());
+                    }
+                    Set<WaveRecipeAuthorization> auths = validAuthorizationsByClientKey.get(clientKey);
+                    auths.add(auth);
+                } else {
+                    Log.d(TAG, "Could not find key for recipe client with name "+clientName+" skipping stored auth "+auth);
+                }
+            }
+            // for now we will ignore the revoked auths
+        } catch (Exception e) {
+            Log.d(TAG, "Exception encountered in onCreate()", e);
         }
-        // for now we will ignore the revoked auths
     }
     
     @Override
@@ -247,9 +253,32 @@ public class WaveService extends Service {
         return false;
     }
     
+    /**
+     * updateAuthorization
+     */
     public synchronized boolean updateAuthorization(WaveRecipeAuthorization auth) {
         // null implementation
         return false;
+    }
+    
+    /**
+     * getAuthorization
+     * 
+     * Used by the ViewRecipeAuthorizationActivity to call up an authorization
+     * object
+     */
+    public synchronized WaveRecipeAuthorization getAuthorization(String recipeId, ComponentName clientName) {
+        Date now = new Date();
+        // first look for a full name match
+        for (WaveRecipeAuthorization auth : authorizations) {
+            if (auth.getRecipe().getId().equals(recipeId)) {
+                if (clientName.equals(auth.getRecipeClientName())) {
+                    return auth;
+                }
+            }
+        }
+        // TODO: then just a package match
+        return null;
     }
     
     /**

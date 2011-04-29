@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App strings -->
     <string name="app_name">AndroidWaveActivity</string>
-    <string name="main_activity_name">AndroidWave</string>
-    <string name="main_activity_title">AndroidWave Manager</string>
+    <string name="main_activity_name">AndroidWave Manager</string>
+    <string name="view_activity_name">AndroidWave - Edit Recipe Authorization</string>
     <string name="auth_activity_name">AndroidWave - Recipe Authorization Request</string>
     <string name="wave_service_permission_description">Uses the AndroidWave system for recipe authorization.</string>
+    
+    <!-- AndroidWaveActivity strings -->
     <string name="androidwave_welcome">
         Welcome to the AndroidWave Manager.\n\nYour recipes are loading...
     </string>
@@ -13,4 +16,6 @@
         authorized any recipes.  Any recipes that have been authorized will
         appear here.
     </string>
+    <!-- ViewRecipeAuthorizationActivity strings -->
+    <!-- RecipeAuthorizationActivity strings -->
 </resources>

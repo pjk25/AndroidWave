@@ -70,6 +70,15 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
         assertEquals("sensorDescriptionMaxPrecisionMap size", 0, descriptionMap.size());
     }
     
+    @SmallTest
+    public void testValidForDate() {
+        Date now = new Date();
+        
+        assertFalse(auth.validForDate(now));
+        
+        fail("test not written yet");
+    }
+    
     /**
      * test the asInfo method, which produces a WaveRecipeAuthorizationInfo
      * object.
