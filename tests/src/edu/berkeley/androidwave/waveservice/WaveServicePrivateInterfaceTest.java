@@ -36,8 +36,6 @@ import java.util.Set;
  */
 public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService> {
     
-    File cachedRecipe = null;
-    
     IBinder service;
     
     public WaveServicePrivateInterfaceTest() {
@@ -53,19 +51,6 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
         service = bindService(startIntent);
     }
     
-    @Override
-    protected void tearDown() throws Exception {
-        if (cachedRecipe != null && cachedRecipe.exists()) {
-            if (cachedRecipe.delete()) {
-                System.out.println("Removed "+cachedRecipe);
-            } else {
-                throw new Exception("Removal of "+cachedRecipe+" failed.");
-            }
-        }
-
-        super.tearDown();
-    }
-
     /**
      * The name 'test preconditions' is a convention to signal that if this
      * test doesn't pass, the test case was not set up properly and it might
@@ -87,19 +72,19 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
         WaveService s = getService();
         assertNotNull(s);
         
-        cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveService.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
+        File cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveService.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
         System.out.println("cachedRecipe => "+cachedRecipe);
         
         File inCache = s.recipeCacheFileForId("edu.berkeley.waverecipe.AccelerometerMagnitude");
         assertTrue(inCache.exists());
         
-        // now remove it
-        if (!cachedRecipe.delete()) {
-            throw new Exception("could not remove "+cachedRecipe);
-        }
-
+        String fakeRecipeId = "edu.berkeley.waverecipe.NonExistentRecipe";
+        File inCacheParent = inCache.getParentFile();
+        assertTrue(inCacheParent.isDirectory());
+        File anotherCache = new File(inCacheParent, fakeRecipeId+".waverecipe");
+        assertFalse(anotherCache.exists());
         try {
-            inCache = s.recipeCacheFileForId("edu.berkeley.waverecipe.AccelerometerMagnitude");
+            s.recipeCacheFileForId(fakeRecipeId);
         } catch (Exception e) {
             assertTrue(e instanceof WaveRecipeNotCachedException);
         }
@@ -152,24 +137,26 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
         
         s.resetDatabase();
         
+        String recipeId = "edu.berkeley.waverecipe.AccelerometerMagnitude";
         String clientPackageName = "edu.berkeley.waveapps.fitness";
         String clientKey = "theaoceoahcrdiaoq,.hucu";
         
         assertTrue(s.permitClientNameKeyPair(clientPackageName, clientKey));
         
-        cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveService.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
-        WaveRecipe recipe = s.getRecipeForId("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        File cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveService.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
+        WaveRecipe recipe = s.getRecipeForId(recipeId);
         WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
         
         Date now = new Date();
-        auth.setRecipeClientName(new ComponentName("edu.berkeley.waveapps.fitness", ".FitnessActivity"));
+        ComponentName clientName = new ComponentName("edu.berkeley.waveapps.fitness", ".FitnessActivity");
+        auth.setRecipeClientName(clientName);
         auth.setRecipeClientSignatures(new Signature[] { new Signature("theatihceadocdttheaotnhai") });
         auth.setAuthorizedDate(now);
         auth.setModifiedDate(now);
         
-        assertTrue(s.saveAuthorization(clientKey, auth));
-        assertTrue(s.validAuthorizationsByClientKey.containsKey(clientKey));
-        Set<WaveRecipeAuthorization> authSet = (Set<WaveRecipeAuthorization>)s.validAuthorizationsByClientKey.get(clientKey);
-        assertTrue(authSet.contains(auth));
+        assertTrue(s.saveAuthorization(auth));
+        WaveRecipeAuthorization recalledAuth = s.getAuthorization(recipeId, clientName);
+        assertNotNull(recalledAuth);
+        assertEquals(auth, recalledAuth);
     }
 }

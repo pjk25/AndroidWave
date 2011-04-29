@@ -59,7 +59,6 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
     
     private boolean createDidSucceed;
     
-    protected String clientKey;
     protected ComponentName recipeClientName;
     protected Signature[] recipeClientSignatures;
     protected WaveRecipeAuthorization recipeAuthorization;
@@ -157,7 +156,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             String recipeId = i.getStringExtra(WaveService.RECIPE_ID_EXTRA);
             
             // verify that authenticity of the requesting app
-            clientKey = i.getStringExtra(WaveService.CLIENT_KEY_EXTRA);
+            String clientKey = i.getStringExtra(WaveService.CLIENT_KEY_EXTRA);
             if (mService.permitClientNameKeyPair(recipeClientName.getPackageName(), clientKey)) {
                 theRecipe = null;
                 try {
@@ -212,7 +211,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             recipeAuthorization.setAuthorizedDate(now);
             recipeAuthorization.setModifiedDate(now);
             
-            if (mService.saveAuthorization(clientKey, recipeAuthorization)) {
+            if (mService.saveAuthorization(recipeAuthorization)) {
                 setResult(RESULT_OK, (new Intent()).setAction(ACTION_DID_AUTHORIZE));
                 finish();
             } else {

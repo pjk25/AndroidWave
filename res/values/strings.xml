@@ -9,9 +9,6 @@
     
     <!-- AndroidWaveActivity strings -->
     <string name="androidwave_welcome">
-        Welcome to the AndroidWave Manager.\n\nYour recipes are loading...
-    </string>
-    <string name="androidwave_no_recipes">
         Welcome to the AndroidWave Manager.\n\nYou currently have not yet
         authorized any recipes.  Any recipes that have been authorized will
         appear here.

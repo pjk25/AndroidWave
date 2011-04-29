@@ -9,7 +9,7 @@
 package edu.berkeley.androidwave.waveservice;
 
 // import edu.berkeley.androidwave.PrivateAccessor;
-// import edu.berkeley.androidwave.TestUtils;
+import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
 import edu.berkeley.androidwave.waveclient.IWaveServicePublic;
 import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
@@ -121,7 +121,8 @@ public class WaveServicePublicInterfaceTest extends ServiceTestCase<WaveService>
         // new key should be unauthorized
         assertFalse(mService.isAuthorized(clientKey, recipeId));
         
-        // we need a way to insert the auth in the database
+        // fake an authorization by accessing the private api of the service
+        
         
         
         // need to simulate auth

@@ -27,8 +27,6 @@ import java.io.File;
  */
 public class RecipeAuthorizationActivityTest extends ActivityInstrumentationTestCase2<RecipeAuthorizationActivity> {
     
-    File cachedRecipe = null;
-
     public RecipeAuthorizationActivityTest() {
         // TODO: consider adjusting package name
         super("edu.berkeley.androidwave.waveui", RecipeAuthorizationActivity.class);
@@ -40,19 +38,6 @@ public class RecipeAuthorizationActivityTest extends ActivityInstrumentationTest
         i.putExtra(WaveService.CLIENT_KEY_EXTRA, "sahtsthoesntaeonstdeasnthioasnh");
         
         setActivityIntent(i);   // NOTE: Activities under test may not be started from within the UI thread. If your test method is annotated with UiThreadTest, then you must call setActivityIntent(Intent) from setUp().
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        if (cachedRecipe != null && cachedRecipe.exists()) {
-            if (cachedRecipe.delete()) {
-                System.out.println("Removed "+cachedRecipe);
-            } else {
-                throw new Exception("Removal of "+cachedRecipe+" failed.");
-            }
-        }
-
-        super.tearDown();
     }
 
     /**
@@ -67,7 +52,7 @@ public class RecipeAuthorizationActivityTest extends ActivityInstrumentationTest
      * Some UI testing
      */
     public void testUILayout() throws Exception {
-        cachedRecipe = TestUtils.copyTestAssetToInternal(getInstrumentation().getTargetContext(), "fixtures/waverecipes/one.waverecipe", WaveService.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
+        File cachedRecipe = TestUtils.copyTestAssetToInternal(getInstrumentation().getTargetContext(), "fixtures/waverecipes/one.waverecipe", WaveService.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
         System.out.println("cachedRecipe => "+cachedRecipe);
         assertTrue("recipe is cached", cachedRecipe.exists());
         

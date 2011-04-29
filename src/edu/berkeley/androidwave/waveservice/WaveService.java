@@ -46,10 +46,10 @@ public class WaveService extends Service {
     
     protected RecipeDbHelper databaseHelper;
     
+    // Name in these maps refers to the client's package name
     protected Map<String, String> clientKeyNameMap;
+    protected Map<String, String> clientNameKeyMap;
     protected ArrayList<WaveRecipeAuthorization> authorizations;
-    protected Map<String, Set<WaveRecipeAuthorization> > validAuthorizationsByClientKey;
-    protected Map<String, Set<WaveRecipeAuthorization> > revokedAuthorizationsByClientKey;
     
     protected void throwNotImplemented() {
         String className = getClass().getName();
@@ -67,35 +67,14 @@ public class WaveService extends Service {
              */
             databaseHelper = new RecipeDbHelper(this);
         
+            // load the client auth map (and create the inverse map)
             clientKeyNameMap = databaseHelper.loadClientKeyNameMap();
-            // invert the map for this portion
-            HashMap<String, String> clientNameKeyMap = new HashMap<String, String>();
+            clientNameKeyMap = new HashMap<String, String>();
             for (Map.Entry<String, String> entry : clientKeyNameMap.entrySet()) {
                 clientNameKeyMap.put(entry.getValue(), entry.getKey());
             }
         
-            authorizations = new ArrayList<WaveRecipeAuthorization>();
-        
-            ArrayList<WaveRecipeAuthorization> validAuthorizations = databaseHelper.loadAuthorized(this); // the waveservice is passed so that we can load recipes
-            authorizations.addAll(validAuthorizations);
-        
-            // sort the authorizations by client name
-            // maybe we should have a different table for each clientName?
-            validAuthorizationsByClientKey = new HashMap<String, Set<WaveRecipeAuthorization> >();
-            for (WaveRecipeAuthorization auth : validAuthorizations) {
-                String clientName = auth.getRecipeClientName().getPackageName();
-                if (clientNameKeyMap.containsKey(clientName)) {
-                    String clientKey = clientNameKeyMap.get(clientName);
-                    if (!validAuthorizationsByClientKey.containsKey(clientKey)) {
-                        validAuthorizationsByClientKey.put(clientKey, new HashSet<WaveRecipeAuthorization>());
-                    }
-                    Set<WaveRecipeAuthorization> auths = validAuthorizationsByClientKey.get(clientKey);
-                    auths.add(auth);
-                } else {
-                    Log.d(TAG, "Could not find key for recipe client with name "+clientName+" skipping stored auth "+auth);
-                }
-            }
-            // for now we will ignore the revoked auths
+            authorizations = databaseHelper.loadAuthorizations(this); // the waveservice is passed so that we can load recipes
         } catch (Exception e) {
             Log.d(TAG, "Exception encountered in onCreate()", e);
         }
@@ -236,28 +215,18 @@ public class WaveService extends Service {
     /**
      * saveAuthorization
      * 
-     * save a new authorization.  Note that we don't check the validity of the
-     * client key, because this is a private method.
+     * save an authorization.  Note that we don't check the validity of the
+     * client key, because this is a private interface method.
      */
-    public synchronized boolean saveAuthorization(String clientKey, WaveRecipeAuthorization auth) {
-        if (databaseHelper.saveAuthorization(auth)) {
-            authorizations.add(auth);
-            
-            if (!validAuthorizationsByClientKey.containsKey(clientKey)) {
-                validAuthorizationsByClientKey.put(clientKey, new HashSet<WaveRecipeAuthorization>());
+    public synchronized boolean saveAuthorization(WaveRecipeAuthorization auth) {
+        try {
+            if (databaseHelper.insertOrUpdateAuthorization(auth)) {
+                authorizations.add(auth);
+                return true;
             }
-            Set<WaveRecipeAuthorization> auths = validAuthorizationsByClientKey.get(clientKey);
-            auths.add(auth);
-            return true;
+        } catch (Exception e) {
+            Log.w(TAG, "Exception raised while saving authorization", e);
         }
-        return false;
-    }
-    
-    /**
-     * updateAuthorization
-     */
-    public synchronized boolean updateAuthorization(WaveRecipeAuthorization auth) {
-        // null implementation
         return false;
     }
     
@@ -268,7 +237,6 @@ public class WaveService extends Service {
      * object
      */
     public synchronized WaveRecipeAuthorization getAuthorization(String recipeId, ComponentName clientName) {
-        Date now = new Date();
         // first look for a full name match
         for (WaveRecipeAuthorization auth : authorizations) {
             if (auth.getRecipe().getId().equals(recipeId)) {
@@ -277,7 +245,21 @@ public class WaveService extends Service {
                 }
             }
         }
-        // TODO: then just a package match
+        // then look for a package match
+        return getAuthorization(recipeId, clientName.getPackageName());
+    }
+    
+    /**
+     * alternate getAuthorization matching on recipeId and client package name
+     */
+    protected WaveRecipeAuthorization getAuthorization(String recipeId, String clientPackageName) {
+        for (WaveRecipeAuthorization auth : authorizations) {
+            if (auth.getRecipe().getId().equals(recipeId)) {
+                if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
+                    return auth;
+                }
+            }
+        }
         return null;
     }
     
@@ -291,9 +273,8 @@ public class WaveService extends Service {
         databaseHelper.emptyDatabase();
         
         clientKeyNameMap = new HashMap<String, String>();
+        clientNameKeyMap = new HashMap<String, String>();
         authorizations = new ArrayList<WaveRecipeAuthorization>();
-        validAuthorizationsByClientKey = new HashMap<String, Set<WaveRecipeAuthorization> >();
-        revokedAuthorizationsByClientKey = new HashMap<String, Set<WaveRecipeAuthorization> >();
         
         Log.d(TAG, "end resetDatabase()");
     }
@@ -303,67 +284,71 @@ public class WaveService extends Service {
      * 
      * @see IWaveServicePublic
      */
-     private final IWaveServicePublic.Stub mPublicBinder = new IWaveServicePublic.Stub() {
-         
-         private WaveRecipeAuthorization retrieveAuthorization(String key, String recipeId) {
-             if (key != null && validAuthorizationsByClientKey.containsKey(key)) {
-                // we recognize the client
-                // now search for the specific auth
-                Set<WaveRecipeAuthorization> auths = validAuthorizationsByClientKey.get(key);
-                for (WaveRecipeAuthorization anAuth : auths) {
-                    if (recipeId.equals(anAuth.getRecipe().getId())) {
-                        return anAuth;
-                    }
+    private final IWaveServicePublic.Stub mPublicBinder = new IWaveServicePublic.Stub() {
+        
+        private WaveRecipeAuthorization retrieveAuthorization(String key, String recipeId) {
+            // check the validity of the key
+            if (clientKeyNameMap.containsKey(key)) {
+                // recall the package name for the given key
+                // this is a valid key
+                String packageName = clientKeyNameMap.get(key);
+                WaveRecipeAuthorization auth = getAuthorization(recipeId, packageName);
+                if (auth.validForDate(new Date())) {
+                    return auth;
+                } else {
+                    return null;
                 }
-             }
-             return null;
-         }
-         
-         /**
-          * isAuthorized
-          */
-         public boolean isAuthorized(String key, String recipeId) {
-             WaveRecipeAuthorization auth = retrieveAuthorization(key, recipeId);
-             return (auth != null);
-         }
+            }
+            // invalid key, return null
+            Log.d(TAG, "retrieveAuthorization called using invalid key (for recipeId="+recipeId+")");
+            return null;
+        }
 
-         /**
-          * retrieveAuthorization
-          */
-         public WaveRecipeAuthorizationInfo retrieveAuthorizationInfo(String key, String recipeId) {
-             WaveRecipeAuthorization auth = retrieveAuthorization(key, recipeId);
-             if (auth != null) {
+        /**
+         * isAuthorized
+         */
+        public boolean isAuthorized(String key, String recipeId) {
+            WaveRecipeAuthorization auth = retrieveAuthorization(key, recipeId);
+            return (auth != null);
+        }
+
+        /**
+         * retrieveAuthorization
+         */
+        public WaveRecipeAuthorizationInfo retrieveAuthorizationInfo(String key, String recipeId) {
+            WaveRecipeAuthorization auth = retrieveAuthorization(key, recipeId);
+            if (auth != null) {
                 return auth.asInfo();
-             }
-             return null;
-         }
-         
-         /**
-          * getAuthorizationIntent
-          *
-          * TODO: avoid the use of the key, and determine the caller of the IPC dynamically
-          */
-         public Intent getAuthorizationIntent(String recipeId, String key) {
-             Intent authIntent = new Intent(ACTION_REQUEST_RECIPE_AUTHORIZE);
-             authIntent.putExtra(RECIPE_ID_EXTRA, recipeId);
-             authIntent.putExtra(CLIENT_KEY_EXTRA, key);
-             return authIntent;
-         }
+            }
+            return null;
+        }
 
-         /**
-          * registerRecipeOutputListener
-          */
-         public boolean registerRecipeOutputListener(String key, String recipeId, IWaveRecipeOutputDataListener listener) {
-             throwNotImplemented();
-             return false;
-         }
-         
-         /**
-          * unregisterRecipeOutputListener
-          */
-         public boolean unregisterRecipeOutputListener(String key, String recipeId, IWaveRecipeOutputDataListener listener) {
-             throwNotImplemented();
-             return false;
-         }
-     };
+        /**
+         * getAuthorizationIntent
+         *
+         * TODO: avoid the use of the key, and determine the caller of the IPC dynamically
+         */
+        public Intent getAuthorizationIntent(String recipeId, String key) {
+            Intent authIntent = new Intent(ACTION_REQUEST_RECIPE_AUTHORIZE);
+            authIntent.putExtra(RECIPE_ID_EXTRA, recipeId);
+            authIntent.putExtra(CLIENT_KEY_EXTRA, key);
+            return authIntent;
+        }
+
+        /**
+         * registerRecipeOutputListener
+         */
+        public boolean registerRecipeOutputListener(String key, String recipeId, IWaveRecipeOutputDataListener listener) {
+            throwNotImplemented();
+            return false;
+        }
+
+        /**
+        * unregisterRecipeOutputListener
+        */
+        public boolean unregisterRecipeOutputListener(String key, String recipeId, IWaveRecipeOutputDataListener listener) {
+            throwNotImplemented();
+            return false;
+        }
+    };
 }

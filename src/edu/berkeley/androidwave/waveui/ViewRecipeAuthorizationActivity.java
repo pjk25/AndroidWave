@@ -14,8 +14,10 @@ import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
 import edu.berkeley.androidwave.waveservice.WaveService;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.*;
 import android.content.ServiceConnection;
@@ -28,6 +30,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.Date;
 
 /**
  * ViewRecipeAuthorizationActivity
@@ -184,15 +187,25 @@ public class ViewRecipeAuthorizationActivity extends Activity {
     
     private OnClickListener mRevokeListener = new OnClickListener() {
         public void onClick(View v) {
-            // Date now = new Date();
-            // authorization.setRevokedDate(now);
-            // authorization.setModifiedDate(now);
+            Date now = new Date();
+            authorization.setRevokedDate(now);
+            authorization.setModifiedDate(now);
             
-            // TODO: make the service update the authorization
-            // TODO: use an intent to specify a user cancel vs a failure.
-            setResult(RESULT_OK);
-            finish();
-            // TODO: add confirmation dialog
+            if (mService.saveAuthorization(authorization)) {
+                setResult(RESULT_OK);
+                finish();
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ViewRecipeAuthorizationActivity.this);
+                builder.setMessage("AndroidWave: internal error.")
+                       .setCancelable(false)
+                       .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                           public void onClick(DialogInterface dialog, int id) {
+                               setResult(RESULT_CANCELED);
+                               ViewRecipeAuthorizationActivity.this.finish();
+                           }
+                       });
+                AlertDialog alert = builder.create();
+            }
         }
     };
     

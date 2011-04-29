@@ -73,10 +73,27 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
     @SmallTest
     public void testValidForDate() {
         Date now = new Date();
+        Date before = new Date(now.getTime() - (10 * 1000)); // 10 seconds ago
+        Date longBefore = new Date(now.getTime() - (100 * 60 * 60 * 1000)); // 100 hours ago
+        Date soon = new Date(now.getTime() + (10 * 1000)); // 10 seconds from now
+        Date notSoSoon = new Date(now.getTime() + (10 * 60 * 60 * 1000)); // 10 minutes from now
         
+        assertTrue(before.before(now));
+        assertTrue(longBefore.before(before));
+        assertTrue(soon.after(now));
+        assertTrue(notSoSoon.after(soon));
+        
+        // auth object from setup has no timestamps yet
         assertFalse(auth.validForDate(now));
         
-        fail("test not written yet");
+        auth.setAuthorizedDate(before);
+        assertTrue(auth.validForDate(now));
+        assertFalse(auth.validForDate(longBefore));
+        
+        auth.setRevokedDate(soon);
+        assertTrue(auth.validForDate(now));
+        assertFalse(auth.validForDate(notSoSoon));
+        assertFalse(auth.validForDate(before));
     }
     
     /**

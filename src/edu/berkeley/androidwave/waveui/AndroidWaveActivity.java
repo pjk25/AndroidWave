@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * AndroidWaveActivity
@@ -35,7 +36,7 @@ public class AndroidWaveActivity extends ListActivity {
     protected WaveService mService;
     protected boolean mBound = false;
     
-    protected ArrayList<WaveRecipeAuthorization> authorizations = new ArrayList<WaveRecipeAuthorization>();
+    protected ArrayList<WaveRecipeAuthorization> authorizations;
     protected AndroidWaveActivityListAdapter listAdapter;
     
     // UI outlets
@@ -54,6 +55,8 @@ public class AndroidWaveActivity extends ListActivity {
         listView = getListView();
         emptyView = (TextView) listView.getEmptyView();
 
+        // placeholder empty authorizations array
+        authorizations = new ArrayList<WaveRecipeAuthorization>();
         // set up the ListAdapter
         listAdapter = new AndroidWaveActivityListAdapter(this, R.layout.main_authorization_cell, authorizations);
         setListAdapter(listAdapter);
@@ -79,28 +82,35 @@ public class AndroidWaveActivity extends ListActivity {
         }
     }
     
+    protected void reloadAuthorizations() {
+        Log.d(TAG, "reloadAuthorizations()");
+        
+        authorizations = mService.recipeAuthorizations();
+        
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                // TODO: something cleaner than clearing then re-adding
+                listAdapter.clear();
+                if (authorizations.size() > 0) {
+                    Date now = new Date();
+                    for (WaveRecipeAuthorization a : authorizations) {
+                        if (a.validForDate(now)) {
+                            listAdapter.add(a);
+                        }
+                    }
+                }
+                listAdapter.notifyDataSetChanged();
+            }
+        };
+        
+        runOnUiThread(r);
+    }
+    
     protected void afterBind() {
         Log.d(TAG, "afterBind()");
         // populate the list of authorizations
-        authorizations = mService.recipeAuthorizations();
-        Toast.makeText(AndroidWaveActivity.this, "Loaded "+authorizations.size()+" recipe"+(authorizations.size() == 1 ? "" : "s"), Toast.LENGTH_SHORT).show();
-
-        if (authorizations.size() > 0) {
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    for (WaveRecipeAuthorization a : authorizations) {
-                        listAdapter.add(a);
-                    }
-                    listAdapter.notifyDataSetChanged();
-                }
-            };
-            
-            runOnUiThread(r);
-        } else {
-            // update the empty view with a more descriptive message
-            emptyView.setText(R.string.androidwave_no_recipes);
-        }
+        reloadAuthorizations();
     }
     
     @Override
@@ -124,7 +134,7 @@ public class AndroidWaveActivity extends ListActivity {
             if (resultCode == RESULT_OK) {
                 // Edit was confirmed
                 Toast.makeText(AndroidWaveActivity.this, "Edit confirmed", Toast.LENGTH_SHORT).show();
-                listAdapter.notifyDataSetChanged();
+                reloadAuthorizations();
             } else {
                 // Edit was cancelled
                 Toast.makeText(AndroidWaveActivity.this, "Edit cancelled.", Toast.LENGTH_SHORT).show();
