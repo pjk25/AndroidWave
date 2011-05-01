@@ -22,17 +22,19 @@
         <!-- Any output must describe at least one channel -->
         <channel name="magnitude" />
     </output>
-    <granularity-table type="continuous">
-        <rate>#input_accelerometer</rate><!-- #ref-id references rate information from an incoming sensor-->
-        <precision>#input_accelerometer</precision><!-- need to confirm accuracy of this in the case of vector magnitude -->
-    </granularity-table>
+    <!-- UI for the continuous table is not yet complete -->
+    <!-- <granularity-table type="continuous"> -->
+        <!-- <rate>#input_accelerometer</rate> --><!-- #ref-id references rate information from an incoming sensor-->
+        <!-- <precision>#input_accelerometer</precision> --><!-- need to confirm accuracy of this in the case of vector magnitude -->
+    <!-- </granularity-table> -->
     <!-- a discreet type table is also available -->
-    <!-- <granularity-table>
-            <entry>
-                <input ref-id="input_accelerometer" rate="10Hz" precision=".009m/s^2"/>
-                <output ref-id="output_magnitude" rate="10Hz" precision=".009m/s^2" />
-            </entry>
-        </granularity-table> -->
+    <granularity-table type="discreet">
+        <entry>
+            <!-- rates are assumed to be in Hz, precision is in the unit of the referenced sensor-->
+            <input ref-id="input_accelerometer" rate="10" precision="-0.010"/>
+            <output rate="10" precision=".001" />
+        </entry>
+    </granularity-table>
     <algorithm>
         <class interface="WaveRecipeAlgorithm" name="edu.berkeley.androidwave.waverecipesample.AccelerometerMagnitudeAlgorithm" />
     </algorithm>
