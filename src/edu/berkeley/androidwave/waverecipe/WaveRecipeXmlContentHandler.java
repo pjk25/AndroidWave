@@ -24,6 +24,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 class WaveRecipeXmlContentHandler extends DefaultHandler {
+    
+    private static final String TAG = WaveRecipeXmlContentHandler.class.getSimpleName();
+    
     private WaveRecipe recipe;
     protected String algorithmClassName;
     
@@ -42,6 +45,10 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     protected WaveRecipeOutputDescription recipeOutput;
     
     protected GranularityTable granularityTable;
+    protected HashMap<WaveSensorDescription, Double> discreetTableRateEntryKey;
+    protected Double discreetTableRateEntryValue;
+    protected HashMap<WaveSensorDescription, Double> discreetTablePrecisionEntryKey;
+    protected Double discreetTablePrecisionEntryValue;
     
     protected static Date dateFromXmlString(String s)
         throws SAXException {
@@ -95,6 +102,10 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         recipeOutput = null;
         
         granularityTable = null;
+        discreetTableRateEntryKey = null;
+        discreetTableRateEntryValue = null;
+        discreetTablePrecisionEntryKey = null;
+        discreetTablePrecisionEntryValue = null;
     }
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts)
@@ -156,6 +167,24 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
             } else if (stag == SubTag.TABLE) {
                 // the rate and precision tags currently have no attributes,
                 // so we handle them at tag close
+                if (granularityTable != null) {
+                    if (granularityTable.getClass() == DiscreetGranularityTable.class) {
+                        if (localName.equalsIgnoreCase("entry")) {
+                            discreetTableRateEntryKey = new HashMap<WaveSensorDescription, Double>();
+                            discreetTablePrecisionEntryKey = new HashMap<WaveSensorDescription, Double>();
+                        } else if (localName.equalsIgnoreCase("input")) {
+                            String refId = atts.getValue("ref-id");
+                            WaveSensorDescription wsd = (WaveSensorDescription) referenceMap.get(refId);
+                            discreetTableRateEntryKey.put(wsd, new Double(atts.getValue("rate")));
+                            discreetTablePrecisionEntryKey.put(wsd, new Double(atts.getValue("precision")));
+                        } else if (localName.equalsIgnoreCase("output")) {
+                            discreetTableRateEntryValue = new Double(atts.getValue("rate"));
+                            discreetTablePrecisionEntryValue = new Double(atts.getValue("precision"));
+                        }
+                    }
+                } else {
+                    throw new AssertionError(granularityTable);
+                }
             } else if (stag == SubTag.ALG) {
                 if (localName.equalsIgnoreCase("class")) {
                     if (atts.getValue("interface").equals("WaveRecipeAlgorithm")) {
@@ -224,18 +253,24 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                     }
                     recipe.granularityTable = granularityTable;
                     stag = SubTag.NONE;
-                } else if (localName.equalsIgnoreCase("rate")) {
-                    if (isContinuousGranularityTable()) {
-                        ((ContinuousGranularityTable)granularityTable).setRateFormulaString(text);
-                    }
-                } else if (localName.equalsIgnoreCase("precision")) {
-                    if (isContinuousGranularityTable()) {
-                        ((ContinuousGranularityTable)granularityTable).setPrecisionFormulaString(text);
+                } else if (granularityTable != null) {
+                    if (granularityTable.getClass() == ContinuousGranularityTable.class) {
+                        if (localName.equalsIgnoreCase("rate")) {
+                            ((ContinuousGranularityTable)granularityTable).setRateFormulaString(text);
+                        } else if (localName.equalsIgnoreCase("precision")) {
+                            ((ContinuousGranularityTable)granularityTable).setPrecisionFormulaString(text);
+                        } else {
+                            throw new SAXException("Unexpected tag in granularity-table: "+uri);
+                        }
+                    } else {
+                        if (localName.equalsIgnoreCase("entry")) {
+                            ((DiscreetGranularityTable)granularityTable).getRateEntries().put(discreetTableRateEntryKey, discreetTableRateEntryValue);
+                            ((DiscreetGranularityTable)granularityTable).getPrecisionEntries().put(discreetTablePrecisionEntryKey, discreetTablePrecisionEntryValue);
+                        }
                     }
                 } else {
-                    throw new SAXException("Unexpected tag in granularity-table: "+uri);
+                    throw new AssertionError(granularityTable);
                 }
-                
             } else if (stag == SubTag.ALG) {
                 if (localName.equalsIgnoreCase("algorithm")) {
                     stag = SubTag.NONE;

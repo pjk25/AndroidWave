@@ -31,7 +31,7 @@
     <granularity-table type="discreet">
         <entry>
             <!-- rates are assumed to be in Hz, precision is in the unit of the referenced sensor-->
-            <input ref-id="input_accelerometer" rate="10" precision="-0.010"/>
+            <input ref-id="input_accelerometer" rate="10" precision="0.010"/>
             <output rate="10" precision=".001" />
         </entry>
     </granularity-table>

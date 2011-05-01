@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * WaveRecipeTest
@@ -103,6 +104,32 @@ public class WaveRecipeTest extends AndroidTestCase {
         
         GranularityTable table = recipeOne.getGranularityTable();
         assertNotNull(table);
+        
+        assertEquals("GranularityTable is discreet", DiscreetGranularityTable.class, table.getClass());
+        
+        DiscreetGranularityTable discreetTable = (DiscreetGranularityTable) table;
+        assertEquals("GranularityTable has one rate entry", 1, discreetTable.getRateEntries().size());
+        assertEquals("GranularityTable has one precision entry", 1, discreetTable.getPrecisionEntries().size());
+        
+        Map<WaveSensorDescription, Double> rateMap = null;
+        for (Map<WaveSensorDescription, Double> m : discreetTable.getRateEntries().keySet()) {
+            rateMap = m;
+            // no need to break as this map should have size 1
+        }
+        
+        assertNotNull(rateMap);
+        assertEquals("input rate", 10.0, rateMap.get(theSensor).doubleValue());
+        assertEquals("output rate", 10.0, discreetTable.getRateEntries().get(rateMap).doubleValue());
+        
+        Map<WaveSensorDescription, Double> precisionMap = null;;
+        for (Map<WaveSensorDescription, Double> m : discreetTable.getPrecisionEntries().keySet()) {
+            precisionMap = m;
+            // no need to break as this map should have size 1
+        }
+        assertEquals("input precision (in m/s^2)", 0.010, precisionMap.get(theSensor).doubleValue());
+        assertEquals("output precision (in g)", 0.001, discreetTable.getPrecisionEntries().get(precisionMap).doubleValue());
+        
+        /* Old Tests for continuous table
         assertEquals("GranularityTable is continuous", ContinuousGranularityTable.class, table.getClass());
         
         // need to check mappings somehow, lets just try some values
@@ -113,6 +140,7 @@ public class WaveRecipeTest extends AndroidTestCase {
         HashMap<WaveSensorDescription, Double> precisionMap = new HashMap<WaveSensorDescription, Double>();
         precisionMap.put(theSensor, 0.01);
         assertEquals("precision out equals precision in", 0.01, ((ContinuousGranularityTable)table).precisionForSensorPrecisions(precisionMap));
+         */
         
         // test the algorithm class
         assertNotNull("algorithmMainClass should not be null", recipeOne.algorithmMainClass);

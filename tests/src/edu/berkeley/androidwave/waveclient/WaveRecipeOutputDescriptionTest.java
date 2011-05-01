@@ -51,6 +51,7 @@ public class WaveRecipeOutputDescriptionTest extends AndroidTestCase {
         
         WaveRecipeOutputDescription three = new WaveRecipeOutputDescription("Kcal", "kCal");
         
+        // TODO: Use MoreAsserts.checkEqualsAndHashCodeMethods
         MoreAsserts.assertNotEqual(one, three);
     }
     
