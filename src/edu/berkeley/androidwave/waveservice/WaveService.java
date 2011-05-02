@@ -286,39 +286,68 @@ public class WaveService extends Service {
      */
     private final IWaveServicePublic.Stub mPublicBinder = new IWaveServicePublic.Stub() {
         
-        private WaveRecipeAuthorization retrieveAuthorization(String key, String recipeId) {
-            // check the validity of the key
-            if (clientKeyNameMap.containsKey(key)) {
-                // recall the package name for the given key
-                // this is a valid key
-                String packageName = clientKeyNameMap.get(key);
-                WaveRecipeAuthorization auth = getAuthorization(recipeId, packageName);
-                if (auth.validForDate(new Date())) {
-                    return auth;
-                } else {
-                    return null;
-                }
-            }
-            // invalid key, return null
-            Log.d(TAG, "retrieveAuthorization called using invalid key (for recipeId="+recipeId+")");
-            return null;
-        }
-
+        /**
+         * NOTE: These methods have not been refactored, because it is an
+         * apparent limit of AIDL such that we cannot call methods from
+         * outside of this inner class (it might also be possible that we
+         * cannot even call one method from another inside of this Stub()
+         * implementation).
+         */
+        
         /**
          * isAuthorized
          */
         public boolean isAuthorized(String key, String recipeId) {
-            WaveRecipeAuthorization auth = retrieveAuthorization(key, recipeId);
-            return (auth != null);
+            // Log.d(TAG, "mPublicBinder.isAuthorized(\""+key+"\", \""+recipeId+"\")");
+            
+            // check the validity of the key
+            if (clientKeyNameMap.containsKey(key)) {
+                // recall the package name for the given key
+                // this is a valid key
+                String clientPackageName = clientKeyNameMap.get(key);
+                
+                for (WaveRecipeAuthorization auth : authorizations) {
+                    if (auth.getRecipe().getId().equals(recipeId)) {
+                        if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
+                            if (auth.validForDate(new Date())) {
+                                return true;
+                            } else {
+                                Log.d(TAG, "isAuthorized called for revoked recipe (for recipeId="+recipeId+")");
+                            }
+                        }
+                    }
+                }
+            } else {
+                Log.d(TAG, "isAuthorized called using invalid key (for recipeId="+recipeId+")");
+            }
+            return false;
         }
 
         /**
          * retrieveAuthorization
          */
         public WaveRecipeAuthorizationInfo retrieveAuthorizationInfo(String key, String recipeId) {
-            WaveRecipeAuthorization auth = retrieveAuthorization(key, recipeId);
-            if (auth != null) {
-                return auth.asInfo();
+            // Log.d(TAG, "mPublicBinder.retrieveAuthorizationInfo(\""+key+"\", \""+recipeId+"\")");
+
+            // check the validity of the key
+            if (clientKeyNameMap.containsKey(key)) {
+                // recall the package name for the given key
+                // this is a valid key
+                String clientPackageName = clientKeyNameMap.get(key);
+
+                for (WaveRecipeAuthorization auth : authorizations) {
+                    if (auth.getRecipe().getId().equals(recipeId)) {
+                        if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
+                            if (auth.validForDate(new Date())) {
+                                return auth.asInfo();
+                            } else {
+                                Log.d(TAG, "retrieveAuthorizationInfo called for revoked recipe (for recipeId="+recipeId+")");
+                            }
+                        }
+                    }
+                }
+            } else {
+                Log.d(TAG, "retrieveAuthorizationInfo called using invalid key (for recipeId="+recipeId+")");
             }
             return null;
         }
@@ -329,6 +358,8 @@ public class WaveService extends Service {
          * TODO: avoid the use of the key, and determine the caller of the IPC dynamically
          */
         public Intent getAuthorizationIntent(String recipeId, String key) {
+            // Log.d(TAG, "mPublicBinder.getAuthorizationIntent(\""+recipeId+"\", \""+key+"\")");
+
             Intent authIntent = new Intent(ACTION_REQUEST_RECIPE_AUTHORIZE);
             authIntent.putExtra(RECIPE_ID_EXTRA, recipeId);
             authIntent.putExtra(CLIENT_KEY_EXTRA, key);
