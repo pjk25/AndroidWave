@@ -60,6 +60,7 @@ public class ViewRecipeAuthorizationActivity extends Activity {
     TextView recipeNameTextView;
     TextView recipeDescriptionTextView;
     TextView recipeSigTextView;
+    TextView ratePrecTextView;
     Button cancelButton;
     Button revokeButton;
     
@@ -75,6 +76,7 @@ public class ViewRecipeAuthorizationActivity extends Activity {
         recipeNameTextView = (TextView) findViewById(R.id.recipe_name);
         recipeDescriptionTextView = (TextView) findViewById(R.id.recipe_description);
         recipeSigTextView = (TextView) findViewById(R.id.recipe_sig);
+        ratePrecTextView = (TextView) findViewById(R.id.rate_prec_text);
         cancelButton = (Button) findViewById(R.id.cancel_button);
         revokeButton = (Button) findViewById(R.id.revoke_button);
         

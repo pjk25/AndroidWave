@@ -69,6 +69,8 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
     TextView recipeName;
     TextView recipeDescription;
     TextView recipeSig;
+    TextView ratePrecText;
+    Button ratePrecButton;
     Button authButton;
     Button denyButton;
     
@@ -84,6 +86,8 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
         recipeName = (TextView) findViewById(R.id.recipe_name);
         recipeDescription = (TextView) findViewById(R.id.recipe_description);
         recipeSig = (TextView) findViewById(R.id.recipe_sig);
+        ratePrecText = (TextView) findViewById(R.id.rate_prec_text);
+        ratePrecButton = (Button) findViewById(R.id.rate_prec_button);
         authButton = (Button) findViewById(R.id.auth_button);
         denyButton = (Button) findViewById(R.id.deny_button);
         
