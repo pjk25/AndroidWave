@@ -57,10 +57,12 @@
                       android:layout_weight="0.75"
                       android:text="Output generated at XHz, with precision X, and some random text" />
             <Button android:id="@+id/rate_prec_button"
-                    android:gravity="right"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.25"
+                    android:minWidth="96sp"
+                    android:maxWidth="128sp"
+                    android:maxLines="1"
                     android:textSize="12sp"
                     android:text="Adjust..." />
         </LinearLayout>
