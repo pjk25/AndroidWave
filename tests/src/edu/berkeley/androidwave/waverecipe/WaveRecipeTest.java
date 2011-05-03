@@ -107,28 +107,23 @@ public class WaveRecipeTest extends AndroidTestCase {
         
         assertEquals("GranularityTable is discreet", DiscreetGranularityTable.class, table.getClass());
         
+        // DiscreetGranularityTable assertions
         DiscreetGranularityTable discreetTable = (DiscreetGranularityTable) table;
-        assertEquals("GranularityTable has one rate entry", 1, discreetTable.getRateEntries().size());
-        assertEquals("GranularityTable has one precision entry", 1, discreetTable.getPrecisionEntries().size());
+        assertEquals("GranularityTable has one entry", 1, discreetTable.getEntries().size());
         
-        Map<WaveSensorDescription, Double> rateMap = null;
-        for (Map<WaveSensorDescription, Double> m : discreetTable.getRateEntries().keySet()) {
-            rateMap = m;
-            // no need to break as this map should have size 1
-        }
+        TableEntry tableEntry = discreetTable.getEntries().get(0);
+        assertEquals("TableEntry has one SensorAttributes", 1, tableEntry.sensorAttributes.size());
+        // grab the single SensorAttributes object from that tableEntry
+        SensorAttributes sa = (tableEntry.sensorAttributes.toArray(new SensorAttributes[0]))[0];
         
-        assertNotNull(rateMap);
-        assertEquals("input rate", 10.0, rateMap.get(theSensor).doubleValue());
-        assertEquals("output rate", 10.0, discreetTable.getRateEntries().get(rateMap).doubleValue());
+        // these values should match that of the waverecipe's description.xml
+        assertEquals(theSensor, sa.sensorDescription);
+        assertEquals("input rate", 10.0, sa.rate);
+        assertEquals("input precision", 0.010, sa.precision);
         
-        Map<WaveSensorDescription, Double> precisionMap = null;;
-        for (Map<WaveSensorDescription, Double> m : discreetTable.getPrecisionEntries().keySet()) {
-            precisionMap = m;
-            // no need to break as this map should have size 1
-        }
-        assertEquals("input precision (in m/s^2)", 0.010, precisionMap.get(theSensor).doubleValue());
-        assertEquals("output precision (in g)", 0.001, discreetTable.getPrecisionEntries().get(precisionMap).doubleValue());
-        
+        assertEquals("output rate", 10.0, tableEntry.outputRate);
+        assertEquals("output precision", 0.001, tableEntry.outputPrecision);
+                
         /* Old Tests for continuous table
         assertEquals("GranularityTable is continuous", ContinuousGranularityTable.class, table.getClass());
         

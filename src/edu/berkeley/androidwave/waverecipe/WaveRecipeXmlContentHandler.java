@@ -17,6 +17,7 @@ import android.util.Log;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.Vector;
 import org.xml.sax.SAXException;
@@ -37,7 +38,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     public enum SubTag { NONE, SENSORS, OUTPUT, TABLE, ALG };
     SubTag stag = SubTag.NONE;
     
-    HashMap<String, Object> referenceMap;
+    Map<String, WaveSensorDescription> referenceMap;
     
     Vector<WaveSensorDescription> sensors;
     protected WaveSensorDescription currentSensor;
@@ -45,10 +46,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
     protected WaveRecipeOutputDescription recipeOutput;
     
     protected GranularityTable granularityTable;
-    protected HashMap<WaveSensorDescription, Double> discreetTableRateEntryKey;
-    protected Double discreetTableRateEntryValue;
-    protected HashMap<WaveSensorDescription, Double> discreetTablePrecisionEntryKey;
-    protected Double discreetTablePrecisionEntryValue;
+    protected TableEntry granularityTableEntry;
     
     protected static Date dateFromXmlString(String s)
         throws SAXException {
@@ -94,7 +92,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         inRecipe = false;
         algorithmClassName = null;
         
-        referenceMap = new HashMap<String, Object>();
+        referenceMap = new HashMap<String, WaveSensorDescription>();
         
         sensors = new Vector();
         currentSensor = null;
@@ -102,10 +100,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         recipeOutput = null;
         
         granularityTable = null;
-        discreetTableRateEntryKey = null;
-        discreetTableRateEntryValue = null;
-        discreetTablePrecisionEntryKey = null;
-        discreetTablePrecisionEntryValue = null;
+        granularityTableEntry = null;
     }
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts)
@@ -153,12 +148,8 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                         throw new SAXException(e);
                     }
                 } else if (localName.equalsIgnoreCase("channel")) {
-                    String refId = atts.getValue("ref-id");
                     WaveSensorChannelDescription currentChannel = new WaveSensorChannelDescription(atts.getValue("name"));
                     currentSensor.addChannel(currentChannel);
-                    if (refId != null) {
-                        referenceMap.put(refId, currentChannel);
-                    }
                 }
             } else if (stag == SubTag.OUTPUT) {
                 if (localName.equalsIgnoreCase("channel")) {
@@ -170,16 +161,17 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                 if (granularityTable != null) {
                     if (granularityTable.getClass() == DiscreetGranularityTable.class) {
                         if (localName.equalsIgnoreCase("entry")) {
-                            discreetTableRateEntryKey = new HashMap<WaveSensorDescription, Double>();
-                            discreetTablePrecisionEntryKey = new HashMap<WaveSensorDescription, Double>();
+                            granularityTableEntry = new TableEntry();
                         } else if (localName.equalsIgnoreCase("input")) {
                             String refId = atts.getValue("ref-id");
-                            WaveSensorDescription wsd = (WaveSensorDescription) referenceMap.get(refId);
-                            discreetTableRateEntryKey.put(wsd, new Double(atts.getValue("rate")));
-                            discreetTablePrecisionEntryKey.put(wsd, new Double(atts.getValue("precision")));
+                            SensorAttributes sensorAtts = new SensorAttributes();
+                            sensorAtts.sensorDescription = (WaveSensorDescription) referenceMap.get(refId);
+                            sensorAtts.rate = Double.parseDouble(atts.getValue("rate"));
+                            sensorAtts.precision = Double.parseDouble(atts.getValue("precision"));
+                            granularityTableEntry.sensorAttributes.add(sensorAtts);
                         } else if (localName.equalsIgnoreCase("output")) {
-                            discreetTableRateEntryValue = new Double(atts.getValue("rate"));
-                            discreetTablePrecisionEntryValue = new Double(atts.getValue("precision"));
+                            granularityTableEntry.outputRate = Double.parseDouble(atts.getValue("rate"));
+                            granularityTableEntry.outputPrecision = Double.parseDouble(atts.getValue("precision"));
                         }
                     }
                 } else {
@@ -264,8 +256,7 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
                         }
                     } else {
                         if (localName.equalsIgnoreCase("entry")) {
-                            ((DiscreetGranularityTable)granularityTable).getRateEntries().put(discreetTableRateEntryKey, discreetTableRateEntryValue);
-                            ((DiscreetGranularityTable)granularityTable).getPrecisionEntries().put(discreetTablePrecisionEntryKey, discreetTablePrecisionEntryValue);
+                            ((DiscreetGranularityTable)granularityTable).getEntries().add(granularityTableEntry);
                         }
                     }
                 } else {
