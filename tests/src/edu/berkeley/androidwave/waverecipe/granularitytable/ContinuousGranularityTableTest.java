@@ -12,6 +12,8 @@ import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import junit.framework.TestCase;
 
 /**
@@ -22,53 +24,55 @@ import junit.framework.TestCase;
  */
 public class ContinuousGranularityTableTest extends TestCase {
     
-    public void testRateForSensorRates() throws Exception {
+    public void testRateForSensorAttributes() throws Exception {
         
         ContinuousGranularityTable table = new ContinuousGranularityTable();
         
         // next 4 lines initializes as XML would
         WaveSensorDescription aSensor = new WaveSensorDescription(WaveSensorDescription.Type.ACCELEROMETER, null);
         
-        HashMap<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, WaveSensorDescription> variableMap = new HashMap<String, WaveSensorDescription>();
         variableMap.put("input_accel", aSensor);
         
         table.setRateFormulaString("#input_accel");
         table.setVariableMap(variableMap);
         
         // construct method input
-        HashMap<WaveSensorDescription, Double> rateMap;
+        HashSet<SensorAttributes> attributeSet = new HashSet<SensorAttributes>();
+        SensorAttributes sa = new SensorAttributes();
+        sa.sensorDescription = aSensor;
+        sa.rate = 5.0;
+        attributeSet.add(sa);
         
-        rateMap = new HashMap<WaveSensorDescription, Double>();
-        rateMap.put(aSensor, 5.0);
-        assertEquals(5.0, table.rateForSensorRates(rateMap));
+        assertEquals(5.0, table.rateForSensorAttributes(attributeSet));
 
-        rateMap = new HashMap<WaveSensorDescription, Double>();
-        rateMap.put(aSensor, 10.0);
-        assertEquals(10.0, table.rateForSensorRates(rateMap));
+        sa.rate = 10.0;
+        assertEquals(10.0, table.rateForSensorAttributes(attributeSet));
     }
     
-    public void testPrecisionForSensorPrecisions() throws Exception {
+    public void testPrecisionForSensorAttributes() throws Exception {
         
         ContinuousGranularityTable table = new ContinuousGranularityTable();
         
         // next 4 lines initializes as XML would
         WaveSensorDescription aSensor = new WaveSensorDescription(WaveSensorDescription.Type.ACCELEROMETER, null);
         
-        HashMap<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, WaveSensorDescription> variableMap = new HashMap<String, WaveSensorDescription>();
         variableMap.put("input_accel", aSensor);
         
-        table.setRateFormulaString("#input_accel");
+        table.setPrecisionFormulaString("#input_accel");
         table.setVariableMap(variableMap);
         
         // construct method input
-        HashMap<WaveSensorDescription, Double> rateMap;
-        
-        rateMap = new HashMap<WaveSensorDescription, Double>();
-        rateMap.put(aSensor, 6.0);
-        assertEquals(6.0, table.rateForSensorRates(rateMap));
+        HashSet<SensorAttributes> attributeSet = new HashSet<SensorAttributes>();
+        SensorAttributes sa = new SensorAttributes();
+        sa.sensorDescription = aSensor;
+        sa.precision = 6.0;
+        attributeSet.add(sa);
 
-        rateMap = new HashMap<WaveSensorDescription, Double>();
-        rateMap.put(aSensor, 8.0);
-        assertEquals(8.0, table.rateForSensorRates(rateMap));
+        assertEquals(6.0, table.precisionForSensorAttributes(attributeSet));
+
+        sa.precision = 8.0;
+        assertEquals(8.0, table.precisionForSensorAttributes(attributeSet));
     }
 }

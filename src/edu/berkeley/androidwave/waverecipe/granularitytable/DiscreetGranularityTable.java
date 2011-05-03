@@ -10,36 +10,25 @@ package edu.berkeley.androidwave.waverecipe.granularitytable;
 
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.Set;
 
 /**
  * DiscreetGranularityTable
  */
 public class DiscreetGranularityTable extends GranularityTable {
     
-    protected Map< Map<WaveSensorDescription, Double>, Double > rateEntries;
-    protected Map< Map<WaveSensorDescription, Double>, Double > precisionEntries;
+    protected List<TableEntry> entries;
     
     public DiscreetGranularityTable() {
-        rateEntries = new HashMap< Map<WaveSensorDescription, Double>, Double>();
-        precisionEntries = new HashMap< Map<WaveSensorDescription, Double>, Double>();
+        entries = new ArrayList<TableEntry>();
     }
     
-    public Map< Map<WaveSensorDescription, Double>, Double > getRateEntries() {
-        return rateEntries;
-    }
-    
-    public void setRateEntries(Map< Map<WaveSensorDescription, Double>, Double > s) {
-        rateEntries = s;
-    }
-    
-    public Map< Map<WaveSensorDescription, Double>, Double > getPrecisionEntries() {
-        return precisionEntries;
-    }
-    
-    public void setPrecisionEntries(Map< Map<WaveSensorDescription, Double>, Double > s) {
-        precisionEntries = s;
+    public List<TableEntry> getEntries() {
+        return entries;
     }
     
     /**
@@ -49,25 +38,30 @@ public class DiscreetGranularityTable extends GranularityTable {
      * associated with those inputs
      */
     @Override
-    public double rateForSensorRates(HashMap<WaveSensorDescription, Double> rateMap)
+    public double rateForSensorAttributes(Set<SensorAttributes> attributes)
             throws Exception {
         
-        if (rateEntries.containsKey(rateMap)) {
-            return rateEntries.get(rateMap).doubleValue();
+        // we must search for an entry that matches the given map
+        for (TableEntry e : entries) {
+            if (e.sensorAttributes.equals(attributes)) {
+                return e.outputRate;
+            }
         }
-        throw new Exception("Supplied rateMap does not belong to this DiscreetGranularityTable");
+        throw new Exception("Supplied attribute set does not belong to this DiscreetGranularityTable");
     }
 
     /**
      * precisionForSensorPrecisions
      */
     @Override
-    public double precisionForSensorPrecisions(HashMap<WaveSensorDescription, Double> precisionMap)
+    public double precisionForSensorAttributes(Set<SensorAttributes> attributes)
             throws Exception {
         
-        if (precisionEntries.containsKey(precisionMap)) {
-            return precisionEntries.get(precisionMap).doubleValue();
+        for (TableEntry e : entries) {
+            if (e.sensorAttributes.equals(attributes)) {
+                return e.outputPrecision;
+            }
         }
-        throw new Exception("Supplied precisionMap does not belong to this DiscreetGranularityTable");
+        throw new Exception("Supplied attribute set does not belong to this DiscreetGranularityTable");
     }
 }

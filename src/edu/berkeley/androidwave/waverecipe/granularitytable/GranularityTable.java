@@ -8,9 +8,7 @@
 
 package edu.berkeley.androidwave.waverecipe.granularitytable;
 
-import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
-
-import java.util.HashMap;
+import java.util.Set;
 
 /**
  * GranularityTable
@@ -23,12 +21,12 @@ public abstract class GranularityTable {
      * Determines output rate for the recipe given a map of inputs and rates
      * associated with those inputs
      */
-    public abstract double rateForSensorRates(HashMap<WaveSensorDescription, Double> rateMap)
+    public abstract double rateForSensorAttributes(Set<SensorAttributes> attributes)
             throws Exception;
 
     /**
      * precisionForSensorPrecisions
      */
-    public abstract double precisionForSensorPrecisions(HashMap<WaveSensorDescription, Double> precisionMap)
+    public abstract double precisionForSensorAttributes(Set<SensorAttributes> attributes)
             throws Exception;
 }
