@@ -9,7 +9,7 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
-import edu.berkeley.androidwave.waverecipe.granularitytable.GranularityTable;
+import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
 import android.content.ComponentName;
@@ -17,7 +17,8 @@ import android.content.pm.Signature;
 import android.util.Log;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import org.json.*;
@@ -41,14 +42,12 @@ public class WaveRecipeAuthorization {
     protected Date revokedDate;
     protected Date modifiedDate;
     
-    protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxRateMap;
-    protected HashMap<WaveSensorDescription, Double> sensorDescriptionMaxPrecisionMap;
+    protected Set<SensorAttributes> sensorAttributes;
     
     public WaveRecipeAuthorization(WaveRecipe recipe) {
         this.recipe = recipe;
 
-        sensorDescriptionMaxRateMap = new HashMap<WaveSensorDescription, Double>();
-        sensorDescriptionMaxPrecisionMap = new HashMap<WaveSensorDescription, Double>();
+        sensorAttributes = new HashSet<SensorAttributes>();
     }
     
     public WaveRecipe getRecipe() {
@@ -96,12 +95,8 @@ public class WaveRecipeAuthorization {
         modifiedDate = d;
     }
     
-    public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxRateMap() {
-        return sensorDescriptionMaxRateMap;
-    }
-    
-    public HashMap<WaveSensorDescription, Double> getSensorDescriptionMaxPrecisionMap() {
-        return sensorDescriptionMaxPrecisionMap;
+    public Set<SensorAttributes> getSensorAttributes() {
+        return sensorAttributes;
     }
     
     /**
@@ -154,8 +149,7 @@ public class WaveRecipeAuthorization {
             (authorizedDate == null ? lhs.authorizedDate == null : authorizedDate.equals(lhs.authorizedDate)) &&
             (revokedDate == null ? lhs.revokedDate == null : revokedDate.equals(lhs.revokedDate)) &&
             modifiedDate.equals(lhs.modifiedDate) &&
-            sensorDescriptionMaxRateMap.equals(lhs.sensorDescriptionMaxRateMap) &&
-            sensorDescriptionMaxPrecisionMap.equals(lhs.sensorDescriptionMaxPrecisionMap);
+            sensorAttributes.equals(lhs.sensorAttributes);
     }
     
     @Override public int hashCode() {
@@ -172,8 +166,7 @@ public class WaveRecipeAuthorization {
         result = 31 * result + (revokedDate == null ? 0 : revokedDate.hashCode());
         result = 31 * result + modifiedDate.hashCode();
 
-        result = 31 * result + sensorDescriptionMaxRateMap.hashCode();
-        result = 31 * result + sensorDescriptionMaxPrecisionMap.hashCode();
+        result = 31 * result + sensorAttributes.hashCode();
 
         return result;
     }
@@ -188,8 +181,8 @@ public class WaveRecipeAuthorization {
         
         GranularityTable t = recipe.getGranularityTable();
         try {
-            info.outputMaxRate = t.rateForSensorRates(sensorDescriptionMaxRateMap);
-            info.outputMaxPrecision = t.precisionForSensorPrecisions(sensorDescriptionMaxPrecisionMap);
+            info.outputMaxRate = t.rateForSensorAttributes(sensorAttributes);
+            info.outputMaxPrecision = t.precisionForSensorAttributes(sensorAttributes);
         } catch (Exception e) {
             Log.w(TAG, "Exception raised while calculating output rate and precision", e);
         }
@@ -228,10 +221,8 @@ public class WaveRecipeAuthorization {
             }
             // modifiedDate
             asJson.put("modifiedDate", modifiedDate.getTime());
-            // rateMap
-            asJson.put("sensorDescriptionMaxRateMap", sensorDescriptionMaxRateMapAsJSON());
-            // precesionMap
-            asJson.put("sensorDescriptionMaxPrecisionMap", sensorDescriptionMaxPrecisionMapAsJSON());
+            // sensorAttributes
+            asJson.put("sensorAttributes", sensorAttributesAsJSONArray());
         } catch (JSONException e) {
             Log.w(TAG, "Exception encountered while producing JSON from "+this, e);
         }
@@ -251,16 +242,19 @@ public class WaveRecipeAuthorization {
             }
             auth = new WaveRecipeAuthorization(recipe);
             
+            // restore the recipeClientName
             String packageName = o.getString("recipeClientName_packageName");
             String className = o.getString("recipeClientName_className");
             auth.recipeClientName = new ComponentName(packageName, className);
             
+            // restore the recipeClientSignatures
             JSONArray a = o.getJSONArray("recipeClientSignatures");
             auth.recipeClientSignatures = new Signature[a.length()];
             for (int i=0; i<a.length(); i++) {
                 auth.recipeClientSignatures[i] = new Signature(a.getString(i));
             }
             
+            // restore the dates
             auth.authorizedDate = new Date(o.getLong("authorizedDate"));
             if (o.has("revokedDate")) {
                 auth.revokedDate = new Date(o.getLong("revokedDate"));
@@ -269,32 +263,18 @@ public class WaveRecipeAuthorization {
             }
             auth.modifiedDate = new Date(o.getLong("modifiedDate"));
             
-            Iterator it;
-            
-            JSONObject rates = o.getJSONObject("sensorDescriptionMaxRateMap");
-            it = rates.keys();
-            while (it.hasNext()) {
-                String k = (String)it.next();
-                // get the rate double from the json
-                Double d = (Double)(o.get(k));
-                // the keys are references to sensordescriptions in the
-                // recipe, so we must decode them
-                WaveSensorDescription wsd = recipe.getSensorForInternalId(k);
-                // store in in the map
-                auth.sensorDescriptionMaxRateMap.put(wsd, d);
-            }
-            
-            JSONObject precs = o.getJSONObject("sensorDescriptionMaxPrecisionMap");
-            it = precs.keys();
-            while (it.hasNext()) {
-                String k = (String)it.next();
-                // get the rate double from the json
-                Double d = (Double)(o.get(k));
-                // the keys are references to sensordescriptions in the
-                // recipe, so we must decode them
-                WaveSensorDescription wsd = recipe.getSensorForInternalId(k);
-                // store in in the map
-                auth.sensorDescriptionMaxRateMap.put(wsd, d);
+            // restore the sensorAttributes
+            JSONArray saja = o.getJSONArray("sensorAttributes");
+            for (int i=0; i<saja.length(); i++) {
+                JSONObject element = saja.getJSONObject(i);
+                
+                SensorAttributes sa = new SensorAttributes();
+                String internalId = element.getString("sensorInternalId");
+                sa.sensorDescription = recipe.getSensorForInternalId(internalId);
+                sa.rate = element.getDouble("rate");
+                sa.precision = element.getDouble("precision");
+                
+                auth.sensorAttributes.add(sa);
             }
         } catch (JSONException e) {
             auth = null;
@@ -306,31 +286,19 @@ public class WaveRecipeAuthorization {
      * JSON helpers for referenced fields.  Would love to throw these in an
      * category, a la Objective-C, in another file for clarity.
      */
-    protected JSONObject sensorDescriptionMaxRateMapAsJSON() {
-        JSONObject o = new JSONObject();
+    protected JSONArray sensorAttributesAsJSONArray() {
+        JSONArray a = new JSONArray();
         try {
-            for (Entry<WaveSensorDescription, Double> entry : sensorDescriptionMaxRateMap.entrySet()) {
-                WaveSensorDescription wsd = entry.getKey();
-                Double d = entry.getValue();
-                o.put(recipe.getInternalIdForSensor(wsd), d);
+            for (SensorAttributes sa : sensorAttributes) {
+                JSONObject o = new JSONObject();
+                o.put("sensorInternalId", recipe.getInternalIdForSensor(sa.sensorDescription));
+                o.put("rate", sa.rate);
+                o.put("precision", sa.precision);
+                a.put(o);
             }
         } catch (JSONException e) {
-            Log.w(TAG, "Exception encountered while producing JSON from "+sensorDescriptionMaxRateMap, e);
+            Log.w(TAG, "Exception encountered while producing JSON from "+sensorAttributes, e);
         }
-        return o;
-    }
-    
-    protected JSONObject sensorDescriptionMaxPrecisionMapAsJSON() {
-        JSONObject o = new JSONObject();
-        try {
-            for (Entry<WaveSensorDescription, Double> entry : sensorDescriptionMaxPrecisionMap.entrySet()) {
-                WaveSensorDescription wsd = entry.getKey();
-                Double d = entry.getValue();
-                o.put(recipe.getInternalIdForSensor(wsd), d);
-            }
-        } catch (JSONException e) {
-            Log.w(TAG, "Exception encountered while producing JSON from "+sensorDescriptionMaxPrecisionMap, e);
-        }
-        return o;
+        return a;
     }
 }

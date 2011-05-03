@@ -47,27 +47,8 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
     @SmallTest
     public void testConstructor() throws Exception {
         assertNotNull(auth);
-    }
-    
-    
-    /**
-     * testDescriptionMapsInitialState
-     * 
-     * test the getter methods for the HashMaps linking sensor descriptions
-     * used by the recipe to their maximum available rates and precisions
-     */
-    @SmallTest
-    public void testDescriptionMapsInitialState() throws Exception {
-        HashMap descriptionMap;
-        // sensorDescriptionMaxRateMap
-        descriptionMap = auth.getSensorDescriptionMaxRateMap();
-        assertNotNull(descriptionMap);
-        assertEquals("sensorDescriptionMaxRateMap size", 0, descriptionMap.size());
-
-        // sensorDescriptionMaxPrecisionMap
-        descriptionMap = auth.getSensorDescriptionMaxPrecisionMap();
-        assertNotNull(descriptionMap);
-        assertEquals("sensorDescriptionMaxPrecisionMap size", 0, descriptionMap.size());
+        assertNotNull(auth.getSensorAttributes());
+        assertEquals(0, auth.getSensorAttributes().size());
     }
     
     @SmallTest
