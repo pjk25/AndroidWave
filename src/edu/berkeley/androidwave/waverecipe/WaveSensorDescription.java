@@ -91,4 +91,55 @@ public class WaveSensorDescription {
     public boolean addChannel(WaveSensorChannelDescription c) {
         return channels.add(c);
     }
+    
+    // Use @Override to avoid accidental overloading.
+    @Override
+    public boolean equals(Object o) {
+        // Return true if the objects are identical.
+        // (This is just an optimization, not required for correctness.)
+        if (this == o) {
+            return true;
+        }
+
+        // Return false if the other object has the wrong type.
+        // This type may be an interface depending on the interface's specification.
+        if (!(o instanceof WaveSensorDescription)) {
+            return false;
+        }
+
+        // Cast to the appropriate type.
+        // This will succeed because of the instanceof, and lets us access private fields.
+        WaveSensorDescription lhs = (WaveSensorDescription) o;
+
+        // Check each field. Primitive fields, reference fields, and nullable reference
+        // fields are all treated differently.
+        return type == lhs.type &&
+            (expectedUnits == null ? lhs.expectedUnits == null
+            : expectedUnits.equals(lhs.expectedUnits)) &&
+            channels.equals(lhs.channels);
+    }
+    
+    @Override
+    public int hashCode() {
+        // Start with a non-zero constant.
+        int result = 17;
+
+        // Include a hash for each field.
+        result = 31 * result + type.hashCode();
+        
+        result = 31 * result +
+            (expectedUnits == null ? 0 : expectedUnits.hashCode());
+        
+        result = 31 * result + channels.hashCode();
+
+        return result;
+    }
+    
+    @Override
+    public String toString() {
+        return getClass().getName() + "[" +
+            "type=" + type + ", " +
+            "expectedUnits=" + expectedUnits + ", " +
+            "channels=" + channels + "]";
+    }
 }

@@ -24,10 +24,25 @@ import android.test.suitebuilder.annotation.SmallTest;
  */
 public class WaveSensorChannelDescriptionTest extends AndroidTestCase {
     
-    WaveSensorChannelDescription wscd;
+    public void testPreconditions() {
+        WaveSensorChannelDescription one = getFixtureOne();
+        WaveSensorChannelDescription two = getFixtureTwo();
+        WaveSensorChannelDescription likeOne = new WaveSensorChannelDescription("x");
+        
+        MoreAsserts.checkEqualsAndHashCodeMethods(one, one, true);
+        MoreAsserts.checkEqualsAndHashCodeMethods(one, likeOne, true);
+        MoreAsserts.checkEqualsAndHashCodeMethods(one, two, false);
+    }
     
-    @Override
-    public void setUp() {
-        wscd = new WaveSensorChannelDescription("x");
+    /**
+     * FIXTURES
+     */
+    
+    public static WaveSensorChannelDescription getFixtureOne() {
+        return new WaveSensorChannelDescription("x");
+    }
+    
+    public static WaveSensorChannelDescription getFixtureTwo() {
+        return new WaveSensorChannelDescription("y");
     }
 }
