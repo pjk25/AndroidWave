@@ -40,11 +40,11 @@ public class WaveRecipeOutputChannelDescriptionTest extends AndroidTestCase {
         WaveRecipeOutputChannelDescription one = new WaveRecipeOutputChannelDescription("magnitude");
         WaveRecipeOutputChannelDescription two = new WaveRecipeOutputChannelDescription("magnitude");
         
-        assertEquals(one, two);
+        MoreAsserts.checkEqualsAndHashCodeMethods(one, two, true);
         
         WaveRecipeOutputChannelDescription three = new WaveRecipeOutputChannelDescription("phase");
         
-        MoreAsserts.assertNotEqual(one, three);
+        MoreAsserts.checkEqualsAndHashCodeMethods(one, three, false);
     }
     
     public void testParcelable() {

@@ -43,16 +43,15 @@ public class WaveRecipeOutputDescriptionTest extends AndroidTestCase {
     public void testEquals() {
         WaveRecipeOutputDescription one = new WaveRecipeOutputDescription("AccelerometerMagnitude", "-m/s^2");
         WaveRecipeOutputDescription two = new WaveRecipeOutputDescription("AccelerometerMagnitude", "-m/s^2");
-        assertEquals(one, two);
+        MoreAsserts.checkEqualsAndHashCodeMethods(one, two, true);
         one.addChannel(new WaveRecipeOutputChannelDescription("magnitude"));
-        MoreAsserts.assertNotEqual(one, two);
+        MoreAsserts.checkEqualsAndHashCodeMethods(one, two, false);
         two.addChannel(new WaveRecipeOutputChannelDescription("magnitude"));
-        assertEquals(one, two);
+        MoreAsserts.checkEqualsAndHashCodeMethods(one, two, true);
         
         WaveRecipeOutputDescription three = new WaveRecipeOutputDescription("Kcal", "kCal");
         
-        // TODO: Use MoreAsserts.checkEqualsAndHashCodeMethods
-        MoreAsserts.assertNotEqual(one, three);
+        MoreAsserts.checkEqualsAndHashCodeMethods(one, three, false);
     }
     
     public void testParcelable() {
