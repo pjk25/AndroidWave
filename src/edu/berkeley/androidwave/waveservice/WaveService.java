@@ -378,7 +378,7 @@ public class WaveService extends Service {
         * unregisterRecipeOutputListener
         */
         public boolean unregisterRecipeOutputListener(String key, String recipeId, IWaveRecipeOutputDataListener listener) {
-            throwNotImplemented();
+            // null implementation
             return false;
         }
     };
