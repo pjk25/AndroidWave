@@ -176,6 +176,17 @@ public class ViewRecipeAuthorizationActivity extends Activity {
                 recipeSigTextView.setText("Signed by: "+recipeSigner);
                 
                 // TODO: set up table view
+                try {
+                    double outputRate = authorization.getOutputRate();
+                    double outputPrecision = authorization.getOutputPrecision();
+                    String message = String.format("Output will be generated at a rate of %fHz, in increments of %f%s", outputRate, outputPrecision, recipe.getOutput().getUnits());
+                    
+                    ratePrecTextView.setText(message);
+                } catch (Exception e) {
+                    Log.d(TAG, "Exception while getting recipe output granularity", e);
+                    ratePrecTextView.setText("Error encountered while calculating recipe output granularity.");
+                }
+                
             } else {
                 // TODO: use a dialog
                 Log.w(TAG, "Could not find requested WaveRecipeAuthorization for id="+requestedRecipeId+", "+requestedClientName);
@@ -206,7 +217,7 @@ public class ViewRecipeAuthorizationActivity extends Activity {
                                ViewRecipeAuthorizationActivity.this.finish();
                            }
                        });
-                AlertDialog alert = builder.create();
+                AlertDialog alert = builder.show();
             }
         }
     };
