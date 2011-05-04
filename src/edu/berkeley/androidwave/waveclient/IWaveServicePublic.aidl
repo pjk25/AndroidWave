@@ -3,7 +3,7 @@
 //  CalFitWaveProject
 //  
 //  Created by Philip Kuryloski on 2010-12-15.
-//  Copyright 2010 Philip Kuryloski. All rights reserved.
+//  Copyright 2010 University of California, Berkeley. All rights reserved.
 // 
 
 package edu.berkeley.androidwave.waveclient;

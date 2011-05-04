@@ -1,3 +1,11 @@
+// 
+//  WaveService.java
+//  AndroidWaveProject
+//  
+//  Created by Philip Kuryloski on 2010-12-15.
+//  Copyright 2010 University of California, Berkeley. All rights reserved.
+// 
+
 package edu.berkeley.androidwave.waveservice;
 
 import edu.berkeley.androidwave.waveclient.IWaveServicePublic;
