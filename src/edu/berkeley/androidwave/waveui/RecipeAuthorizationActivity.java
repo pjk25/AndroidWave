@@ -227,7 +227,6 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             String message = String.format("Output will be generated at a rate of %fHz, in increments of %f%s", outputRate, outputPrecision, wrod.getUnits());
             
             ratePrecText.setText(message);
-            // TODO: request layout of the enclosing view
         } catch (Exception e) {
             Log.d(TAG, "Exception encountered while calculating recipe output granularity", e);
             ratePrecText.setText("Error encountered while calculating recipe output granularity.");
