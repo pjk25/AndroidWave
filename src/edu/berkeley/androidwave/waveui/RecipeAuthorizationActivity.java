@@ -10,6 +10,8 @@ package edu.berkeley.androidwave.waveui;
 
 import edu.berkeley.androidwave.R;
 import edu.berkeley.androidwave.waveexception.WaveRecipeNotCachedException;
+import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDescription;
+import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waverecipe.WaveRecipe;
 import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
 import edu.berkeley.androidwave.waveservice.RecipeRetrievalResponder;
@@ -33,7 +35,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * RecipeAuthorizationActivity
@@ -92,6 +98,8 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
         denyButton = (Button) findViewById(R.id.deny_button);
         
         // more UI setup
+        ratePrecButton.setEnabled(false);
+        ratePrecButton.setOnClickListener(mAdjustListener);
         authButton.setEnabled(false);
         authButton.setOnClickListener(mAuthListener);
         denyButton.setEnabled(false);
@@ -181,6 +189,8 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                         recipeDescription.setText(theRecipe.getDescription());
                         String recipeSigner = theRecipe.getCertificate().getSubjectDN().toString();
                         recipeSig.setText("Signed by: "+recipeSigner);
+                        
+                        ratePrecButton.setEnabled(true);
                         authButton.setEnabled(true);
                         denyButton.setEnabled(true);
                     }
@@ -201,7 +211,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                                RecipeAuthorizationActivity.this.finish();
                            }
                        });
-                AlertDialog alert = builder.create();
+                AlertDialog alert = builder.show();
             }
         } else {
             setResult(RESULT_CANCELED);
@@ -209,26 +219,97 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
         }
     }
     
+    private void updateGranularityText() {
+        WaveRecipeOutputDescription wrod = recipeAuthorization.getRecipe().getOutput();
+        try {
+            double outputRate = recipeAuthorization.getOutputRate();
+            double outputPrecision = recipeAuthorization.getOutputPrecision();
+            String message = String.format("Output will be generated at a rate of %fHz, in increments of %f%s", outputRate, outputPrecision, wrod.getUnits());
+            
+            ratePrecText.setText(message);
+            // TODO: request layout of the enclosing view
+        } catch (Exception e) {
+            Log.d(TAG, "Exception encountered while calculating recipe output granularity", e);
+            ratePrecText.setText("Error encountered while calculating recipe output granularity.");
+        }
+    }
+    
+    private void chooseGranularity(boolean cascadeToAuth) {
+        final boolean cascade = cascadeToAuth;
+        GranularityTable t = recipeAuthorization.getRecipe().getGranularityTable();
+        if (t instanceof DiscreetGranularityTable) {
+            DiscreetGranularityTable dgt = (DiscreetGranularityTable) t;
+            
+            // get the recipe output to determine units
+            WaveRecipeOutputDescription wrod = recipeAuthorization.getRecipe().getOutput();
+            
+            // create some labels for the user from the TableEntry(s)
+            final List<TableEntry> tableEntries = dgt.getEntries();
+            ArrayList<String> listItems = new ArrayList<String>(tableEntries.size());
+            
+            for (TableEntry te : tableEntries) {
+                listItems.add(String.format("%fHz, %f%s", te.outputRate, te.outputPrecision, wrod.getUnits()));
+            }
+            
+            // now display a dialog of choices
+            final CharSequence[] items = listItems.toArray(new String[0]);
+            AlertDialog.Builder builder = new AlertDialog.Builder(RecipeAuthorizationActivity.this);
+            builder.setTitle("Select Recipe Granularity\n(Delivery rate, precision)");
+            builder.setItems(items, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int item) {
+                    TableEntry te = tableEntries.get(item);
+                    recipeAuthorization.setSensorAttributes(te.sensorAttributes);
+                    // update the granularity text
+                    updateGranularityText();
+                    // extra visual for the user
+                    Toast.makeText(getApplicationContext(), "Selected: "+items[item], Toast.LENGTH_SHORT).show();
+                    
+                    if (cascade) {
+                        authButton.performClick();
+                    }
+                }
+            });
+            AlertDialog alert = builder.show();
+        } else {
+            Toast.makeText(RecipeAuthorizationActivity.this, "Continuous granularity adjustments are not yet implemented.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+    }
+    
+    private OnClickListener mAdjustListener = new OnClickListener() {
+        public void onClick(View v) {
+            chooseGranularity(false);
+        }
+    };
+    
     private OnClickListener mAuthListener = new OnClickListener() {
         public void onClick(View v) {
-            Date now = new Date();
-            recipeAuthorization.setAuthorizedDate(now);
-            recipeAuthorization.setModifiedDate(now);
-            
-            if (mService.saveAuthorization(recipeAuthorization)) {
-                setResult(RESULT_OK, (new Intent()).setAction(ACTION_DID_AUTHORIZE));
-                finish();
+            if (recipeAuthorization.getSensorAttributes() == null) {
+                // choose the granularity
+                // TODO: figure out how to trigger the onclick of mAdjustListener
+                chooseGranularity(true);
             } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(RecipeAuthorizationActivity.this);
-                builder.setMessage("AndroidWave: internal error.")
-                       .setCancelable(false)
-                       .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
-                           public void onClick(DialogInterface dialog, int id) {
-                                setResult(RESULT_CANCELED);
-                               RecipeAuthorizationActivity.this.finish();
-                           }
-                       });
-                AlertDialog alert = builder.create();
+                // TODO: add confirmation dialog
+            
+                Date now = new Date();
+                recipeAuthorization.setAuthorizedDate(now);
+                recipeAuthorization.setModifiedDate(now);
+        
+                if (mService.saveAuthorization(recipeAuthorization)) {
+                    setResult(RESULT_OK, (new Intent()).setAction(ACTION_DID_AUTHORIZE));
+                    finish();
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(RecipeAuthorizationActivity.this);
+                    builder.setMessage("AndroidWave: internal error.")
+                           .setCancelable(false)
+                           .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                               public void onClick(DialogInterface dialog, int id) {
+                                    setResult(RESULT_CANCELED);
+                                   RecipeAuthorizationActivity.this.finish();
+                               }
+                           });
+                    AlertDialog alert = builder.show();
+                }
             }
         }
     };

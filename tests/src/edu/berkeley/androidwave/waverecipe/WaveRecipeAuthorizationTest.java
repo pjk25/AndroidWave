@@ -47,8 +47,6 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
     @SmallTest
     public void testConstructor() throws Exception {
         assertNotNull(auth);
-        assertNotNull(auth.getSensorAttributes());
-        assertEquals(0, auth.getSensorAttributes().size());
     }
     
     @SmallTest

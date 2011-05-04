@@ -46,8 +46,6 @@ public class WaveRecipeAuthorization {
     
     public WaveRecipeAuthorization(WaveRecipe recipe) {
         this.recipe = recipe;
-
-        sensorAttributes = new HashSet<SensorAttributes>();
     }
     
     public WaveRecipe getRecipe() {
@@ -97,6 +95,26 @@ public class WaveRecipeAuthorization {
     
     public Set<SensorAttributes> getSensorAttributes() {
         return sensorAttributes;
+    }
+    
+    public void setSensorAttributes(Set<SensorAttributes> s) {
+        sensorAttributes = s;
+    }
+    
+    /**
+     * getOutputRate
+     * 
+     * calculates the recipe output given the authorizations current
+     * sensorAttributes and granularityTable
+     */
+    public double getOutputRate() throws Exception {
+        GranularityTable t = recipe.getGranularityTable();
+        return t.rateForSensorAttributes(getSensorAttributes());
+    }
+    
+    public double getOutputPrecision() throws Exception {
+        GranularityTable t = recipe.getGranularityTable();
+        return t.precisionForSensorAttributes(getSensorAttributes());
     }
     
     /**
@@ -149,7 +167,7 @@ public class WaveRecipeAuthorization {
             (authorizedDate == null ? lhs.authorizedDate == null : authorizedDate.equals(lhs.authorizedDate)) &&
             (revokedDate == null ? lhs.revokedDate == null : revokedDate.equals(lhs.revokedDate)) &&
             modifiedDate.equals(lhs.modifiedDate) &&
-            sensorAttributes.equals(lhs.sensorAttributes);
+            (sensorAttributes == null ? lhs.sensorAttributes == null : sensorAttributes.equals(lhs.sensorAttributes));
     }
     
     @Override public int hashCode() {
@@ -166,7 +184,7 @@ public class WaveRecipeAuthorization {
         result = 31 * result + (revokedDate == null ? 0 : revokedDate.hashCode());
         result = 31 * result + modifiedDate.hashCode();
 
-        result = 31 * result + sensorAttributes.hashCode();
+        result = 31 * result + (sensorAttributes == null ? 0 : sensorAttributes.hashCode());
 
         return result;
     }
@@ -222,7 +240,9 @@ public class WaveRecipeAuthorization {
             // modifiedDate
             asJson.put("modifiedDate", modifiedDate.getTime());
             // sensorAttributes
-            asJson.put("sensorAttributes", sensorAttributesAsJSONArray());
+            if (sensorAttributes != null) {
+                asJson.put("sensorAttributes", sensorAttributesAsJSONArray());
+            }
         } catch (JSONException e) {
             Log.w(TAG, "Exception encountered while producing JSON from "+this, e);
         }
@@ -264,17 +284,22 @@ public class WaveRecipeAuthorization {
             auth.modifiedDate = new Date(o.getLong("modifiedDate"));
             
             // restore the sensorAttributes
-            JSONArray saja = o.getJSONArray("sensorAttributes");
-            for (int i=0; i<saja.length(); i++) {
-                JSONObject element = saja.getJSONObject(i);
+            if (o.has("sensorAttributes")) {
+                auth.sensorAttributes = new HashSet<SensorAttributes>();
+                JSONArray saja = o.getJSONArray("sensorAttributes");
+                for (int i=0; i<saja.length(); i++) {
+                    JSONObject element = saja.getJSONObject(i);
                 
-                SensorAttributes sa = new SensorAttributes();
-                String internalId = element.getString("sensorInternalId");
-                sa.sensorDescription = recipe.getSensorForInternalId(internalId);
-                sa.rate = element.getDouble("rate");
-                sa.precision = element.getDouble("precision");
+                    SensorAttributes sa = new SensorAttributes();
+                    String internalId = element.getString("sensorInternalId");
+                    sa.sensorDescription = recipe.getSensorForInternalId(internalId);
+                    sa.rate = element.getDouble("rate");
+                    sa.precision = element.getDouble("precision");
                 
-                auth.sensorAttributes.add(sa);
+                    auth.sensorAttributes.add(sa);
+                }
+            } else {
+                auth.sensorAttributes = null;
             }
         } catch (JSONException e) {
             auth = null;
