@@ -134,6 +134,9 @@ public class AndroidWaveActivity extends ListActivity {
             if (resultCode == RESULT_OK) {
                 // Edit was confirmed
                 Toast.makeText(AndroidWaveActivity.this, "Edit confirmed", Toast.LENGTH_SHORT).show();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ie) {}
                 reloadAuthorizations();
             } else {
                 // Edit was cancelled
