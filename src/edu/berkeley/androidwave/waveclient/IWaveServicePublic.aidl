@@ -55,5 +55,5 @@ interface IWaveServicePublic {
     /**
      * Unregister recipe output listener
      */
-    boolean unregisterRecipeOutputListener(in String key, in String recipeId, in IWaveRecipeOutputDataListener listener);
+    boolean unregisterRecipeOutputListener(in String key, in String recipeId);
 }

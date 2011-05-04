@@ -8,10 +8,10 @@
 
 package edu.berkeley.androidwave.waveservice;
 
-import edu.berkeley.androidwave.waveclient.IWaveServicePublic;
-import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
-import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
+import edu.berkeley.androidwave.waveclient.*;
 import edu.berkeley.androidwave.waveexception.WaveRecipeNotCachedException;
+import edu.berkeley.androidwave.waveservice.sensorengine.SensorEngine;
+import edu.berkeley.androidwave.waveservice.sensorengine.WaveRecipeOutputListener;
 
 import android.app.Service;
 import android.content.ComponentName;
@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import java.io.*;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ import edu.berkeley.androidwave.waverecipe.*;
  * Client applications, and a private local interface for the WaveUI
  * Application.
  */
-public class WaveService extends Service {
+public class WaveService extends Service implements WaveRecipeOutputListener {
     
     private static final String TAG = WaveService.class.getSimpleName();
     
@@ -59,6 +60,10 @@ public class WaveService extends Service {
     protected Map<String, String> clientNameKeyMap;
     protected ArrayList<WaveRecipeAuthorization> authorizations;
     
+    // The SensorEngine
+    protected SensorEngine sensorEngine;
+    protected Map<WaveRecipeAuthorization, IWaveRecipeOutputDataListener> listenerMap;
+    
     protected void throwNotImplemented() {
         String className = getClass().getName();
         String methodName = Thread.currentThread().getStackTrace()[3].getMethodName();
@@ -70,6 +75,11 @@ public class WaveService extends Service {
         Log.d(TAG, "onCreate()");
         
         try {
+            // get the SensorEngine
+            SensorEngine.init(this);
+            sensorEngine = SensorEngine.getInstance();
+            listenerMap = new HashMap<WaveRecipeAuthorization, IWaveRecipeOutputDataListener>();
+            
             /**
              * open up our sqlite database and restore the saved authorizations
              */
@@ -378,16 +388,120 @@ public class WaveService extends Service {
          * registerRecipeOutputListener
          */
         public boolean registerRecipeOutputListener(String key, String recipeId, IWaveRecipeOutputDataListener listener) {
-            throwNotImplemented();
+            /**
+             * this means we need to merge the authorization for this recipeId
+             * and client into the scheduled sampling of sensors
+             * we need to then make sure that the recipe is calculated at the
+             * appropriate interval to fulfill this recipe
+             * 
+             * The current recipe format is such that we should call
+             * ingestSensorData on it at the authorized rate (or lower).
+             * It is up to the recipe to buffer and calculate. Possibly,
+             * ingestSensorData should provide timestamped data to aid the
+             * recipe.  The recipe reports output as necessary, which then
+             * feeds through to the listener set here.  To keep the recipe
+             * from blocking, we should invoke ingestSensorData from a
+             * separate thread.  It should be up to the recipe to respond
+             * appropriately.
+             * 
+             * So, what this means, is that we need to schedule the underlying
+             * sensor at a rate sufficient for the recipe+authorizations that
+             * require it, and make sure that ingestSensorData is called on
+             * the appropriate recipe algorithm instance (one instance for
+             * each authorization), invoked in separate threads.  We also need
+             * to link the callbacks up to the listener here.  This method
+             * more or less instantiates an instance of the authenticates the call to the sensor engine.
+             */
+            
+            // check the validity of the key
+            if (clientKeyNameMap.containsKey(key)) {
+                // recall the package name for the given key
+                // this is a valid key
+                String clientPackageName = clientKeyNameMap.get(key);
+                // look up the authorization
+                for (WaveRecipeAuthorization auth : authorizations) {
+                    if (auth.getRecipe().getId().equals(recipeId)) {
+                        if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
+                            if (auth.validForDate(new Date())) {
+                                // authorization was found and is valid
+                                // check if already registered
+                                if (listenerMap.containsKey(auth)) {
+                                    // listener already registered
+                                    Log.d(TAG, "registerRecipeOutputListener called when already registered registered (for recipeId="+recipeId+")");
+                                    return false;
+                                } else {
+                                    listenerMap.put(auth, listener);
+                                    // Warning: passing WaveService.this could possibly mess with AIDL.  Not sure right now.
+                                    boolean didSchedule = sensorEngine.scheduleAuthorization(auth, WaveService.this);
+                                    if (!didSchedule) {
+                                        listenerMap.remove(auth);
+                                    }
+                                    if (didSchedule) {
+                                        Log.d(TAG, "registered output listener for recipeId="+recipeId);
+                                    }
+                                    return didSchedule;
+                                }
+                            } else {
+                                Log.d(TAG, "registerRecipeOutputListener called for revoked recipe (for recipeId="+recipeId+")");
+                            }
+                        }
+                    }
+                }
+            } else {
+                Log.d(TAG, "registerRecipeOutputListener called using invalid key (for recipeId="+recipeId+")");
+            }
             return false;
         }
 
         /**
         * unregisterRecipeOutputListener
         */
-        public boolean unregisterRecipeOutputListener(String key, String recipeId, IWaveRecipeOutputDataListener listener) {
-            // null implementation
+        public boolean unregisterRecipeOutputListener(String key, String recipeId) {
+            // check the validity of the key
+            if (clientKeyNameMap.containsKey(key)) {
+                // recall the package name for the given key
+                // this is a valid key
+                String clientPackageName = clientKeyNameMap.get(key);
+                // look up the authorization
+                for (WaveRecipeAuthorization auth : authorizations) {
+                    if (auth.getRecipe().getId().equals(recipeId)) {
+                        if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
+                            if (auth.validForDate(new Date())) {
+                                // authorization was found and is valid
+                                if (listenerMap.containsKey(auth)) {
+                                    listenerMap.remove(auth);
+                                    Log.d(TAG, "unregistered output listener for recipeId="+recipeId);
+                                    return true;
+                                } else {
+                                    Log.d(TAG, "unregisterRecipeOutputListener called when nothing was registered (for recipeId="+recipeId+")");
+                                    return false;
+                                }
+                            } else {
+                                Log.d(TAG, "unregisterRecipeOutputListener called for revoked recipe (for recipeId="+recipeId+")");
+                            }
+                        }
+                    }
+                }
+            } else {
+                Log.d(TAG, "unregisterRecipeOutputListener called using invalid key (for recipeId="+recipeId+")");
+            }
             return false;
         }
     };
+    
+    /**
+     * WaveRecipeOutputListener methods
+     */
+    public void receiveDataForAuthorization(WaveRecipeOutputDataImpl data, WaveRecipeAuthorization authorization) {
+        // forward the data through IPC to the listener
+        IWaveRecipeOutputDataListener destination = listenerMap.get(authorization);
+        // TODO: spawn a thread to write data to the listener
+        try {
+            destination.receiveWaveRecipeOutputData(data);
+        } catch (RemoteException re) {
+            Log.d(TAG, "RemoteException in receiveDataForAuthorization, connection to client must have been dropped.", re);
+            boolean didUnschedule = sensorEngine.descheduleAuthorization(authorization);
+            Log.d(TAG, "sensorEngine.descheduleAuthorization("+authorization+") => "+didUnschedule);
+        }
+    }
 }

@@ -10,6 +10,7 @@ package edu.berkeley.androidwave.waveservice.sensorengine;
 
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 import edu.berkeley.androidwave.waverecipe.WaveRecipe;
+import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
 import edu.berkeley.androidwave.waverecipe.WaveRecipeLocalDeviceSupportInfo;
 
 import android.content.Context;
@@ -22,6 +23,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * SensorEngine
+ * 
+ * SensorEngine is a singleton, because there is only one set of underlying
+ * hardware sensors.
+ */
 public class SensorEngine implements SensorEventListener {
     
     private static final String TAG = SensorEngine.class.getSimpleName();
@@ -158,6 +165,16 @@ public class SensorEngine implements SensorEventListener {
         supportInfo.setSupported(allSensorsSatisfied);
         
         return supportInfo;
+    }
+    
+    public boolean scheduleAuthorization(WaveRecipeAuthorization authorization, WaveRecipeOutputListener listener) {
+        // null implementation
+        return false;
+    }
+    
+    public boolean descheduleAuthorization(WaveRecipeAuthorization authorization) {
+        // null implementation
+        return false;
     }
     
     /**
