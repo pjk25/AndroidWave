@@ -8,9 +8,9 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
-import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDataImpl;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeOutputData;
 import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
 
 public interface WaveRecipeOutputListener {
-    public void receiveDataForAuthorization(WaveRecipeOutputDataImpl data, WaveRecipeAuthorization authorization);
+    public void receiveDataForAuthorization(WaveRecipeOutputData data, WaveRecipeAuthorization authorization);
 }

@@ -9,6 +9,7 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
+import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
@@ -99,6 +100,21 @@ public class WaveRecipeAuthorization {
     
     public void setSensorAttributes(Set<SensorAttributes> s) {
         sensorAttributes = s;
+    }
+    
+    /**
+     * getSensorAttributesForSensor
+     * 
+     * TODO: optimize this lookup
+     */
+    public SensorAttributes getSensorAttributesForSensor(WaveSensorDescription wsd) {
+        // TODO: synchronize on sensorAttributes Set
+        for (SensorAttributes sa : sensorAttributes) {
+            if (sa.sensorDescription.equals(wsd)) {
+                return sa;
+            }
+        }
+        return null;
     }
     
     /**

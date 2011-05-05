@@ -10,6 +10,11 @@ package edu.berkeley.androidwave.waverecipe.granularitytable;
 
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
+/**
+ * SensorAttributes
+ * 
+ * TODO: consider moving this to parent package
+ */
 public class SensorAttributes {
     public WaveSensorDescription sensorDescription;
     public double rate;

@@ -10,6 +10,8 @@ package edu.berkeley.androidwave.waveservice;
 
 import edu.berkeley.androidwave.waveclient.*;
 import edu.berkeley.androidwave.waveexception.WaveRecipeNotCachedException;
+import edu.berkeley.androidwave.waveexception.SensorNotAvailableException;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeOutputData;
 import edu.berkeley.androidwave.waveservice.sensorengine.SensorEngine;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveRecipeOutputListener;
 
@@ -432,7 +434,13 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
                                 } else {
                                     listenerMap.put(auth, listener);
                                     // Warning: passing WaveService.this could possibly mess with AIDL.  Not sure right now.
-                                    boolean didSchedule = sensorEngine.scheduleAuthorization(auth, WaveService.this);
+                                    boolean didSchedule;
+                                    try {
+                                        didSchedule = sensorEngine.scheduleAuthorization(auth, WaveService.this);
+                                    } catch (SensorNotAvailableException snae) {
+                                        Log.d(TAG, "Exception while scheduling authorization", snae);
+                                        didSchedule = false;
+                                    }
                                     if (!didSchedule) {
                                         listenerMap.remove(auth);
                                     }
@@ -492,12 +500,14 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
     /**
      * WaveRecipeOutputListener methods
      */
-    public void receiveDataForAuthorization(WaveRecipeOutputDataImpl data, WaveRecipeAuthorization authorization) {
+    public void receiveDataForAuthorization(WaveRecipeOutputData data, WaveRecipeAuthorization authorization) {
         // forward the data through IPC to the listener
         IWaveRecipeOutputDataListener destination = listenerMap.get(authorization);
         // TODO: spawn a thread to write data to the listener
         try {
-            destination.receiveWaveRecipeOutputData(data);
+            // repackage the WaveRecipeOutputData as a WaveRecipeOutputDataImpl
+            WaveRecipeOutputDataImpl dataImpl = new WaveRecipeOutputDataImpl(data.getTime(), data.getValues());
+            destination.receiveWaveRecipeOutputData(dataImpl);
         } catch (RemoteException re) {
             Log.d(TAG, "RemoteException in receiveDataForAuthorization, connection to client must have been dropped.", re);
             boolean didUnschedule = sensorEngine.descheduleAuthorization(authorization);

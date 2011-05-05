@@ -51,6 +51,7 @@ import java.util.Map;
  * TODO: More clearly define the recipe portion of the UI
  * TODO: Use dialogs instead of Toast where necessary file:///usr/local/android-sdk-mac_86/docs/guide/topics/ui/dialogs.html
  * TODO: This activity should not run if the app is already authorized
+ * TODO: Somehow indicate to the user if this recipe is actually supported by this hardware
  */
 public class RecipeAuthorizationActivity extends Activity implements RecipeRetrievalResponder {
     

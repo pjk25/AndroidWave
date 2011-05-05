@@ -8,6 +8,28 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class WaveSensorData {
-    // null implementation
+    // hold channel name, data pairs
+    protected long time;
+    protected Map<String, Double> values;
+    
+    public WaveSensorData(long time, Map<String, Double> values) {
+        this.time = time;
+        this.values = values;
+    }
+    
+    public long getTime() {
+        return time;
+    }
+    
+    public boolean hasChannelName(String name) {
+        return values.containsKey(name);
+    }
+    
+    public double getChannelValue(String name) throws Exception {
+        return values.get(name).doubleValue();
+    }
 }
