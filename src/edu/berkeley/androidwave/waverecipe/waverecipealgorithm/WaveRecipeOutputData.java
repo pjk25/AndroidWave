@@ -21,6 +21,14 @@ public class WaveRecipeOutputData {
     protected long time;
     protected Map<String, Double> values;
     
+    protected WaveRecipeOutputData() {
+        // needed for WaveRecipeOutputDataShadow to compile
+    }
+    
+    public WaveRecipeOutputData(long time) {
+        this(time, new HashMap<String, Double>());
+    }
+    
     public WaveRecipeOutputData(long time, Map<String, Double> values) {
         this.time = time;
         this.values = values;
@@ -43,11 +51,10 @@ public class WaveRecipeOutputData {
     }
     
     public void setChannelValue(String name, double value) {
-        values.put(name, value);
+        values.put(name, new Double(value));
     }
     
     public void quantize(double s) {
-        //Map<String, Double> newValues = new HashMap<String, Double>();
         for (Map.Entry<String, Double> entry : values.entrySet()) {
             double v = entry.getValue().doubleValue();
             

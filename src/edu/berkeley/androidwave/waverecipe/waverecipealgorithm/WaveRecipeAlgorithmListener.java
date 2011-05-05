@@ -15,5 +15,8 @@ package edu.berkeley.androidwave.waverecipe.waverecipealgorithm;
  * as an interface to simply what is presented to the recipe developer.
  */
 public interface WaveRecipeAlgorithmListener {
-    public void handleRecipeData(WaveRecipeOutputData data);
+    /**
+     * @param data should be of type WaveRecipeOutputData
+     */
+    public void handleRecipeData(Object data);
 }

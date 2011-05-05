@@ -43,7 +43,11 @@ public class WaveRecipeAlgorithmListenerShadow implements WaveRecipeAlgorithmLis
         listenerImpl = impl;
     }
     
-    public void handleRecipeData(WaveRecipeOutputData data) {
+    /**
+     * WaveRecipeOutputData is shadowed on the other side of this call in the
+     * main apk space, so we pass it as a generic Object type here
+     */
+    public void handleRecipeData(Object data) {
         try {
             implHandleRecipeDataMethod.invoke(listenerImpl, data);
         } catch (Exception e) {

@@ -80,17 +80,24 @@ public class SensorEngine implements SensorEventListener {
             destination = dest;
         }
         
-        public void handleRecipeData(WaveRecipeOutputData data) {
-            // drop this data if it exceeds the max rate
-            // TODO: Consider SystemClock.elapsedRealTime() in place of System.currentTimeMillis()
-            long now = System.currentTimeMillis();
-            double thisRate = 1000.0 / (now - lastForwardTime);
-            if (thisRate < maxOutputRate) {
-                // rate is good, truncate precision
-                data.quantize(maxOutputPrecision);
-                destination.receiveDataForAuthorization(data, authorization);
-            } else {
-                Log.d(TAG, "Dropped excessive recipe output");
+        public void handleRecipeData(Object data) {
+            Log.d("AlgorithmOutputForwarder", "handleRecipeData("+data+")");
+            // TODO: do we really need the shadow object here?
+            try {
+                WaveRecipeOutputData outputData = new WaveRecipeOutputDataShadow(data);
+                // drop this data if it exceeds the max rate
+                // TODO: Consider SystemClock.elapsedRealTime() in place of System.currentTimeMillis()
+                long now = System.currentTimeMillis();
+                double thisRate = 1000.0 / (now - lastForwardTime);
+                if (thisRate < maxOutputRate) {
+                    // rate is good, truncate precision
+                    outputData.quantize(maxOutputPrecision);
+                    destination.receiveDataForAuthorization(outputData, authorization);
+                } else {
+                    Log.d(TAG, "Dropped excessive recipe output");
+                }
+            } catch (Exception e) {
+                Log.d("AlgorithmOutputForwarder", "Exception encountered", e);
             }
         }
     }
@@ -402,7 +409,7 @@ public class SensorEngine implements SensorEventListener {
                             double truncatedValue = event.values[i];
                             long factor = (long)(truncatedValue / sa.precision);
                             truncatedValue = ((double)factor) * sa.precision;
-                            values.put(wscds[i].getName(), truncatedValue);
+                            values.put(wscds[i].getName(), new Double(truncatedValue));
                         }
                     }
                     // call up the algorithmInstance of the authorization

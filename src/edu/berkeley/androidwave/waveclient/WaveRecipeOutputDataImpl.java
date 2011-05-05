@@ -11,6 +11,7 @@ package edu.berkeley.androidwave.waveclient;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 import java.util.Map;
 
 /**
@@ -23,15 +24,28 @@ import java.util.Map;
  */
 public final class WaveRecipeOutputDataImpl implements Parcelable {
     
+    private static final String TAG = WaveRecipeOutputDataImpl.class.getSimpleName();
+    
     protected long time;
     
     protected Bundle values;
     
     public WaveRecipeOutputDataImpl(long time, Map<String, Double> values) {
+        if (values == null) {
+            throw new NullPointerException("values parameter cannot be null");
+        }
+        
+        Log.d(TAG, "WaveRecipeOutputDataImpl.<init>: values => "+values);
+        
         this.time = time;
         
+        this.values = new Bundle(values.size());
         for (String key : values.keySet()) {
-            this.values.putDouble(key, values.get(key).doubleValue());
+            Double thisValue = values.get(key);
+            Log.d(TAG, "My Double.class.hashCode() => "+Double.class.hashCode());
+            Log.d(TAG, "thisValue => "+thisValue);
+            Log.d(TAG, "thisValue.getClass().hashCode() => "+thisValue.getClass().hashCode());
+            this.values.putDouble(key, thisValue.doubleValue());
         }
     }
     
@@ -45,6 +59,12 @@ public final class WaveRecipeOutputDataImpl implements Parcelable {
     
     public double getChannelValue(String name) throws Exception {
         return ((Number)values.get(name)).doubleValue();
+    }
+    
+    public String toString() {
+        return getClass().getName() + "[" +
+            "time=" + time + ", " +
+            "values=" + values + "]";
     }
     
     /**
