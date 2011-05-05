@@ -84,7 +84,7 @@ public class SensorEngine implements SensorEventListener {
             // drop this data if it exceeds the max rate
             // TODO: Consider SystemClock.elapsedRealTime() in place of System.currentTimeMillis()
             long now = System.currentTimeMillis();
-            double thisRate = 1.0 / (now - lastForwardTime);
+            double thisRate = 1000.0 / (now - lastForwardTime);
             if (thisRate < maxOutputRate) {
                 // rate is good, truncate precision
                 data.quantize(maxOutputPrecision);
@@ -359,7 +359,7 @@ public class SensorEngine implements SensorEventListener {
         long now = System.currentTimeMillis();
         long last = ss.lastSampleTime;
         ss.lastSampleTime = now;
-        ss.estimatedRate = 1.0 / (now - last);
+        ss.estimatedRate = 1000.0 / (now - last);
         
         // check which authorizations are relevant, then feed the throttled
         // data to the algorithm instances.
@@ -382,7 +382,7 @@ public class SensorEngine implements SensorEventListener {
                 Long lastDeliveredTime = stats.lastSampleTimes.get(wsd);
                 boolean shouldSend = true;
                 if (lastDeliveredTime != null) {
-                    double rateForThis = 1.0 / (now - lastDeliveredTime.longValue());
+                    double rateForThis = 1000.0 / (now - lastDeliveredTime.longValue());
                     if (rateForThis > sa.rate) {
                         shouldSend = false;
                     }
