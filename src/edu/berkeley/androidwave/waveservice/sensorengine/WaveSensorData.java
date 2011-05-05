@@ -16,6 +16,10 @@ public class WaveSensorData {
     protected long time;
     protected Map<String, Double> values;
     
+    protected WaveSensorData() {
+        // needed so that WaveSensorDataShadow can compile
+    }
+    
     public WaveSensorData(long time, Map<String, Double> values) {
         this.time = time;
         this.values = values;

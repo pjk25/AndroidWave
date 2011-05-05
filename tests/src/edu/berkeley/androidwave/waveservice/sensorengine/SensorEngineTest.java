@@ -11,6 +11,7 @@ package edu.berkeley.androidwave.waveservice.sensorengine;
 import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waverecipe.*;
 
+import android.hardware.Sensor;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
@@ -66,24 +67,31 @@ public class SensorEngineTest extends AndroidTestCase {
      * @see SensorEngine#stopAndroidWaveSensor
      */
     @MediumTest
-    public void testStartAndStopAndroidWaveSensor() throws Exception {
+    public void testStartAndStopSensor() throws Exception {
         
         Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensors(getContext(), WaveSensorDescription.Type.ACCELEROMETER);
         assertTrue(accelSensors.size() > 0);
         
         AndroidWaveSensor accelSensor = (AndroidWaveSensor)accelSensors.iterator().next();
+        Sensor s = accelSensor.getAndroidSensor();
         
-        // start an accelerometer at 5.0Hz minimum
-        sensorEngineInstance.startAndroidWaveSensor(accelSensor, 5.0);
-        assertTrue(sensorEngineInstance.runningSensors.containsKey(accelSensor));
-        assertEquals(sensorEngineInstance.runningSensors.get(accelSensor).doubleValue(), 5.0);
+        // start an accelerometer at 5.0Hz minimum without exception
+        sensorEngineInstance.startSensor(s, 5.0);
+        // re-start throws Exception
+        try {
+            sensorEngineInstance.startSensor(s, 10.0);
+        } catch (Exception e) {
+            assertTrue(e instanceof Exception);
+        }
         
         // stop
-        assertTrue(sensorEngineInstance.stopAndroidWaveSensor(accelSensor));
-        assertFalse(sensorEngineInstance.runningSensors.containsKey(accelSensor));
-        
-        // re-stop fails
-        assertFalse(sensorEngineInstance.stopAndroidWaveSensor(accelSensor));
+        sensorEngineInstance.stopSensor(s);
+        // re-stop throws Exception
+        try {
+            sensorEngineInstance.stopSensor(s);
+        } catch (Exception e) {
+            assertTrue(e instanceof Exception);
+        }
     }
     
     /**

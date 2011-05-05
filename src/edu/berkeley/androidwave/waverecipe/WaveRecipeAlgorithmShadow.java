@@ -11,10 +11,13 @@ package edu.berkeley.androidwave.waverecipe;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.*;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 
+import android.util.Log;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 
 class WaveRecipeAlgorithmShadow implements WaveRecipeAlgorithm {
+    
+    private static final String TAG = WaveRecipeAlgorithmShadow.class.getSimpleName();
     
     Object algorithmImpl;
     
@@ -56,20 +59,24 @@ class WaveRecipeAlgorithmShadow implements WaveRecipeAlgorithm {
      * There are only two methods to shadow, so this class is currently small
      */
     
-    public boolean setWaveRecipeAlgorithmListener(WaveRecipeAlgorithmListener listener) {
+    public boolean setWaveRecipeAlgorithmListener(Object listener) {
+        //Log.d(TAG, "setWaveRecipeAlgorithmListener("+listener+")");
         Object returnVal;
         try {
             returnVal = implSetWaveRecipeAlgorithmListenerMethod.invoke(algorithmImpl, listener);
         } catch (Exception e) {
+            Log.d(TAG, "Exception while forwarding setWaveRecipeAlgorithmListener("+listener+")", e);
             throw new RuntimeException(e);
         }
         return ((Boolean)returnVal).booleanValue();
     }
     
-    public void ingestSensorData(WaveSensorData sensorData) {
+    public void ingestSensorData(Object sensorData) {
+        //Log.d(TAG, "ingestSensorData("+sensorData+")");
         try {
             implIngestSensorDataMethod.invoke(algorithmImpl, sensorData);
         } catch (Exception e) {
+            Log.d(TAG, "Exception while forwarding ingestSensorData("+sensorData+")", e);
             throw new RuntimeException(e);
         }
     }

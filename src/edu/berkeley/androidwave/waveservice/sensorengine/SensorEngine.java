@@ -273,6 +273,7 @@ public class SensorEngine implements SensorEventListener {
             as.algorithmInstance = authorization.getRecipe().getAlgorithmInstance();
         } catch (Exception e) {
             Log.d(TAG, "Exception while getting algorithm instance for authorization", e);
+            return false;
         }
         // link up the output of the algorithm instance
         double maxRate = 0.0;

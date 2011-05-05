@@ -106,7 +106,7 @@ public class WaveServicePublicInterfaceTest extends ServiceTestCase<WaveService>
         mService.isAuthorized(clientKey, recipeId);
         mService.getAuthorizationIntent(recipeId, clientKey);
         mService.registerRecipeOutputListener(clientKey, recipeId, mListener);
-        mService.unregisterRecipeOutputListener(clientKey, recipeId, mListener);
+        mService.unregisterRecipeOutputListener(clientKey, recipeId);
     }
     
     /**
