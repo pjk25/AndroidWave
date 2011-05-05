@@ -94,6 +94,25 @@
         <copy file="${out.debug.package}" tofile="${test.asset.fixture.recipes.dir}/one.waverecipe" />
     </target>
     
+    <!-- Requires that wave_recipe_sample.dir be set correctly in local.properties -->
+    <target name="install-cache" depends="debug">
+        <!-- We need to copy the sample waverecipe into the right place -->
+        <echo>adb push ${out.debug.package} /data/data/edu.berkeley.androidwave/app_waverecipes/cache/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe</echo>
+        <exec executable="adb">
+            <arg value="push" />
+            <arg value="${out.debug.package}" />
+            <arg value="/data/data/edu.berkeley.androidwave/app_waverecipes/cache/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe" />
+        </exec>
+    </target>
+    <target name="uninstall-cache">
+        <echo>adb shell rm /data/data/edu.berkeley.androidwave/app_waverecipes/cache/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe</echo>
+        <exec executable="adb">
+            <arg value="shell" />
+            <arg value="rm" />
+            <arg value="/data/data/edu.berkeley.androidwave/app_waverecipes/cache/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe" />
+        </exec>
+    </target>
+
     <setup />
 
     <!-- http://code.google.com/p/android/issues/detail?id=13024 -->
