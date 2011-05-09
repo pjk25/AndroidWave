@@ -241,7 +241,15 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
     public synchronized boolean saveAuthorization(WaveRecipeAuthorization auth) {
         try {
             if (databaseHelper.insertOrUpdateAuthorization(auth)) {
-                authorizations.add(auth);
+                if (!authorizations.contains(auth)) {
+                    authorizations.add(auth);
+                }
+                Date now = new Date();
+                if (!auth.validForDate(now)) {
+                    // this is a deauthorization
+                    boolean didUnschedule = sensorEngine.descheduleAuthorization(auth);
+                    Log.d(TAG, "sensorEngine.descheduleAuthorization("+auth+") => "+didUnschedule);
+                }
                 return true;
             }
         } catch (Exception e) {
@@ -298,6 +306,35 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
         
         Log.d(TAG, "end resetDatabase()");
     }
+    
+    
+    /**
+     * WaveRecipeOutputListener methods
+     */
+    public void receiveDataForAuthorization(WaveRecipeOutputData data, WaveRecipeAuthorization authorization) {
+        // forward the data through IPC to the listener
+        IWaveRecipeOutputDataListener destination = listenerMap.get(authorization);
+        // TODO: spawn a thread to write data to the listener
+        if (destination != null) {
+            try {
+                // repackage the WaveRecipeOutputData as a WaveRecipeOutputDataImpl
+                Log.d(TAG, "receiveDataForAuthorization: data => "+data);
+                WaveRecipeOutputDataImpl dataImpl = new WaveRecipeOutputDataImpl(data.getTime(), data.getValues());
+                destination.receiveWaveRecipeOutputData(dataImpl);
+            } catch (RemoteException re) {
+                Log.d(TAG, "RemoteException in receiveDataForAuthorization, connection to client must have been dropped.", re);
+                boolean didUnschedule = sensorEngine.descheduleAuthorization(authorization);
+                Log.d(TAG, "sensorEngine.descheduleAuthorization("+authorization+") => "+didUnschedule);
+            } catch (Exception e) {
+                Log.d(TAG, "Exception in receiveDataForAuthorization("+data+", "+authorization+")");
+            }
+        } else {
+            Log.d(TAG, "could not look up destination in receiveDataForAuthorization");
+            boolean didUnschedule = sensorEngine.descheduleAuthorization(authorization);
+            Log.d(TAG, "sensorEngine.descheduleAuthorization("+authorization+") => "+didUnschedule);
+        }
+    }
+    
     
     /**
      * WAVESERVICE PUBLIC METHODS
@@ -496,25 +533,4 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
             return false;
         }
     };
-    
-    /**
-     * WaveRecipeOutputListener methods
-     */
-    public void receiveDataForAuthorization(WaveRecipeOutputData data, WaveRecipeAuthorization authorization) {
-        // forward the data through IPC to the listener
-        IWaveRecipeOutputDataListener destination = listenerMap.get(authorization);
-        // TODO: spawn a thread to write data to the listener
-        try {
-            // repackage the WaveRecipeOutputData as a WaveRecipeOutputDataImpl
-            Log.d(TAG, "receiveDataForAuthorization: data => "+data);
-            WaveRecipeOutputDataImpl dataImpl = new WaveRecipeOutputDataImpl(data.getTime(), data.getValues());
-            destination.receiveWaveRecipeOutputData(dataImpl);
-        } catch (RemoteException re) {
-            Log.d(TAG, "RemoteException in receiveDataForAuthorization, connection to client must have been dropped.", re);
-            boolean didUnschedule = sensorEngine.descheduleAuthorization(authorization);
-            Log.d(TAG, "sensorEngine.descheduleAuthorization("+authorization+") => "+didUnschedule);
-        } catch (Exception e) {
-            Log.d(TAG, "Exception in receiveDataForAuthorization("+data+", "+authorization+")");
-        }
-    }
 }
