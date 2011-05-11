@@ -35,16 +35,16 @@ public final class WaveRecipeOutputDataImpl implements Parcelable {
             throw new NullPointerException("values parameter cannot be null");
         }
         
-        Log.d(TAG, "WaveRecipeOutputDataImpl.<init>: values => "+values);
+        // Log.d(TAG, "WaveRecipeOutputDataImpl.<init>: values => "+values);
         
         this.time = time;
         
         this.values = new Bundle(values.size());
         for (String key : values.keySet()) {
             Double thisValue = values.get(key);
-            Log.d(TAG, "My Double.class.hashCode() => "+Double.class.hashCode());
-            Log.d(TAG, "thisValue => "+thisValue);
-            Log.d(TAG, "thisValue.getClass().hashCode() => "+thisValue.getClass().hashCode());
+            // Log.d(TAG, "My Double.class.hashCode() => "+Double.class.hashCode());
+            // Log.d(TAG, "thisValue => "+thisValue);
+            // Log.d(TAG, "thisValue.getClass().hashCode() => "+thisValue.getClass().hashCode());
             this.values.putDouble(key, thisValue.doubleValue());
         }
     }
@@ -62,9 +62,21 @@ public final class WaveRecipeOutputDataImpl implements Parcelable {
     }
     
     public String toString() {
-        return getClass().getName() + "[" +
-            "time=" + time + ", " +
-            "values=" + values + "]";
+        String s = getClass().getName() + "[" +
+                    "time=" + time + ", ";
+        
+        s += "values={";
+        boolean first = true;
+        for (String key : values.keySet()) {
+            if (!first) s += ",";
+            s += key + "=" + values.get(key);
+            first = false;
+        }
+        s += "}";
+        
+        s += "]";
+        
+        return s;
     }
     
     /**
