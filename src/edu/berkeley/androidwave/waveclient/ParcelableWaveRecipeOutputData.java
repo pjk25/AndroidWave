@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,8 +20,6 @@ import java.util.Map;
  *
  * Meant to encapsulate the computed output from a recipe, so that it can be
  * sent out to the Wave Client app authorized for that recipe.
- * 
- * TODO: write the test for this class
  */
 public final class ParcelableWaveRecipeOutputData implements Parcelable {
     
@@ -61,22 +60,61 @@ public final class ParcelableWaveRecipeOutputData implements Parcelable {
         return ((Number)values.get(name)).doubleValue();
     }
     
-    public String toString() {
-        String s = getClass().getName() + "[" +
-                    "time=" + time + ", ";
-        
-        s += "values={";
-        boolean first = true;
+    protected Map<String, Object> valuesAsMap() {
+        Map<String, Object> map = new HashMap<String, Object>(values.size());
         for (String key : values.keySet()) {
-            if (!first) s += ",";
-            s += key + "=" + values.get(key);
-            first = false;
+            map.put(key, values.get(key));
         }
-        s += "}";
-        
-        s += "]";
-        
-        return s;
+        return map;
+    }
+    
+    /**
+     * Currently android.os.Bundle does not implement equals, so we compare
+     * it by converting it to a Map
+     */
+    @Override public boolean equals(Object o) {
+        // Return true if the objects are identical.
+        // (This is just an optimization, not required for correctness.)
+        if (this == o) {
+            return true;
+        }
+
+        // Return false if the other object has the wrong type.
+        // This type may be an interface depending on the interface's specification.
+        if (!(o instanceof ParcelableWaveRecipeOutputData)) {
+            return false;
+        }
+
+        // Cast to the appropriate type.
+        // This will succeed because of the instanceof, and lets us access private fields.
+        ParcelableWaveRecipeOutputData lhs = (ParcelableWaveRecipeOutputData) o;
+
+        // Check each field. Primitive fields, reference fields, and nullable reference
+        // fields are all treated differently.
+        return time == lhs.time &&
+            valuesAsMap().equals(lhs.valuesAsMap());
+    }
+    
+    /**
+     * Currently android.os.Bundle does not implement equals, and so we use
+     * the Map conversion
+     */
+    @Override public int hashCode() {
+        // Start with a non-zero constant.
+        int result = 17;
+
+        // Include a hash for each field.
+        result = 31 * result + (int) (time ^ (time >>> 32));
+
+        result = 31 * result + valuesAsMap().hashCode();
+
+        return result;
+    }
+    
+    public String toString() {
+        return getClass().getName() + "[" +
+                    "time=" + time + ", " +
+                    "values=" + valuesAsMap() + "]";
     }
     
     /**
