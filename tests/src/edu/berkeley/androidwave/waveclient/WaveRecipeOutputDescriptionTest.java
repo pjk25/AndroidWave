@@ -28,6 +28,7 @@ public class WaveRecipeOutputDescriptionTest extends AndroidTestCase {
     
     WaveRecipeOutputDescription anOutput;
     
+    @Override
     public void setUp() {
         anOutput = new WaveRecipeOutputDescription("AccelerometerMagnitude", "g");
     }

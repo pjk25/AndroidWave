@@ -28,6 +28,7 @@ public class WaveRecipeOutputChannelDescriptionTest extends AndroidTestCase {
     
     WaveRecipeOutputChannelDescription anOutputChannel;
     
+    @Override
     public void setUp() {
         anOutputChannel = new WaveRecipeOutputChannelDescription("magnitude");
     }
