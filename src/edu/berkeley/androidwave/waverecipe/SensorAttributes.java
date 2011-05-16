@@ -6,14 +6,17 @@
 //  Copyright 2011 University of California, Berkeley. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waverecipe.granularitytable;
+package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
 /**
  * SensorAttributes
  * 
- * TODO: consider moving this to parent package
+ * A simple storage object that relates a SensorDescription, rate, and
+ * precision for the purpose of a WaveRecipeAuthorization
+ * 
+ * @see WaveRecipeAuthorization
  */
 public class SensorAttributes {
     public WaveSensorDescription sensorDescription;

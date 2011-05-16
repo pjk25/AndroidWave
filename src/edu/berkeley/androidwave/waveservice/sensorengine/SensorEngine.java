@@ -11,7 +11,6 @@
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
 import edu.berkeley.androidwave.waveexception.SensorNotAvailableException;
-import edu.berkeley.androidwave.waverecipe.granularitytable.SensorAttributes;
 import edu.berkeley.androidwave.waverecipe.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.*;
 

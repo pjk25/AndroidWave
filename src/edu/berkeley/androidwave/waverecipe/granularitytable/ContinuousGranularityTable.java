@@ -8,6 +8,7 @@
 
 package edu.berkeley.androidwave.waverecipe.granularitytable;
 
+import edu.berkeley.androidwave.waverecipe.SensorAttributes;
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
 import android.util.Log;

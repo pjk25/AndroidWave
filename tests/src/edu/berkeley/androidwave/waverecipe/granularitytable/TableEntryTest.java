@@ -8,6 +8,8 @@
 
 package edu.berkeley.androidwave.waverecipe.granularitytable;
 
+import edu.berkeley.androidwave.waverecipe.SensorAttributesTest;
+
 import android.test.MoreAsserts;
 import junit.framework.TestCase;
 

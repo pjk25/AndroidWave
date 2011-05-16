@@ -8,6 +8,8 @@
 
 package edu.berkeley.androidwave.waverecipe.granularitytable;
 
+import edu.berkeley.androidwave.waverecipe.SensorAttributes;
+
 import java.util.HashSet;
 import java.util.Set;
 

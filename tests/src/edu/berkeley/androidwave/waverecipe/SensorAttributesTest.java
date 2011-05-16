@@ -6,7 +6,7 @@
 //  Copyright 2011 University of California, Berkeley. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waverecipe.granularitytable;
+package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 
@@ -17,7 +17,7 @@ import junit.framework.TestCase;
  * SensorAttributesTest
  * 
  * to run:
- * adb shell am instrument -w -e class edu.berkeley.androidwave.waverecipe.granularitytable.SensorAttributesTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
+ * adb shell am instrument -w -e class edu.berkeley.androidwave.waverecipe.SensorAttributesTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 public class SensorAttributesTest extends TestCase {
     
