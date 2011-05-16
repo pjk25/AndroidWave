@@ -1,5 +1,5 @@
 // 
-//  RecipeAuthorizationActivity.java
+//  RequestRecipeAuthorizationActivity.java
 //  AndroidWaveProject
 //  
 //  Created by Philip Kuryloski on 2011-03-22.
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * RecipeAuthorizationActivity
+ * RequestRecipeAuthorizationActivity
  * 
  * UI displayed when a client application requests authorization for a given
  * recipe
@@ -53,9 +53,9 @@ import java.util.Map;
  * TODO: This activity should not run if the app is already authorized
  * TODO: Somehow indicate to the user if this recipe is actually supported by this hardware
  */
-public class RecipeAuthorizationActivity extends Activity implements RecipeRetrievalResponder {
+public class RequestRecipeAuthorizationActivity extends Activity implements RecipeRetrievalResponder {
     
-    private static final String TAG = RecipeAuthorizationActivity.class.getSimpleName();
+    private static final String TAG = RequestRecipeAuthorizationActivity.class.getSimpleName();
     
     public static final String ACTION_DID_AUTHORIZE = "edu.berkeley.androidwave.intent.action.DID_AUTHORIZE";
     public static final String ACTION_DID_DENY = "edu.berkeley.androidwave.intent.action.DID_DENY";
@@ -144,7 +144,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             appSig.setText(callingActivitySigString);
             
         } catch (Exception e) {
-            Toast.makeText(RecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(RequestRecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
             Log.w(TAG, "Exception during onCreate()", e);
             createDidSucceed = false;
         }
@@ -163,7 +163,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
     private void afterBind() {
         // check in with the service about the status of this recipe
         if (createDidSucceed) {
-            Log.d(getClass().getSimpleName(), "RecipeAuthorizationActivity has bound to "+mService);
+            Log.d(getClass().getSimpleName(), "RequestRecipeAuthorizationActivity has bound to "+mService);
             
             Intent i = getIntent();
             String recipeId = i.getStringExtra(WaveService.RECIPE_ID_EXTRA);
@@ -196,20 +196,20 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                         denyButton.setEnabled(true);
                     }
                 } catch (WaveRecipeNotCachedException nce) {
-                    Toast.makeText(RecipeAuthorizationActivity.this, "Attempting to retrieve this recipe…", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RequestRecipeAuthorizationActivity.this, "Attempting to retrieve this recipe…", Toast.LENGTH_SHORT).show();
                     mService.beginRetrieveRecipeForID(recipeId, this);
                 } catch (Exception e) {
-                    Toast.makeText(RecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RequestRecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(RecipeAuthorizationActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(RequestRecipeAuthorizationActivity.this);
                 builder.setMessage("Authentication failed for requesting package "+recipeClientName.getPackageName()+".\n\nIt has either been reset, re-installed, or is attempting to use another app's key.")
                        .setCancelable(false)
                        .setPositiveButton("Reject", new DialogInterface.OnClickListener() {
                            public void onClick(DialogInterface dialog, int id) {
                                setResult(RESULT_CANCELED);
-                               RecipeAuthorizationActivity.this.finish();
+                               RequestRecipeAuthorizationActivity.this.finish();
                            }
                        });
                 AlertDialog alert = builder.show();
@@ -253,7 +253,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             
             // now display a dialog of choices
             final CharSequence[] items = listItems.toArray(new String[0]);
-            AlertDialog.Builder builder = new AlertDialog.Builder(RecipeAuthorizationActivity.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(RequestRecipeAuthorizationActivity.this);
             builder.setTitle("Select Recipe Granularity\n(Delivery rate, precision)");
             builder.setItems(items, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int item) {
@@ -271,7 +271,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
             });
             AlertDialog alert = builder.show();
         } else {
-            Toast.makeText(RecipeAuthorizationActivity.this, "Continuous granularity adjustments are not yet implemented.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(RequestRecipeAuthorizationActivity.this, "Continuous granularity adjustments are not yet implemented.", Toast.LENGTH_SHORT).show();
             return;
         }
     }
@@ -299,13 +299,13 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
                     setResult(RESULT_OK, (new Intent()).setAction(ACTION_DID_AUTHORIZE));
                     finish();
                 } else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(RecipeAuthorizationActivity.this);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(RequestRecipeAuthorizationActivity.this);
                     builder.setMessage("AndroidWave: internal error.")
                            .setCancelable(false)
                            .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
                                public void onClick(DialogInterface dialog, int id) {
                                     setResult(RESULT_CANCELED);
-                                   RecipeAuthorizationActivity.this.finish();
+                                   RequestRecipeAuthorizationActivity.this.finish();
                                }
                            });
                     AlertDialog alert = builder.show();
@@ -326,7 +326,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
         @Override
         public void onServiceConnected(ComponentName className,
                 IBinder service) {
-            Log.d("RecipeAuthorizationActivity.ServiceConnection", "onServiceConnected("+className+", "+service+")");
+            Log.d("RequestRecipeAuthorizationActivity.ServiceConnection", "onServiceConnected("+className+", "+service+")");
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             mService = ((WaveService.LocalBinder)service).getService();
             mBound = true;
@@ -335,7 +335,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
 
         @Override
         public void onServiceDisconnected(ComponentName className) {
-            Log.d("RecipeAuthorizationActivity.ServiceConnection", "onServiceDisconnected("+className+")");
+            Log.d("RequestRecipeAuthorizationActivity.ServiceConnection", "onServiceDisconnected("+className+")");
             mBound = false;
         }
     };
@@ -344,7 +344,7 @@ public class RecipeAuthorizationActivity extends Activity implements RecipeRetri
      * RecipeRetrievalResponder implementation
      */
      public void handleRetrievalFailed(String recipeId, String message) {
-         Toast.makeText(RecipeAuthorizationActivity.this, "Recipe retrieval failed.", Toast.LENGTH_SHORT).show();
+         Toast.makeText(RequestRecipeAuthorizationActivity.this, "Recipe retrieval failed.", Toast.LENGTH_SHORT).show();
          setResult(RESULT_CANCELED);
          finish();
      }

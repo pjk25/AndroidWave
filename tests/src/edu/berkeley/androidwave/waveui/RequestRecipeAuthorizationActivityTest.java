@@ -1,5 +1,5 @@
 // 
-//  RecipeAuthorizationActivityTest.java
+//  RequestRecipeAuthorizationActivityTest.java
 //  tests
 //  
 //  Created by Philip Kuryloski on 2011-03-22.
@@ -23,13 +23,12 @@ import java.io.File;
  * how to write and extend Application tests.
  * <p/>
  * To run this test, you can type:
- * adb shell am instrument -w -e class edu.berkeley.androidwave.waveui.RecipeAuthorizationActivityTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
+ * adb shell am instrument -w -e class edu.berkeley.androidwave.waveui.RequestRecipeAuthorizationActivityTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
-public class RecipeAuthorizationActivityTest extends ActivityInstrumentationTestCase2<RecipeAuthorizationActivity> {
+public class RequestRecipeAuthorizationActivityTest extends ActivityInstrumentationTestCase2<RequestRecipeAuthorizationActivity> {
     
-    public RecipeAuthorizationActivityTest() {
-        // TODO: consider adjusting package name
-        super("edu.berkeley.androidwave.waveui", RecipeAuthorizationActivity.class);
+    public RequestRecipeAuthorizationActivityTest() {
+        super("edu.berkeley.androidwave.waveui", RequestRecipeAuthorizationActivity.class);
     }
     
     public void setUp() {
@@ -56,7 +55,7 @@ public class RecipeAuthorizationActivityTest extends ActivityInstrumentationTest
         System.out.println("cachedRecipe => "+cachedRecipe);
         assertTrue("recipe is cached", cachedRecipe.exists());
         
-        RecipeAuthorizationActivity a = getActivity();
+        RequestRecipeAuthorizationActivity a = getActivity();
         
         // below won't be true until after binding has occurred
         // assertEquals("Accelerometer Magnitude", a.recipeName.getText());

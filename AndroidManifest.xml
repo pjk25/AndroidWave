@@ -36,7 +36,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="edu.berkeley.androidwave.waveui.RecipeAuthorizationActivity"
+        <activity android:name="edu.berkeley.androidwave.waveui.RequestRecipeAuthorizationActivity"
                   android:label="@string/auth_activity_name"
                   android:excludeFromRecents="true">
             <intent-filter>
