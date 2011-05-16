@@ -317,9 +317,9 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
         // TODO: spawn a thread to write data to the listener
         if (destination != null) {
             try {
-                // repackage the WaveRecipeOutputData as a WaveRecipeOutputDataImpl
+                // repackage the WaveRecipeOutputData as a ParcelableWaveRecipeOutputData
                 Log.d(TAG, "receiveDataForAuthorization: data => "+data);
-                WaveRecipeOutputDataImpl dataImpl = new WaveRecipeOutputDataImpl(data.getTime(), data.getValues());
+                ParcelableWaveRecipeOutputData dataImpl = new ParcelableWaveRecipeOutputData(data.getTime(), data.getValues());
                 destination.receiveWaveRecipeOutputData(dataImpl);
             } catch (RemoteException re) {
                 Log.d(TAG, "RemoteException in receiveDataForAuthorization, connection to client must have been dropped.", re);

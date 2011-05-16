@@ -8,12 +8,12 @@
 
 package edu.berkeley.androidwave.waveclient;
 
-import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDataImpl;
+import edu.berkeley.androidwave.waveclient.ParcelableWaveRecipeOutputData;
 
 oneway interface IWaveRecipeOutputDataListener {
     
     /**
      * receiveWaveRecipeOutputData
      */
-    void receiveWaveRecipeOutputData(in WaveRecipeOutputDataImpl wrOutput);
+    void receiveWaveRecipeOutputData(in ParcelableWaveRecipeOutputData wrOutput);
 }

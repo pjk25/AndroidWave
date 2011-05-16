@@ -1,5 +1,5 @@
 // 
-//  WaveRecipeOutputDataImpl.aidl
+//  ParcelableWaveRecipeOutputData.aidl
 //  CalFitWaveProject
 //  
 //  Created by Philip Kuryloski on 2011-01-25.
@@ -8,4 +8,4 @@
 
 package edu.berkeley.androidwave.waveclient;
 
-parcelable WaveRecipeOutputDataImpl;
+parcelable ParcelableWaveRecipeOutputData;

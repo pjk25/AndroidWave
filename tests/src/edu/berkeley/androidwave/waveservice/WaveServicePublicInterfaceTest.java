@@ -13,7 +13,7 @@ import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
 import edu.berkeley.androidwave.waveclient.IWaveServicePublic;
 import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
-import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDataImpl;
+import edu.berkeley.androidwave.waveclient.ParcelableWaveRecipeOutputData;
 
 import android.content.Intent;
 import android.os.IBinder;
@@ -95,8 +95,8 @@ public class WaveServicePublicInterfaceTest extends ServiceTestCase<WaveService>
          * Simple recipeListener
          */
         IWaveRecipeOutputDataListener mListener = new IWaveRecipeOutputDataListener.Stub() {
-            public void receiveWaveRecipeOutputData(WaveRecipeOutputDataImpl wrOutput) {
-                System.out.println("WaveRecipeOutputDataImpl received => "+wrOutput);
+            public void receiveWaveRecipeOutputData(ParcelableWaveRecipeOutputData wrOutput) {
+                System.out.println("ParcelableWaveRecipeOutputData received => "+wrOutput);
             }
         };
         
