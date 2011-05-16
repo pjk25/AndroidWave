@@ -35,7 +35,7 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
     
     protected void setUp() throws Exception {
         File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
+        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile);
         
         auth = new WaveRecipeAuthorization(recipeOne);
     }

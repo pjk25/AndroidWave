@@ -72,10 +72,9 @@ public class WaveRecipe {
      * 
      * TODO: We should never have mulitple recipe objects floating around with
      *       the same id.
-     * TODO: make this take a File instead of a String path
      * TODO: throw a more specific Exception(s) upon error
      */
-    public static WaveRecipe createFromDisk(Context context, String recipePath)
+    public static WaveRecipe createFromDisk(Context context, File recipeFile)
         throws Exception {
         
         // TODO: Refactor the certificate code so that we can use in in the
@@ -96,7 +95,7 @@ public class WaveRecipe {
         }
         
         // Check the signatures of the recipe (which is an APK, which is a Jar)
-        JarFile recipeApk = new JarFile(recipePath);
+        JarFile recipeApk = new JarFile(recipeFile);
         if (recipeApk == null) {
             throw new InvalidSignatureException("Recipe signatures did not verify");
         }
@@ -106,7 +105,7 @@ public class WaveRecipe {
         if (entry == null) {
             throw new InvalidSignatureException("Recipe has no AndroidManifest.xml");
         }
-        //Log.d("WaveRecipe", "Looking for signatures in "+recipePath+":"+entry.getName());
+        //Log.d("WaveRecipe", "Looking for signatures in "+recipeFile+":"+entry.getName());
         // http://androidcracking.blogspot.com/2010/12/getting-apk-signature-outside-of.html
         Certificate[] certs = loadCertificates(recipeApk, entry, readBuffer);
         if (certs == null || certs.length == 0) {
@@ -126,7 +125,7 @@ public class WaveRecipe {
         // http://yenliangl.blogspot.com/2009/11/dynamic-loading-of-classes-in-your.html
         // http://www.mail-archive.com/android-developers@googlegroups.com/msg07714.html
         dalvik.system.PathClassLoader recipePathClassLoader =
-            new dalvik.system.PathClassLoader(recipePath, ClassLoader.getSystemClassLoader());
+            new dalvik.system.PathClassLoader(recipeFile.getPath(), ClassLoader.getSystemClassLoader());
         
         // try to load the description.xml
         InputStream descriptionInputStream = recipePathClassLoader.getResourceAsStream(DESCRIPTION_XML_PATH);

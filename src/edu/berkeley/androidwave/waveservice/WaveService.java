@@ -194,7 +194,7 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
     protected WaveRecipe getRecipeForId(String id)
             throws Exception {
         File f = recipeCacheFileForId(id);
-        return WaveRecipe.createFromDisk(this, f.getPath());
+        return WaveRecipe.createFromDisk(this, f);
     }
     
     /**

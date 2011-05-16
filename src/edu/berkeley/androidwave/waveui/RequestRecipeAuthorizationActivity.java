@@ -174,7 +174,7 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
                 theRecipe = null;
                 try {
                     File recipeCacheFile = mService.recipeCacheFileForId(recipeId);
-                    theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile.getPath());
+                    theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile);
                     if (theRecipe == null) {
                         setResult(RESULT_CANCELED);
                         finish();

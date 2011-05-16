@@ -107,7 +107,7 @@ public class SensorEngineTest extends AndroidTestCase {
     public void testSupportInfoForRecipe() throws Exception {
         
         File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        WaveRecipe recipe = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
+        WaveRecipe recipe = WaveRecipe.createFromDisk(getContext(), targetFile);
         assertNotNull(recipe);
         
         /**
@@ -140,7 +140,7 @@ public class SensorEngineTest extends AndroidTestCase {
     public void testScheduleWaveRecipeAuthorization() throws Exception {
         
         File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        WaveRecipe recipe = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
+        WaveRecipe recipe = WaveRecipe.createFromDisk(getContext(), targetFile);
         
         //WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
         

@@ -35,7 +35,7 @@ public class WaveRecipeLocalDeviceSupportInfoTest extends AndroidTestCase {
     @SmallTest
     public void testNewInstanceIsSupportedReturnsFalse() throws Exception {
         File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        WaveRecipe recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
+        WaveRecipe recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile);
         
         WaveRecipeLocalDeviceSupportInfo newInfo = new WaveRecipeLocalDeviceSupportInfo(recipeOne);
         assertFalse(newInfo.isSupported());

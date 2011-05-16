@@ -70,7 +70,7 @@ public class WaveRecipeTest extends AndroidTestCase {
         // build an instance from the fixture
         // first copy the fixture to the recipes cache
         File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
+        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile);
         
         // test the values in the recipeOne fixture
         assertEquals("getId should match that of recipe xml", "edu.berkeley.waverecipe.AccelerometerMagnitude", recipeOne.getId());
@@ -148,7 +148,7 @@ public class WaveRecipeTest extends AndroidTestCase {
     public void testToFromInternalId()
             throws Exception {
         File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile.getPath());
+        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile);
 
         // try getting an id for a sensordescription not associated with this recipe
         WaveSensorDescription wrongDescription = new WaveSensorDescription(WaveSensorDescription.Type.MAGNETOMETER, "none");
