@@ -175,7 +175,6 @@ public class ViewRecipeAuthorizationActivity extends Activity {
                 String recipeSigner = recipe.getCertificate().getSubjectDN().toString();
                 recipeSigTextView.setText("Signed by: "+recipeSigner);
                 
-                // TODO: set up table view
                 try {
                     double outputRate = authorization.getOutputRate();
                     double outputPrecision = authorization.getOutputPrecision();
