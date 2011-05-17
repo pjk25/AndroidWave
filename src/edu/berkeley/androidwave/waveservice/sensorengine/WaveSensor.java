@@ -153,7 +153,10 @@ public class WaveSensor {
     /**
      * recover an available sensor from its internalId
      */
-    public static WaveSensor getSensorForInternalId(Context context, String id) {
+    public static WaveSensor getSensorForInternalId(Context context, String id)
+            throws NullPointerException {
+        if (id == null) throw new NullPointerException("id parameter cannot be null");
+        
         Set<WaveSensor> sensors = getAvailableLocalSensors(context);
         for (WaveSensor s : sensors) {
             if (s.getVersion().equals(id)) {

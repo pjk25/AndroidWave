@@ -185,11 +185,6 @@ public class WaveSensorTest extends AndroidTestCase {
         assertFalse(fakeAccelerometer.matchesWaveSensorDescription(wsd));
     }
     
-    @SmallTest
-    public void testToFromInternalId() {
-        fail("test not written yet");
-    }
-    
     /**
      * Static Method Tests
      */
@@ -259,6 +254,17 @@ public class WaveSensorTest extends AndroidTestCase {
     
     @LargeTest
     public void testToFromInternalId() {
+        // test null id throws exception
+        try {
+            WaveSensor.getSensorForInternalId(getContext(), null);
+        } catch (Exception e) {
+            assertTrue(e instanceof NullPointerException);
+        }
+        
+        // test bad id returns null
+        assertNull(WaveSensor.getSensorForInternalId(getContext(), "some_obviously_invalid_id"));
+        
+        // test working case
         Set<WaveSensor> localSensors = WaveSensor.getAvailableLocalSensors(getContext());
         WaveSensor original = null;
         Iterator<WaveSensor> it = localSensors.iterator();
