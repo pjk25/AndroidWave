@@ -185,6 +185,11 @@ public class WaveSensorTest extends AndroidTestCase {
         assertFalse(fakeAccelerometer.matchesWaveSensorDescription(wsd));
     }
     
+    @SmallTest
+    public void testToFromInternalId() {
+        fail("test not written yet");
+    }
+    
     /**
      * Static Method Tests
      */

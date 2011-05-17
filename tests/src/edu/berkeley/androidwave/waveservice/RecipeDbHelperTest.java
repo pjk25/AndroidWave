@@ -76,6 +76,10 @@ public class RecipeDbHelperTest extends AndroidTestCase {
         assertTrue(clientKeyNameMap.containsKey(someKey));
     }
     
+    public void testAuthorizationStorage() {
+        fail("test not written yet");
+    }
+    
     public void testPreconditions() {
         assertEquals("0 rows in client keys table", 0, rowCountForTable(databaseHelper.RECIPE_CLIENT_KEYS_TABLE_NAME));
         assertEquals("0 rows in auth table", 0, rowCountForTable(databaseHelper.RECIPE_AUTH_TABLE_NAME));
