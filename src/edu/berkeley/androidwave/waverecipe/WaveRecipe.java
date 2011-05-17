@@ -12,8 +12,8 @@ import edu.berkeley.androidwave.waveexception.*;
 import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDescription;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveSensorData;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
-import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 
 import android.content.Context;
 import android.content.pm.*;

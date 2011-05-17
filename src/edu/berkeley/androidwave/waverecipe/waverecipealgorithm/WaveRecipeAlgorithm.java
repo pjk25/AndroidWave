@@ -8,8 +8,6 @@
 
 package edu.berkeley.androidwave.waverecipe.waverecipealgorithm;
 
-import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
-
 /**
  * WaveRecipeAlgorithm
  *
