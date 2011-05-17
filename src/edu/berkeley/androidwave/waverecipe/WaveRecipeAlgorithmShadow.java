@@ -9,7 +9,6 @@
 package edu.berkeley.androidwave.waverecipe;
 
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.*;
-import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorData;
 
 import android.util.Log;
 import java.lang.reflect.Method;

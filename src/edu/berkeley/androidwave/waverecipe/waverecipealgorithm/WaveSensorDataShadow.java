@@ -6,7 +6,7 @@
 //  Copyright 2011 University of California, Berkeley. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waveservice.sensorengine;
+package edu.berkeley.androidwave.waverecipe.waverecipealgorithm;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -14,7 +14,6 @@ import java.util.HashSet;
 /**
  * WaveSensorDataShadow
  * 
- * TODO: move this to the .waverecipe.waverecipealgorithm package
  */
 public class WaveSensorDataShadow extends WaveSensorData {
     

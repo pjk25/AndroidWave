@@ -6,7 +6,7 @@
 //  Copyright 2011 University of California, Berkeley. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waveservice.sensorengine;
+package edu.berkeley.androidwave.waverecipe.waverecipealgorithm;
 
 import java.util.HashMap;
 import java.util.Map;
