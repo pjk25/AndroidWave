@@ -183,7 +183,6 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
                         recipeAuthorization = new WaveRecipeAuthorization(theRecipe);
                         recipeAuthorization.setRecipeClientName(recipeClientName);
                         recipeAuthorization.setRecipeClientSignatures(recipeClientSignatures);
-                        // TODO: assign granularity data with UI
                         
                         // update the UI
                         recipeName.setText("Recipe: "+theRecipe.getName());
@@ -286,7 +285,6 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
         public void onClick(View v) {
             if (recipeAuthorization.getSensorAttributes() == null) {
                 // choose the granularity
-                // TODO: figure out how to trigger the onclick of mAdjustListener
                 chooseGranularity(true);
             } else {
                 // TODO: add confirmation dialog

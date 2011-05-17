@@ -19,6 +19,8 @@ import edu.berkeley.androidwave.waveclient.IWaveRecipeOutputDataListener;
  * supplied with each call.  The caller generates a random key when they first
  * request an authorization.  The service stores that mapping during that
  * authorization.
+ * 
+ * TODO: add an isSupportedCurrently method
  */
 interface IWaveServicePublic {
     
