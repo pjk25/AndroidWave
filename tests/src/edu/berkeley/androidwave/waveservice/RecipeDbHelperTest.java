@@ -8,6 +8,12 @@
 
 package edu.berkeley.androidwave.waveservice;
 
+import edu.berkeley.androidwave.TestUtils;
+import edu.berkeley.androidwave.waverecipe.WaveRecipe;
+import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
+
+import android.content.ComponentName;
+import android.content.pm.Signature;
 import android.database.Cursor;
 import android.database.sqlite.*;
 import android.database.SQLException;
@@ -16,6 +22,8 @@ import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import java.io.File;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -76,8 +84,35 @@ public class RecipeDbHelperTest extends AndroidTestCase {
         assertTrue(clientKeyNameMap.containsKey(someKey));
     }
     
-    public void testAuthorizationStorage() {
-        fail("test not written yet");
+    public void testAuthorizationStorage() throws Exception {
+        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+        WaveRecipe recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile);
+        
+        WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipeOne);
+        Date now = new Date();
+        ComponentName clientName = new ComponentName("edu.berkeley.waveapps.fitness", ".FitnessActivity");
+        auth.setRecipeClientName(clientName);
+        auth.setRecipeClientSignatures(new Signature[] { new Signature("theatihceadocdttheaotnhai") });
+        auth.setAuthorizedDate(now);
+        auth.setModifiedDate(now);
+        
+        // test the save
+        assertTrue(databaseHelper.insertOrUpdateAuthorization(auth));
+        
+        // We need a WaveService instance to test the load, which doesn't suit
+        // this test, so we just check that the appropriate table now contains
+        // a row
+        assertEquals(1, rowCountForTable(databaseHelper.RECIPE_AUTH_TABLE_NAME));
+        
+        // test saving a revoked auth
+        Date later = new Date();
+        auth.setRevokedDate(later);
+        auth.setModifiedDate(later);
+        assertTrue(databaseHelper.insertOrUpdateAuthorization(auth));
+        
+        // and there should still be one row in the db, since the last call
+        // would have been an update, not an insert
+        assertEquals(1, rowCountForTable(databaseHelper.RECIPE_AUTH_TABLE_NAME));
     }
     
     public void testPreconditions() {
