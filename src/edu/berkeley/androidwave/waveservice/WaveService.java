@@ -19,6 +19,7 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -31,6 +32,12 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import edu.berkeley.androidwave.waverecipe.*;
 
@@ -65,6 +72,8 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
     // The SensorEngine
     protected SensorEngine sensorEngine;
     protected Map<WaveRecipeAuthorization, IWaveRecipeOutputDataListener> listenerMap;
+    
+    private DownloadRecipeTask downloadRecipeTask;
     
     protected void throwNotImplemented() {
         String className = getClass().getName();
@@ -158,32 +167,96 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
         return null;
     }
     
+    private class DownloadRecipeTask extends AsyncTask<Object, Void, File> {
+        protected RecipeRetrievalResponder rrResponder;
+        protected String recipeId;
+        
+        private StatusLine statusLine;
+        
+        protected File doInBackground(Object... args) {
+            rrResponder = (RecipeRetrievalResponder) args[0];
+            recipeId = (String) args[1];
+            String path = (String) args[2];
+            File file = (File) args[3];
+            
+            Log.d(TAG, "About to download recipe from "+path);
+            
+            try {
+                HttpResponse response = new DefaultHttpClient().execute(new HttpGet(path));
+                HttpEntity entity = response.getEntity();
+                
+                statusLine = response.getStatusLine();
+                if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+                    entity.writeTo(new FileOutputStream(file));
+                }
+            } catch (FileNotFoundException fnfe) {
+                Log.d(TAG, "Exception during recipe download", fnfe);
+            } catch (IOException ioe) {
+                Log.d(TAG, "Exception during recipe download", ioe);
+            }
+            
+            return file;
+        }
+        
+        protected void onPostExecute(File result) {
+            if (result.exists()) {
+                rrResponder.handleRetrievalFinished(recipeId, result);
+            } else {
+                rrResponder.handleRetrievalFailed(recipeId, (statusLine == null ? "Unknown reason" : statusLine.getReasonPhrase()));
+            }
+        }
+        
+        protected void onCancelled(File result) {
+            rrResponder.handleRetrievalFailed(recipeId, "Cancelled by user.");
+        }
+    }
+    
     /**
      * beginRetrieveRecipeForID
      * 
      * this should contact a recipe server, validate (jar has valid sig only)
      * and cache it
+     * TODO: store recipe server url in app preferences
+     * TODO: clean up the AsyncTask args
      */
-    public void beginRetrieveRecipeForID(String id, RecipeRetrievalResponder r) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ie) {
-            // do nothing, we just wanted to simulate a longer method
-        }
-        r.handleRetrievalFailed(id, "beginRetrieveRecipeForID not implemented yet.");
+    public void beginRetrieveRecipeForId(String id, RecipeRetrievalResponder r) {
+        
+        String recipeHost = "http://moteserver1.eecs.berkeley.edu/recipes/";
+        
+        String recipePath = recipeHost + id;
+        
+        File cacheFile = recipeCacheFileForId(id);
+        
+        // save the task so it can be cancelled
+        downloadRecipeTask = new DownloadRecipeTask();
+        downloadRecipeTask.execute(r, id, recipePath, cacheFile);
+    }
+    
+    /**
+     * cancelRetrieveRecipeForId
+     */
+    public void cancelRetrieveRecipeForId(String id) {
+        downloadRecipeTask.cancel(true);
     }
     
     /**
      * recipeCacheFileForId
      */
-    public File recipeCacheFileForId(String id)
-            throws WaveRecipeNotCachedException {
+    public File recipeCacheFileForId(String id) {
         String[] c = WAVERECIPE_CACHE_DIR.split(File.separator, 2);
+        // create the storage directory
         File filesDir = getDir(c[0], Context.MODE_PRIVATE);
-        File recipeFile = new File(filesDir, (c.length == 1 ? "" : c[1] + "/")+id+".waverecipe");
-        if (!recipeFile.exists()) {
-            throw new WaveRecipeNotCachedException(id);
+        // make necessary children directories
+        File parent;
+        if (c.length > 1) {
+            parent = new File(filesDir, c[1]);
+            parent.mkdirs();
+        } else {
+            parent = filesDir;
         }
+        assert parent.exists() : parent;
+        
+        File recipeFile = new File(parent, id+".waverecipe");
         return recipeFile;
     }
     
@@ -194,6 +267,9 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
     protected WaveRecipe getRecipeForId(String id)
             throws Exception {
         File f = recipeCacheFileForId(id);
+        if (!f.exists()) {
+            throw new WaveRecipeNotCachedException(id);
+        }
         return WaveRecipe.createFromDisk(this, f);
     }
     

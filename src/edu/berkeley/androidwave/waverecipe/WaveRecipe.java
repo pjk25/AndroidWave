@@ -76,6 +76,10 @@ public class WaveRecipe {
      */
     public static WaveRecipe createFromDisk(Context context, File recipeFile)
         throws Exception {
+            
+        if (!recipeFile.exists()) {
+            throw new Exception("" + recipeFile + " does not exist.");
+        }
         
         // TODO: Refactor the certificate code so that we can use in in the
         //       authorization activity

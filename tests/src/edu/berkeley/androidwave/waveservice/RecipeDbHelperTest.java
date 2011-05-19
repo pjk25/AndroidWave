@@ -44,6 +44,7 @@ public class RecipeDbHelperTest extends AndroidTestCase {
     
     @Override
     public void tearDown() {
+        databaseHelper.emptyDatabase();
         databaseHelper.closeDatabase();
     }
     

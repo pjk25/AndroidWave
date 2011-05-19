@@ -62,6 +62,11 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
         assertNotNull("service should not be null", service);
     }
     
+    @SmallTest
+    public void testClearRecipeCache() {
+        fail("clearRecipeCache method does not exist yet.");
+    }
+    
     /**
      * test the recipeInCache method
      * 
@@ -71,6 +76,11 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
     public void testRecipeCacheFileForId() throws Exception {
         WaveService s = getService();
         assertNotNull(s);
+        
+        // first we should clear the waverecipes directory of the app
+        
+        
+        fail("we are not testing that the cache dir is properly created");
         
         File cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveService.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
         System.out.println("cachedRecipe => "+cachedRecipe);
@@ -83,11 +93,7 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
         assertTrue(inCacheParent.isDirectory());
         File anotherCache = new File(inCacheParent, fakeRecipeId+".waverecipe");
         assertFalse(anotherCache.exists());
-        try {
-            s.recipeCacheFileForId(fakeRecipeId);
-        } catch (Exception e) {
-            assertTrue(e instanceof WaveRecipeNotCachedException);
-        }
+        assertFalse(s.recipeCacheFileForId(fakeRecipeId).exists());
     }
     
     /**
