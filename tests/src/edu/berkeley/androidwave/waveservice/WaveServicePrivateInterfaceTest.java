@@ -51,6 +51,14 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
         service = bindService(startIntent);
     }
     
+    @Override
+    protected void tearDown() {
+        // clean up our database
+        RecipeDbHelper databaseHelper = new RecipeDbHelper(getService());
+        databaseHelper.emptyDatabase();
+        databaseHelper.closeDatabase();
+    }
+    
     /**
      * The name 'test preconditions' is a convention to signal that if this
      * test doesn't pass, the test case was not set up properly and it might
