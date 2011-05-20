@@ -380,6 +380,7 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
          
          try {
              theRecipe = WaveRecipe.createFromDisk(this, f);
+             afterRecipeCached();
          } catch (Exception e) {
              Log.d(TAG, "Exception in handleRetrievalFinished", e);
              
@@ -396,6 +397,5 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
                     });
              AlertDialog alert = builder.show();
          }
-         afterRecipeCached();
      }
 }
