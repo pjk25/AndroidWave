@@ -185,8 +185,17 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
                     afterRecipeCached();
                 } else {
                     // attempt to download the recipe
-                    progressDialog = ProgressDialog.show(RequestRecipeAuthorizationActivity.this, "",
-                                            "Downloading recipe...", true);
+                    progressDialog = ProgressDialog.show(RequestRecipeAuthorizationActivity.this,
+                                                         "", // title
+                                                         "Downloading recipe...", // message
+                                                         true, // indeterminate
+                                                         true, // cancelable
+                                                         new DialogInterface.OnCancelListener() {
+                                                             public void onCancel(DialogInterface dialog) {
+                                                                 setResult(RESULT_CANCELED);
+                                                                 RequestRecipeAuthorizationActivity.this.finish();
+                                                             }
+                                                         });
                     mService.beginRetrieveRecipeForId(recipeId, this);
                 }
             } else {
@@ -313,7 +322,7 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
                            .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
                                public void onClick(DialogInterface dialog, int id) {
                                     setResult(RESULT_CANCELED);
-                                   RequestRecipeAuthorizationActivity.this.finish();
+                                    RequestRecipeAuthorizationActivity.this.finish();
                                }
                            });
                     AlertDialog alert = builder.show();
@@ -352,7 +361,7 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
      * RecipeRetrievalResponder implementation
      */
      public void handleRetrievalFailed(String recipeId, String message) {
-         progressDialog.cancel();
+         progressDialog.dismiss(); // dismiss so the dialog's onCancelled is not called
          
          AlertDialog.Builder builder = new AlertDialog.Builder(RequestRecipeAuthorizationActivity.this);
          builder.setMessage("Error downloading recipe:\n"+message)
@@ -367,7 +376,8 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
      }
 
      public void handleRetrievalFinished(String recipeId, File f) {
-         progressDialog.cancel();
+         progressDialog.dismiss(); // dismiss so the dialog's onCancelled is not called
+         
          try {
              theRecipe = WaveRecipe.createFromDisk(this, f);
          } catch (Exception e) {

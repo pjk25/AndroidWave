@@ -167,6 +167,12 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
         return null;
     }
     
+    /**
+     * DownloadRecipeTask private inner class
+     * 
+     * an AsyncTask subclass, used for downloading a recipe on a background
+     * thread
+     */
     private class DownloadRecipeTask extends AsyncTask<Object, Void, File> {
         protected RecipeRetrievalResponder rrResponder;
         protected String recipeId;
@@ -186,8 +192,10 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
                 HttpEntity entity = response.getEntity();
                 
                 statusLine = response.getStatusLine();
+                Log.d(TAG, "\t request complete, status => "+statusLine.getReasonPhrase());
                 if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-                    entity.writeTo(new FileOutputStream(file));
+                    FileOutputStream fos = new FileOutputStream(file);
+                    entity.writeTo(fos);
                 }
             } catch (FileNotFoundException fnfe) {
                 Log.d(TAG, "Exception during recipe download", fnfe);
