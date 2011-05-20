@@ -77,23 +77,16 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
         WaveService s = getService();
         assertNotNull(s);
         
-        // first we should clear the waverecipes directory of the app
+        TestUtils.clearDirectory(getSystemContext(), WaveService.WAVERECIPE_CACHE_DIR);
+        TestUtils.removeDirectory(getSystemContext(), WaveService.WAVERECIPE_CACHE_DIR);
         
-        
-        fail("we are not testing that the cache dir is properly created");
+        File inCache = s.recipeCacheFileForId("edu.berkeley.waverecipe.AccelerometerMagnitude");
+        assertFalse(inCache.exists());
         
         File cachedRecipe = TestUtils.copyTestAssetToInternal(getSystemContext(), "fixtures/waverecipes/one.waverecipe", WaveService.WAVERECIPE_CACHE_DIR+"/edu.berkeley.waverecipe.AccelerometerMagnitude.waverecipe");
         System.out.println("cachedRecipe => "+cachedRecipe);
         
-        File inCache = s.recipeCacheFileForId("edu.berkeley.waverecipe.AccelerometerMagnitude");
         assertTrue(inCache.exists());
-        
-        String fakeRecipeId = "edu.berkeley.waverecipe.NonExistentRecipe";
-        File inCacheParent = inCache.getParentFile();
-        assertTrue(inCacheParent.isDirectory());
-        File anotherCache = new File(inCacheParent, fakeRecipeId+".waverecipe");
-        assertFalse(anotherCache.exists());
-        assertFalse(s.recipeCacheFileForId(fakeRecipeId).exists());
     }
     
     /**

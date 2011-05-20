@@ -12,12 +12,15 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 //import android.test.MoreAsserts;
+import android.util.Log;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import junit.framework.Assert;
 
 public class TestUtils {
+    
+    private static final String TAG = TestUtils.class.getSimpleName();
     
     /**
      * Joins an array of strings, inserting a separator
@@ -28,6 +31,69 @@ public class TestUtils {
             result += components[i] + (i<components.length-1 ? separator : "");
         }
         return result;
+    }
+    
+    /**
+     * clearDirectoryInternal
+     * 
+     * clears the contents of a directory, returning true if successful
+     */
+    public static boolean clearDirectory(Context targetContext, String directoryName)
+            throws FileNotFoundException {
+        
+        Log.w(TAG, "clearDirectoryInternal("+targetContext+","+directoryName+")");
+        
+        String[] nameComponents = directoryName.split(File.separator, 2);
+        
+        File firstDir = targetContext.getDir(nameComponents[0], Context.MODE_PRIVATE);
+        
+        File dir;
+        if (nameComponents.length > 1) {
+            dir = new File(firstDir, nameComponents[1]);
+        } else {
+            dir = firstDir;
+        }
+        
+        if (!dir.exists()) {
+            throw new FileNotFoundException(""+dir);
+        }
+        
+        boolean allSucceeded = true;
+        File[] contents = dir.listFiles();
+        for (int i=0; i<contents.length; i++) {
+            boolean didRemove = contents[i].delete();
+            Log.d(TAG, "\t"+contents[i]+" delete() => "+didRemove);
+            allSucceeded &= didRemove;
+        }
+        return allSucceeded;
+    }
+    
+    /**
+     * removeDirectoryFromInternal
+     * 
+     * used for removing a directory from app storage
+     */
+    public static boolean removeDirectory(Context targetContext, String directoryName)
+            throws Exception {
+        
+        Log.w(TAG, "removeDirectoryFromInternal("+targetContext+","+directoryName+")");
+        
+        String[] nameComponents = directoryName.split(File.separator, 2);
+        
+        File firstDir = targetContext.getDir(nameComponents[0], Context.MODE_PRIVATE);
+        
+        File dir;
+        if (nameComponents.length > 1) {
+            dir = new File(firstDir, nameComponents[1]);
+        } else {
+            dir = firstDir;
+        }
+        
+        if (!dir.exists()) {
+            throw new FileNotFoundException(""+dir);
+        }
+        
+        return dir.delete();
     }
     
     /**
