@@ -179,10 +179,11 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
                 if (recipeCacheFile.exists()) {
                     try {
                         theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile);
+                        afterRecipeCached();
                     } catch (Exception e) {
+                        Toast.makeText(this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "Exception encountered in afterBind", e);
                     }
-                    afterRecipeCached();
                 } else {
                     // attempt to download the recipe
                     progressDialog = ProgressDialog.show(RequestRecipeAuthorizationActivity.this,
@@ -216,22 +217,17 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
         }
     }
     
-    private void afterRecipeCached() {
-        try {
-            // Create an authorization object
-            recipeAuthorization = new WaveRecipeAuthorization(theRecipe);
-            recipeAuthorization.setRecipeClientName(recipeClientName);
-            recipeAuthorization.setRecipeClientSignatures(recipeClientSignatures);
+    private void afterRecipeCached() throws Exception {
+        // Create an authorization object
+        recipeAuthorization = new WaveRecipeAuthorization(theRecipe);
+        recipeAuthorization.setRecipeClientName(recipeClientName);
+        recipeAuthorization.setRecipeClientSignatures(recipeClientSignatures);
 
-            // update the UI
-            recipeName.setText("Recipe: "+theRecipe.getName());
-            recipeDescription.setText(theRecipe.getDescription());
-            String recipeSigner = theRecipe.getCertificate().getSubjectDN().toString();
-            recipeSig.setText("Signed by: "+recipeSigner);
-        } catch (Exception e) {
-            Toast.makeText(RequestRecipeAuthorizationActivity.this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Exception encountered while loading recipe from disk", e);
-        }
+        // update the UI
+        recipeName.setText("Recipe: "+theRecipe.getName());
+        recipeDescription.setText(theRecipe.getDescription());
+        String recipeSigner = theRecipe.getCertificate().getSubjectDN().toString();
+        recipeSig.setText("Signed by: "+recipeSigner);
 
         ratePrecButton.setEnabled(true);
         authButton.setEnabled(true);
