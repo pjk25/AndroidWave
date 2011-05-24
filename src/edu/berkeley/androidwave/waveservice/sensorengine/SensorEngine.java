@@ -5,7 +5,7 @@
 //  Created by Philip Kuryloski on 2011-03-08.
 //  Copyright 2011 University of California, Berkeley. All rights reserved.
 //  
-//  Uses portions developed by Mr. Charles Wang <charleswang007@gmail.com>
+//  Uses portions by Mr. Charles Wang <charleswang007@gmail.com>
 // 
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
@@ -13,15 +13,15 @@ package edu.berkeley.androidwave.waveservice.sensorengine;
 import edu.berkeley.androidwave.waveexception.SensorNotAvailableException;
 import edu.berkeley.androidwave.waverecipe.*;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.*;
+import edu.berkeley.androidwave.waveservice.sensorengine.sensors.*;
 
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
+import android.hardware.SensorEvent;    // <- should change on necessary changes to WaveSensorListener
 import android.util.Log;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,37 +31,23 @@ import java.util.Set;
  * SensorEngine is a singleton, because there is only one set of underlying
  * hardware sensors.
  */
-public class SensorEngine implements SensorEventListener {
+public class SensorEngine implements WaveSensorListener {
     
     private static final String TAG = SensorEngine.class.getSimpleName();
     
     protected static SensorEngine theInstance;
     
-    protected Context mContext;
-    
-    protected SensorManager mSensorManager;
-    
     class AuthorizationStats {
-        AuthorizationStats(WaveRecipeLocalDeviceSupportInfo supportInfo) {
-            this.supportInfo = supportInfo;
-            sensorToDescriptionMap = new HashMap<Sensor, WaveSensorDescription>();
-            lastSampleTimes = new HashMap<WaveSensorDescription, Long>();
-        }
         public WaveRecipeLocalDeviceSupportInfo supportInfo;
         public WaveRecipeAlgorithm algorithmInstance;
-        public HashMap<Sensor, WaveSensorDescription>sensorToDescriptionMap;  // an inversion of supportInfo.descriptionToSensorMap
+        public HashMap<WaveSensor, WaveSensorDescription>sensorToDescriptionMap;  // an inversion of supportInfo.descriptionToSensorMap
         public HashMap<WaveSensorDescription, Long>lastSampleTimes;
-    }
-    
-    class SensorStats {
-        SensorStats(int sensorManagerRate, double desiredRate) {
-            this.sensorManagerRate = sensorManagerRate;
-            this.desiredRate = desiredRate;
+
+        AuthorizationStats(WaveRecipeLocalDeviceSupportInfo supportInfo) {
+            this.supportInfo = supportInfo;
+            sensorToDescriptionMap = new HashMap<WaveSensor, WaveSensorDescription>();
+            lastSampleTimes = new HashMap<WaveSensorDescription, Long>();
         }
-        public int sensorManagerRate;
-        public double desiredRate;
-        public long lastSampleTime;
-        public double estimatedRate;
     }
     
     class AlgorithmOutputForwarder implements WaveRecipeAlgorithmListener {
@@ -102,18 +88,23 @@ public class SensorEngine implements SensorEventListener {
     }
     
     
+    /**
+     * non-static fields
+     */
+    protected Context mContext;
+    protected Set<WaveSensor> availableLocalSensors;
     protected Map<WaveRecipeAuthorization, AuthorizationStats> scheduledAuthorizations;
-    protected Map<Sensor, SensorStats> runningSensors;
+    protected List<WaveSensor> runningSensors;
     
     /**
      * Private Constructor for Singleton
      */
     private SensorEngine(Context c) {
         mContext = c;
-        mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
         
+        availableLocalSensors = null;
         scheduledAuthorizations = new HashMap<WaveRecipeAuthorization, AuthorizationStats>();
-        runningSensors = new HashMap<Sensor, SensorStats>();
+        runningSensors = new ArrayList<WaveSensor>();
     }
     
     public static void init(Context c) { //throws Exception {
@@ -137,84 +128,43 @@ public class SensorEngine implements SensorEventListener {
         return theInstance;
     }
     
+    protected String internalIdForSensor(WaveSensor s) {
+        return s.getVersion();
+    }
+    
+    protected WaveSensor sensorForInternalId(String internalId) {
+        if (internalId == null) throw new NullPointerException("internalId parameter cannot be null");
+        
+        Set<WaveSensor> sensors = getAvailableLocalSensors();
+        for (WaveSensor s : sensors) {
+            if (s.getVersion().equals(internalId)) {
+                return s;
+            }
+        }
+        return null;
+    }
+    
+    protected Set<WaveSensor> getAvailableLocalSensors() {
+        // TODO: implement this
+        return availableLocalSensors;
+    }
+    
     /**
      * availableSensorsMatchingWaveSensorDescription
      * 
      * @see WaveSensor#getAvailableLocalSensors
      */
-    public Set<WaveSensor> availableSensorsMatchingWaveSensorDescription(WaveSensorDescription sensorDescription)
-            throws Exception {
+    public Set<WaveSensor> availableSensorsMatchingWaveSensorDescription(WaveSensorDescription sensorDescription) {
         
         HashSet<WaveSensor> matchingSensors = new HashSet<WaveSensor>();
         
-        Set<WaveSensor> availableLocalSensors = WaveSensor.getAvailableLocalSensors(mContext);
-        
-        for (WaveSensor candidateSensor : availableLocalSensors) {
-            
-            WaveSensorDescription.Type targetType = sensorDescription.getType();
-            if (candidateSensor.getType() == targetType) {
-                if (sensorDescription.hasChannels()) {
-                    // channel descriptions are present, so they must match
-                    throw new Exception("not implemented yet");
-                } else if (sensorDescription.hasExpectedUnits()) {
-                    String expectedUnits = sensorDescription.getExpectedUnits();
-                    if (candidateSensor.getUnits().equals(expectedUnits)) {
-                        matchingSensors.add(candidateSensor);
-                    }
-                } else {
-                    matchingSensors.add(candidateSensor);
-                }
+        for (WaveSensor candidateSensor : this.getAvailableLocalSensors()) {
+            if (candidateSensor.matchesWaveSensorDescription(sensorDescription)) {
+                matchingSensors.add(candidateSensor);
             }
         }
         
         return matchingSensors;
-    }
-    
-    /**
-     * startSensor
-     * 
-     * starts a sensor targeting a given sampling rate.  No scheduleing is
-     * done here to support multiple recipes directly (hence a protected
-     * method).  Not synchronized because it is not a public method.
-     *
-     * TODO: specialize this exception
-     * 
-     * Uses frequency mapping generated by
-     * Mr. Charles Wang <charleswang007@gmail.com>
-     */
-    protected void startSensor(Sensor sensor, double rate) throws Exception {
-        if (runningSensors.containsKey(sensor)) {
-            throw new Exception("Sensor "+sensor+" already started.");
-        }
-        
-        int sensorManagerRate = SensorManager.SENSOR_DELAY_NORMAL;
-        if (rate < 5.0) {
-            sensorManagerRate = SensorManager.SENSOR_DELAY_NORMAL;
-        } else if (rate < 8.0) {
-            sensorManagerRate = SensorManager.SENSOR_DELAY_UI;
-        } else if (rate < 12.0) {
-            sensorManagerRate = SensorManager.SENSOR_DELAY_GAME;
-        } else {
-            sensorManagerRate = SensorManager.SENSOR_DELAY_FASTEST;
-        }
-        
-        mSensorManager.registerListener(this, sensor, sensorManagerRate);
-        SensorStats ss = new SensorStats(sensorManagerRate, rate);
-        runningSensors.put(sensor, ss);
-    }
-    
-    /**
-     * stopSensor
-     * 
-     * @see #startAndroidWaveSensor
-     */
-    protected void stopSensor(Sensor sensor) throws Exception {
-        if (!runningSensors.containsKey(sensor)) {
-            throw new Exception("Sensor "+sensor+" not started.");
-        }
-
-        runningSensors.remove(sensor);
-        mSensorManager.unregisterListener(this);
     }
     
     /**
@@ -232,7 +182,7 @@ public class SensorEngine implements SensorEventListener {
         WaveRecipeLocalDeviceSupportInfo supportInfo = new WaveRecipeLocalDeviceSupportInfo(recipe);
         
         boolean allSensorsSatisfied = true;
-        Set<WaveSensor> availableSensors = WaveSensor.getAvailableLocalSensors(mContext);
+        Set<WaveSensor> availableSensors = getAvailableLocalSensors();
         // this is an inefficient inner loop, but the number of sensors is
         // expected to be small
         for (WaveSensorDescription wsd : recipe.getSensors()) {
@@ -297,43 +247,28 @@ public class SensorEngine implements SensorEventListener {
         for (Map.Entry<WaveSensorDescription, WaveSensor> entry : supportInfo.getDescriptionToSensorMap().entrySet()) {
             WaveSensorDescription wsd = entry.getKey();
             WaveSensor ws = entry.getValue();
-            if (ws instanceof AndroidWaveSensor) {
-                AndroidWaveSensor aws = (AndroidWaveSensor) ws;
-                // store the hardware sensor to sensor discription pairing for quick reference
-                as.sensorToDescriptionMap.put(aws.getAndroidSensor(), wsd);
-                // first, recall from the authorization the appropriate rate for this sensor
-                SensorAttributes sa = authorization.getSensorAttributesForSensor(wsd);
-                double requestedRate = sa.rate;
-                // now that we have discovered the requested rate, see if the
-                // matching hardware sensor is already running
-                if (runningSensors.containsKey(ws)) {
-                    // sensor is already running
-                    SensorStats ss = runningSensors.get(ws);
-                    // TODO: improve allocation algorithm
-                    if (ss.desiredRate < requestedRate) {
-                        // need to reschedule the sensor
-                        try {
-                            this.stopSensor(aws.getAndroidSensor());
-                            this.startSensor(aws.getAndroidSensor(), requestedRate);
-                        } catch (Exception e) {
-                            Log.w(TAG, "Exception while restarting sensor", e);
-                        }
+            
+            as.sensorToDescriptionMap.put(ws, wsd);
+            SensorAttributes sa = authorization.getSensorAttributesForSensor(wsd);
+            double requestedRate = sa.rate;
+            // now that we have discovered the requested rate, see if the
+            // matching hardware sensor is already running
+            try {
+                if (runningSensors.contains(ws)) {
+                    if (ws.desiredRate < requestedRate) {
+                        ws.alterRate(requestedRate);
                     }
                 } else {
                     // sensor is not running, start it at the requested rate
                     // this just sets a guess at the actual hardware rate
                     // anyway.
-                    try {
-                        this.startSensor(aws.getAndroidSensor(), requestedRate);
-                    } catch (Exception e) {
-                        Log.w(TAG, "Exception while starting sensor", e);
-                    }
+                    ws.start(this, requestedRate);
                 }
-            } else {
-                // TODO: refactor this portion of scheduling into the WaveSensor implementation itself, so that location sensing, etc. can be scheduled.
-                throw new SensorNotAvailableException("Only AndroidWaveSensors can be scheduled at this time");
+            } catch (Exception e) {
+                Log.w(TAG, "Exception while altering rate", e);
             }
         }
+        
         // all sensors for this authorization should be started at this point
         scheduledAuthorizations.put(authorization, as);
         
@@ -353,19 +288,15 @@ public class SensorEngine implements SensorEventListener {
     
     
     /**
-     * --------------------- SensorEventListener Methods ---------------------
+     * --------------------- WaveSensorListener Methods ---------------------
      */
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // null implementation
-    }
-    
-    public void onSensorChanged(SensorEvent event) {
+    public void onWaveSensorChanged(WaveSensor waveSensor, SensorEvent event) {
         // first update sensor stats for this sensor
-        SensorStats ss = runningSensors.get(event.sensor);
+        // SensorStats ss = runningSensors.get(event.sensor);
         long now = System.currentTimeMillis();
-        long last = ss.lastSampleTime;
-        ss.lastSampleTime = now;
-        ss.estimatedRate = 1000.0 / (now - last);
+        // long last = ss.lastSampleTime;
+        // ss.lastSampleTime = now;
+        // ss.estimatedRate = 1000.0 / (now - last);
         
         // check which authorizations are relevant, then feed the throttled
         // data to the algorithm instances.
@@ -378,7 +309,7 @@ public class SensorEngine implements SensorEventListener {
             
             // look up the authorized rate for this sensor in this authorization
             // (should be null if the recipe for this sensor was unscheduled)
-            WaveSensorDescription wsd = stats.sensorToDescriptionMap.get(event.sensor);
+            WaveSensorDescription wsd = stats.sensorToDescriptionMap.get(waveSensor);
             if (wsd != null) {
                 hasResponder = true;
                 SensorAttributes sa = auth.getSensorAttributesForSensor(wsd);
@@ -417,18 +348,12 @@ public class SensorEngine implements SensorEventListener {
             }
         }
         
-        if (hasResponder) {
-            // sensor should stay alive, adjust its schedule if its rate is
-            // too low
-            if (ss.estimatedRate < 0.9 * ss.desiredRate) {
-                // TODO: increase sensor rate
-                Log.w(TAG, ""+event.sensor+" estimated rate less than 90% of desired rate ("+ss.estimatedRate+" < 0.9 * "+ss.desiredRate+")");
-            }
-        } else {
+        if (!hasResponder) {
             // no authorizations require this sensor, so shut it down
             Log.d(TAG, "No listeners for "+event.sensor+", stopping.");
             try {
-                this.stopSensor(event.sensor);
+                // TODO: implement stop
+                // this.stopSensor(event.sensor);
             } catch (Exception e) {
                 Log.w(TAG, "Exception while stopping sensor", e);
             }

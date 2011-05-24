@@ -11,7 +11,6 @@ package edu.berkeley.androidwave.waverecipe;
 import edu.berkeley.androidwave.waveclient.WaveRecipeOutputDescription;
 import edu.berkeley.androidwave.waveclient.WaveRecipeOutputChannelDescription;
 import edu.berkeley.androidwave.waverecipe.granularitytable.*;
-import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
 
 import android.util.Log;
 import java.text.ParsePosition;
