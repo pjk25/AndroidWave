@@ -409,8 +409,10 @@ public class SensorEngine implements WaveSensorListener {
             // no authorizations require this sensor, so shut it down
             Log.d(TAG, "No listeners for "+event.sensor+", stopping.");
             try {
-                // TODO: implement stop
-                // this.stopSensor(event.sensor);
+                // TODO: it seems that a queue of messages builds up, so we
+                //       end up calling stop multiple times.  Makes the log
+                //       ugly, but we catch the Exception that results.
+                waveSensor.stop();
             } catch (Exception e) {
                 Log.w(TAG, "Exception while stopping sensor", e);
             }
