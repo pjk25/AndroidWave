@@ -18,7 +18,13 @@ import edu.berkeley.androidwave.waveservice.sensorengine.sensors.*;
 import android.content.Context;
 import android.hardware.SensorEvent;    // <- should change on necessary changes to WaveSensorListener
 import android.util.Log;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -144,15 +150,65 @@ public class SensorEngine implements WaveSensorListener {
         return null;
     }
     
+    /**
+     * getAvailableLocalSensors
+     */
     protected Set<WaveSensor> getAvailableLocalSensors() {
-        // TODO: implement this
+        if (availableLocalSensors == null) {
+            // cache-miss, populate availableLocalSensors
+            Log.d(TAG, "getAvailableLocalSensors: building availableLocalSensors");
+            
+            availableLocalSensors = new HashSet<WaveSensor>();
+            
+            // It is a nuissance to reflectively find the WaveSensor
+            // subclasses, and Package.getAnnotations() is not implemented by
+            // Android yet, so that is ruled out.
+            // So, for the purpose of the base sensors, we name their classes
+            // explicitly here.  While this is fragile, it is straightforward
+            // with no additional overhead
+            List<Class> waveSensorClasses = new ArrayList<Class>();
+            waveSensorClasses.add(AndroidHardwareAccelerometer.class);
+            waveSensorClasses.add(AndroidHardwareMagneticField.class);
+            waveSensorClasses.add(AndroidLocationSensor.class);
+            // Class<WaveSensor>[] waveSensorClasses = new Class<WaveSensor>[] {
+            //     AndroidHardwareAccelerometer.class,
+            //     AndroidHardwareMagneticField.class,
+            //     AndroidLocationSensor.class
+            // };
+            
+            for (Class aClass : waveSensorClasses) {
+                assert aClass.isAssignableFrom(WaveSensor.class) : aClass;
+                
+                Log.d(TAG, "\t"+aClass);
+                
+                try {
+                    // Java is stupid here, we have to be careful that we
+                    // actually get the method implementation of the subclass,
+                    // and not of the WaveSensor class
+                    Method m = aClass.getMethod("instancesAvailableInContext", Context.class);
+                    
+                    Set<WaveSensor> theseInstances = (Set<WaveSensor>)m.invoke(aClass, mContext);
+                    for (WaveSensor ws : theseInstances) {
+                        Log.d(TAG, "\t\t"+ws);
+                    }
+                    
+                    availableLocalSensors.addAll(theseInstances);
+                } catch (NoSuchMethodException nsme) {
+                    Log.w(TAG, ""+aClass, nsme);
+                } catch (IllegalAccessException iae) {
+                    Log.w(TAG, ""+aClass, iae);
+                } catch (InvocationTargetException ite) {
+                    Log.w(TAG, ""+aClass, ite);
+                }
+            }
+        }
         return availableLocalSensors;
     }
     
     /**
      * availableSensorsMatchingWaveSensorDescription
      * 
-     * @see WaveSensor#getAvailableLocalSensors
+     * @see getAvailableLocalSensors
      */
     public Set<WaveSensor> availableSensorsMatchingWaveSensorDescription(WaveSensorDescription sensorDescription) {
         
@@ -177,6 +233,7 @@ public class SensorEngine implements WaveSensorListener {
      * 
      * TODO: Add support for conforming units, as currently they must match
      *       exactly
+     * TODO: Add support for non-local sensors
      */
     public WaveRecipeLocalDeviceSupportInfo supportInfoForRecipe(WaveRecipe recipe) {
         WaveRecipeLocalDeviceSupportInfo supportInfo = new WaveRecipeLocalDeviceSupportInfo(recipe);

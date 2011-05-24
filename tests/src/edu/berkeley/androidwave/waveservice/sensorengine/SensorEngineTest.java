@@ -106,13 +106,9 @@ public class SensorEngineTest extends AndroidTestCase {
         
         // test working case
         Set<WaveSensor> localSensors = sensorEngineInstance.getAvailableLocalSensors();
-        WaveSensor[] originals = new WaveSensor[localSensors.size()];
-        
-        for (int i=0; i<originals.length; i++) {
-            WaveSensor original = originals[i];
-            
+        for (WaveSensor original : localSensors) {
             String id = sensorEngineInstance.internalIdForSensor(original);
-            assertNotNull(id);
+            assertNotNull("id for "+original, id);
             
             WaveSensor restored = sensorEngineInstance.sensorForInternalId(id);
             assertEquals(original, restored);
@@ -136,7 +132,7 @@ public class SensorEngineTest extends AndroidTestCase {
         
         File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
         WaveRecipe recipe = WaveRecipe.createFromDisk(getContext(), targetFile);
-        assertNotNull(recipe);
+        assertNotNull("recipe should not be null", recipe);
         
         /**
          * we would like SensorEngine.waveRecipeCanBeSatisfied to report
@@ -145,10 +141,10 @@ public class SensorEngineTest extends AndroidTestCase {
          * object based on that recipe and those values.
          */
         WaveRecipeLocalDeviceSupportInfo supportInfo = sensorEngineInstance.supportInfoForRecipe(recipe);
-        assertNotNull(supportInfo);
+        assertNotNull("supportInfo should not be null", supportInfo);
         
         // fixtures are such that the recipe can be supported
-        assertTrue(supportInfo.isSupported());
+        assertTrue("isSupported() should be true", supportInfo.isSupported());
         
         // and further validate that
         Map<WaveSensorDescription, WaveSensor> descriptionToSensorMap = supportInfo.getDescriptionToSensorMap();

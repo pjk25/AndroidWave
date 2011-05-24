@@ -94,6 +94,8 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
         } catch (Exception e) {
             assertTrue(e instanceof Exception);
         }
+        
+        // TODO: complete the test by checking that data starts flowing
     }
     
     @SmallTest
@@ -109,6 +111,8 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
         
         fixtureOne.start(waveSensorListener, 5.0);
         fixtureOne.alterRate(8.0);
+        
+        // TODO: complete the test by checking the rate actually changes
     }
     
     @SmallTest
@@ -124,6 +128,8 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
         
         fixtureOne.start(waveSensorListener, 5.0);
         fixtureOne.stop();
+        
+        // TODO: complete the test by checking that data flow actually stops
     }
     
     /**
