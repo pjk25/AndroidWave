@@ -170,11 +170,6 @@ public class SensorEngine implements WaveSensorListener {
             waveSensorClasses.add(AndroidHardwareAccelerometer.class);
             waveSensorClasses.add(AndroidHardwareMagneticField.class);
             waveSensorClasses.add(AndroidLocationSensor.class);
-            // Class<WaveSensor>[] waveSensorClasses = new Class<WaveSensor>[] {
-            //     AndroidHardwareAccelerometer.class,
-            //     AndroidHardwareMagneticField.class,
-            //     AndroidLocationSensor.class
-            // };
             
             for (Class aClass : waveSensorClasses) {
                 assert aClass.isAssignableFrom(WaveSensor.class) : aClass;
@@ -182,9 +177,6 @@ public class SensorEngine implements WaveSensorListener {
                 Log.d(TAG, "\t"+aClass);
                 
                 try {
-                    // Java is stupid here, we have to be careful that we
-                    // actually get the method implementation of the subclass,
-                    // and not of the WaveSensor class
                     Method m = aClass.getMethod("instancesAvailableInContext", Context.class);
                     
                     Set<WaveSensor> theseInstances = (Set<WaveSensor>)m.invoke(aClass, mContext);
