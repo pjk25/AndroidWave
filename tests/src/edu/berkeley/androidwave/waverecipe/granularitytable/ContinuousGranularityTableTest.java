@@ -10,7 +10,7 @@ package edu.berkeley.androidwave.waverecipe.granularitytable;
 
 import edu.berkeley.androidwave.waverecipe.SensorAttributes;
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
-import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensor;
+import edu.berkeley.androidwave.waveservice.sensorengine.sensors.WaveSensor;
 
 import java.util.HashMap;
 import java.util.HashSet;

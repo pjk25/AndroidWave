@@ -8,7 +8,7 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
-import edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorChannel;
+import edu.berkeley.androidwave.waveservice.sensorengine.sensors.WaveSensorChannel;
 
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;

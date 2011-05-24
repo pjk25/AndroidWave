@@ -6,7 +6,7 @@
 //  Copyright 2011 University of California, Berkeley. All rights reserved.
 // 
 
-package edu.berkeley.androidwave.waveservice.sensorengine;
+package edu.berkeley.androidwave.waveservice.sensorengine.sensors;
 
 import android.test.AndroidTestCase;
 
@@ -15,7 +15,7 @@ import android.test.AndroidTestCase;
  * 
  * unit test for @see WaveSensorChannel
  * 
- * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.sensorengine.WaveSensorChannelTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
+ * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.sensorengine.sensors.WaveSensorChannelTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 public class WaveSensorChannelTest extends AndroidTestCase {
     

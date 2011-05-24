@@ -10,6 +10,7 @@ package edu.berkeley.androidwave.waveservice.sensorengine;
 
 import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waverecipe.*;
+import edu.berkeley.androidwave.waveservice.sensorengine.sensors.WaveSensor;
 
 import android.hardware.Sensor;
 import android.test.AndroidTestCase;
@@ -42,55 +43,79 @@ public class SensorEngineTest extends AndroidTestCase {
     }
     
     /**
-     * testAvailableSensorsMatchingWaveSensorDescription
+     * testGetAvailableLocalSensors
      * 
-     * @see SensorEngine#availableSensorsMatchingWaveSensorDescription
-     */
-    @MediumTest
-    public void testAvailableSensorsMatchingWaveSensorDescription() throws Exception {
-        // we will test a sensorDescription that does not specify channels,
-        // like the AccelerometerMagnitudeRecipe, to test imprecise matching
-        WaveSensorDescription sensorDescription = new WaveSensorDescription(WaveSensorDescription.Type.ACCELEROMETER, "-m/s^2");
-        
-        Set<WaveSensor> matchingSensorSet = sensorEngineInstance.availableSensorsMatchingWaveSensorDescription(sensorDescription);
-        
-        assertEquals("there should be 1 matching sensor", 1, matchingSensorSet.size());
-        WaveSensor theMatchingSensor = matchingSensorSet.iterator().next();
-        
-        assertEquals("and it should be an accelerometer", WaveSensorDescription.Type.ACCELEROMETER, theMatchingSensor.getType());
-    }
-    
-    /**
-     * testStartAndStopAndroidWaveSensor
+     * getAvailableLocalSensors should return a list of WaveSensor instances
+     * representing the sensors physically present on the device.  This
+     * typically includes, at a minumum, accelerometer, magnetometer, and GPS
      * 
-     * @see SensorEngine#startAndroidWaveSensor
-     * @see SensorEngine#stopAndroidWaveSensor
+     * Note: this test expects to be run on the simulator, which should report
+     * a single accelerometer
      */
-    @MediumTest
-    public void testStartAndStopSensor() throws Exception {
+    @LargeTest
+    public void testGetAvailableLocalSensors() throws Exception {
         
-        Set<WaveSensor> accelSensors = WaveSensor.getAvailableLocalSensors(getContext(), WaveSensorDescription.Type.ACCELEROMETER);
-        assertTrue(accelSensors.size() > 0);
+        Set<WaveSensor> localSensors = sensorEngineInstance.getAvailableLocalSensors();
         
-        AndroidWaveSensor accelSensor = (AndroidWaveSensor)accelSensors.iterator().next();
-        Sensor s = accelSensor.getAndroidSensor();
+        assertNotNull("getAvailableLocalSensors() should not return null", localSensors);
         
-        // start an accelerometer at 5.0Hz minimum without exception
-        sensorEngineInstance.startSensor(s, 5.0);
-        // re-start throws Exception
-        try {
-            sensorEngineInstance.startSensor(s, 10.0);
-        } catch (Exception e) {
-            assertTrue(e instanceof Exception);
+        assertEquals("Emulator should have 2 available sensors", 2, localSensors.size());
+        
+        // there should be accelerometer, magnetometer, and location
+        WaveSensor accelSensor = null;
+        WaveSensor magSensor = null;
+        WaveSensor locSensor = null;
+        for (WaveSensor s : localSensors) {
+            if (s.getType().equals("ACCELEROMETER")) {
+                accelSensor = s;
+            } else if (s.getType().equals("MAGNETIC_FIELD")) {
+                magSensor = s;
+            } else if (s.getType().equals("LOCATION")) {
+                locSensor = s;
+            }
         }
         
-        // stop
-        sensorEngineInstance.stopSensor(s);
-        // re-stop throws Exception
+        // accelerometer
+        assertNotNull("should have accelerometer", accelSensor);
+        assertEquals("-m/s^2", accelSensor.getUnits());
+        assertEquals("Accelerometer has 3 channels", 3, accelSensor.getChannels().size());
+        
+        // magnetometer
+        assertNull("emulated device has no magnetometer", magSensor);
+        
+        // location
+        assertNotNull("should have location", locSensor);
+    }
+
+    /**
+     * testToFromInternalIdForSensor
+     * 
+     * TODO: fix, pulled from WaveSensorTest
+     */
+    @SmallTest
+    public void testToFromInternalIdForSensor() {
+        // test null id throws exception
         try {
-            sensorEngineInstance.stopSensor(s);
+            sensorEngineInstance.sensorForInternalId(null);
         } catch (Exception e) {
-            assertTrue(e instanceof Exception);
+            assertTrue(e instanceof NullPointerException);
+        }
+        
+        // test bad id returns null
+        assertNull(sensorEngineInstance.sensorForInternalId("some_obviously_invalid_id"));
+        
+        // test working case
+        Set<WaveSensor> localSensors = sensorEngineInstance.getAvailableLocalSensors();
+        WaveSensor[] originals = new WaveSensor[localSensors.size()];
+        
+        for (int i=0; i<originals.length; i++) {
+            WaveSensor original = originals[i];
+            
+            String id = sensorEngineInstance.internalIdForSensor(original);
+            assertNotNull(id);
+            
+            WaveSensor restored = sensorEngineInstance.sensorForInternalId(id);
+            assertEquals(original, restored);
         }
     }
     
@@ -99,6 +124,9 @@ public class SensorEngineTest extends AndroidTestCase {
      * 
      * also tests isSupported in WaveRecipeLocalDeviceSupportInfo, as this
      * requires use of a recipe and is a sort of integration test
+     * 
+     * Note: this test expects to be run on the simulator, which should report
+     * a single accelerometer
      * 
      * @see SensorEngine#supportInfoForRecipe
      * @see WaveRecipeLocalDeviceSupportInfo#isSupported
