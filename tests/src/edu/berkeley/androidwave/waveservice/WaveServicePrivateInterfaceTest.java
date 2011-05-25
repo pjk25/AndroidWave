@@ -69,11 +69,17 @@ public class WaveServicePrivateInterfaceTest extends ServiceTestCase<WaveService
     public void testPreconditions() {
         assertNotNull("service should not be null", service);
     }
-    
-    @SmallTest
-    public void testClearRecipeCache() {
-        fail("clearRecipeCache method does not exist yet.");
-    }
+
+    /**
+     * testClearRecipeCache
+     * 
+     * helper method for a forced flush of the downloaded recipe cache
+     * 
+     * currently not used
+     */
+    // @SmallTest
+    // public void testClearRecipeCache() {
+    // }
     
     /**
      * test the recipeInCache method
