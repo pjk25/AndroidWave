@@ -19,7 +19,7 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 // import java.util.Iterator;
-// import java.util.Set;
+import java.util.Set;
 
 /**
  * AndroidHardwareMagneticFieldTest
@@ -32,4 +32,17 @@ import android.test.suitebuilder.annotation.SmallTest;
  * adb shell am instrument -w -e class edu.berkeley.androidwave.waveservice.sensorengine.sensors.AndroidHardwareMagneticFieldTest edu.berkeley.androidwave.tests/android.test.InstrumentationTestRunner
  */
 public class AndroidHardwareMagneticFieldTest extends AndroidTestCase {
+
+    /**
+     * testInstancesAvailableInContext
+     * 
+     * Note: this test expects to be run on the simulator, which should report
+     * no magnetic field sensor
+     */
+    @SmallTest
+    public void testPreconditions() {
+        Set<WaveSensor> sensors = AndroidHardwareMagneticField.instancesAvailableInContext(getContext());
+        assertNotNull(sensors);
+        assertEquals(0, sensors.size());
+    }
 }
