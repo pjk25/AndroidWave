@@ -339,10 +339,11 @@ public class SensorEngine implements WaveSensorListener {
     /**
      * --------------------- WaveSensorListener Methods ---------------------
      */
-    public void onWaveSensorChanged(WaveSensor waveSensor, SensorEvent event) {
+    public void onWaveSensorChanged(WaveSensorEvent event) {
         // first update sensor stats for this sensor
         // SensorStats ss = runningSensors.get(event.sensor);
         long now = System.currentTimeMillis();
+        Log.d(TAG, "onWaveSensorChanged: now => "+now+", event.timestamp => "+event.timestamp);
         // long last = ss.lastSampleTime;
         // ss.lastSampleTime = now;
         // ss.estimatedRate = 1000.0 / (now - last);
@@ -358,17 +359,17 @@ public class SensorEngine implements WaveSensorListener {
             
             // look up the authorized rate for this sensor in this authorization
             // (should be null if the recipe for this sensor was unscheduled)
-            WaveSensorDescription wsd = stats.sensorToDescriptionMap.get(waveSensor);
+            WaveSensorDescription wsd = stats.sensorToDescriptionMap.get(event.sensor);
             if (wsd != null) {
                 hasResponder = true;
                 SensorAttributes sa = auth.getSensorAttributesForSensor(wsd);
                 // decide whether to dispatch data
-                // we have a simple dropping scheme for now to avoid delivering
+                // we have a simple dropping scheme for event.timestamp to avoid delivering
                 // faster than the authorized rate
                 Long lastDeliveredTime = stats.lastSampleTimes.get(wsd);
                 boolean shouldSend = true;
                 if (lastDeliveredTime != null) {
-                    double rateForThis = 1000.0 / (now - lastDeliveredTime.longValue());
+                    double rateForThis = 1000.0 / (event.timestamp - lastDeliveredTime.longValue());
                     if (rateForThis > sa.rate) {
                         shouldSend = false;
                     }
@@ -376,23 +377,18 @@ public class SensorEngine implements WaveSensorListener {
                 // now dispatch the data if necessary
                 if (shouldSend) {
                     // store this timestamp
-                    stats.lastSampleTimes.put(wsd, new Long(now));
+                    stats.lastSampleTimes.put(wsd, new Long(event.timestamp));
                     // package the sensor data
                     Map<String, Double> values = new HashMap<String, Double>();
                     // for now simple channel handling
                     // TODO: better channel handling
                     WaveSensorChannelDescription[] wscds = wsd.getChannels();
-                    for (int i=0; i<4; i++) {
-                        if (wscds.length > i && event.values.length > i) {
-                            // clip the precision of the delivered value
-                            double truncatedValue = event.values[i];
-                            long factor = (long)(truncatedValue / sa.precision);
-                            truncatedValue = ((double)factor) * sa.precision;
-                            values.put(wscds[i].getName(), new Double(truncatedValue));
-                        }
+                    for (WaveSensorChannelDescription wscd : wscds) {
+                        String name = wscd.getName();
+                        values.put(name, event.getValueQuantized(name, sa.precision));
                     }
                     // call up the algorithmInstance of the authorization
-                    stats.algorithmInstance.ingestSensorData(new WaveSensorData(now, values));
+                    stats.algorithmInstance.ingestSensorData(new WaveSensorData(event.timestamp, values));
                 }
             }
         }
@@ -404,7 +400,7 @@ public class SensorEngine implements WaveSensorListener {
                 // TODO: it seems that a queue of messages builds up, so we
                 //       end up calling stop multiple times.  Makes the log
                 //       ugly, but we catch the Exception that results.
-                waveSensor.stop();
+                event.sensor.stop();
             } catch (Exception e) {
                 Log.w(TAG, "Exception while stopping sensor", e);
             }
