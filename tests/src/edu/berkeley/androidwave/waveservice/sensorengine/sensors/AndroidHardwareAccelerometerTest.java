@@ -35,7 +35,7 @@ import java.util.Set;
 public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
     
     WaveSensorListener waveSensorListener = new WaveSensorListener() {
-        public void onWaveSensorChanged(WaveSensor sensor, SensorEvent event) {
+        public void onWaveSensorChanged(WaveSensorEvent event) {
             // nothing for now
         }
     };
