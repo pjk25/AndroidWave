@@ -14,6 +14,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.util.Log;
+import java.util.Map;
 
 /**
  * AndroidHardwareSensor
@@ -97,6 +98,12 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
     }
     
     /**
+     * Allow subclasses to name their channels, used when constructing
+     * WaveSensorEvent
+     */
+    protected abstract Map<String, Double> sensorEventAsValues(SensorEvent event);
+    
+    /**
      * --------------------- SensorEventListener Methods ---------------------
      */
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -105,13 +112,12 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
     
     public void onSensorChanged(SensorEvent event) {
         // first update sensor stats for this sensor
-        long now = System.currentTimeMillis();
         long last = lastSampleTime;
-        lastSampleTime = now;
-        estimatedRate = 1000.0 / (now - last);
+        lastSampleTime = event.timestamp;
+        estimatedRate = 1000.0 / (event.timestamp - last);
         
         // dispatch the data to the listener
-        listener.onWaveSensorChanged(this, event);
+        listener.onWaveSensorChanged(new WaveSensorEvent(this, event.timestamp, sensorEventAsValues(event)));
         
         // adjust the rate if necessary
         if (estimatedRate < 0.9 * desiredRate) {

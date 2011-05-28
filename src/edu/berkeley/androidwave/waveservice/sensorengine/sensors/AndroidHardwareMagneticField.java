@@ -10,12 +10,17 @@ package edu.berkeley.androidwave.waveservice.sensorengine.sensors;
 
 import android.content.Context;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class AndroidHardwareMagneticField extends AndroidHardwareSensor {
     
+    private static final String[] CHANNEL_NAMES = new String[] {"x", "y", "z"};
+
     /**
      * instancesAvailableInContext
      * 
@@ -37,9 +42,9 @@ public class AndroidHardwareMagneticField extends AndroidHardwareSensor {
             AndroidHardwareMagneticField waveMagSensor = new AndroidHardwareMagneticField(sensorManager, "uT"); // micro-Tesla
             waveMagSensor.hardwareSensor = magSensor;
             // Always three channels in current Android OS version
-            waveMagSensor.channels.add(new WaveSensorChannel("x"));
-            waveMagSensor.channels.add(new WaveSensorChannel("y"));
-            waveMagSensor.channels.add(new WaveSensorChannel("z"));
+            waveMagSensor.channels.add(new WaveSensorChannel(CHANNEL_NAMES[0]));
+            waveMagSensor.channels.add(new WaveSensorChannel(CHANNEL_NAMES[1]));
+            waveMagSensor.channels.add(new WaveSensorChannel(CHANNEL_NAMES[2]));
             
             set.add(waveMagSensor);
         }
@@ -58,5 +63,13 @@ public class AndroidHardwareMagneticField extends AndroidHardwareSensor {
     public Double getMaximumAvailablePrecision() {
         // TODO: determine precision
         return null;
+    }
+
+    protected Map<String, Double> sensorEventAsValues(SensorEvent event) {
+        Map<String, Double> result = new HashMap<String, Double>(3);
+        result.put(CHANNEL_NAMES[0], new Double(event.values[0]));
+        result.put(CHANNEL_NAMES[1], new Double(event.values[1]));
+        result.put(CHANNEL_NAMES[2], new Double(event.values[2]));
+        return result;
     }
 }

@@ -10,11 +10,16 @@ package edu.berkeley.androidwave.waveservice.sensorengine.sensors;
 
 import android.content.Context;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class AndroidHardwareAccelerometer extends AndroidHardwareSensor {
+    
+    private static final String[] CHANNEL_NAMES = new String[] {"x", "y", "z"};
     
     /**
      * instancesAvailableInContext
@@ -39,9 +44,9 @@ public class AndroidHardwareAccelerometer extends AndroidHardwareSensor {
             waveAccelSensor.hardwareSensor = accelSensor;
             // It will always have three channels in the current version
             // of the Android OS
-            waveAccelSensor.channels.add(new WaveSensorChannel("x"));
-            waveAccelSensor.channels.add(new WaveSensorChannel("y"));
-            waveAccelSensor.channels.add(new WaveSensorChannel("z"));
+            waveAccelSensor.channels.add(new WaveSensorChannel(CHANNEL_NAMES[0]));
+            waveAccelSensor.channels.add(new WaveSensorChannel(CHANNEL_NAMES[1]));
+            waveAccelSensor.channels.add(new WaveSensorChannel(CHANNEL_NAMES[2]));
             
             set.add(waveAccelSensor);
         }
@@ -60,5 +65,13 @@ public class AndroidHardwareAccelerometer extends AndroidHardwareSensor {
     public Double getMaximumAvailablePrecision() {
         // assume sensor reports binary thousands of a g
         return (9.81/1024.0);
+    }
+    
+    protected Map<String, Double> sensorEventAsValues(SensorEvent event) {
+        Map<String, Double> result = new HashMap<String, Double>(3);
+        result.put(CHANNEL_NAMES[0], new Double(event.values[0]));
+        result.put(CHANNEL_NAMES[1], new Double(event.values[1]));
+        result.put(CHANNEL_NAMES[2], new Double(event.values[2]));
+        return result;
     }
 }
