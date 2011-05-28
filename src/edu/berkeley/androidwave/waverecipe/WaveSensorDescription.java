@@ -19,6 +19,8 @@ import org.json.*;
  * correspond to sensors available on the device.  Its denotes requirements
  * of a sensor that can be met, so may be generic, or very precise, depending
  * on the nature of the algorithm.
+ * 
+ * TODO: eliminate the Type enum in favor of a string
  */
 public class WaveSensorDescription {
     
