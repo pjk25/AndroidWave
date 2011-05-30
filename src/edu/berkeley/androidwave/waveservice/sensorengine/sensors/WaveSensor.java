@@ -12,7 +12,6 @@ import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 import edu.berkeley.androidwave.waverecipe.WaveSensorChannelDescription;
 
 import android.content.Context;
-// import android.util.Log;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
