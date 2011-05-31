@@ -79,13 +79,6 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
     public void testStart() throws Exception {
         AndroidHardwareAccelerometer fixtureOne = getFixtureOne(getContext());
         
-        // stop before start throws Exception
-        try {
-            fixtureOne.stop();
-        } catch (Exception e) {
-            assertTrue(e instanceof Exception);
-        }
-        
         fixtureOne.start(waveSensorListener, 5.0);
         
         // start after start throws Exception

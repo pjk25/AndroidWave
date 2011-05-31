@@ -71,6 +71,14 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
         this.listener = listener;
         desiredRate = rate;
         
+        /**
+         * The documentation 
+         * http://developer.android.com/reference/android/hardware/SensorManager.html#registerListener(android.hardware.SensorEventListener, android.hardware.Sensor, int)
+         * suggests that the sensorManagerRate can be specified in mircrosend
+         * delay between samples, however in practice it seems to always fail
+         */
+        // sensorManagerRate = (int) (1000.0 * 1000.0 / rate); // convert seconds to microseconds
+        
         sensorManagerRate = SensorManager.SENSOR_DELAY_NORMAL;
         if (rate < 5.0) {
             sensorManagerRate = SensorManager.SENSOR_DELAY_NORMAL;
@@ -83,7 +91,7 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
         }
         
         if (!mSensorManager.registerListener(this, hardwareSensor, sensorManagerRate)) {
-            throw new Exception("SensorManager.registerListener returned false");
+            throw new Exception("SensorManager.registerListener("+this+", "+hardwareSensor+", "+sensorManagerRate+") returned false");
         }
     }
     
