@@ -58,15 +58,18 @@ public class AndroidHardwareAccelerometer extends AndroidHardwareSensor {
         super(sensorManager, "ACCELEROMETER", units);
     }
 
+    @Override
     public Double getMaximumAvailableSamplingFrequency() {
         return null;
     }
     
+    @Override
     public Double getMaximumAvailablePrecision() {
         // assume sensor reports binary thousands of a g
         return (9.81/1024.0);
     }
     
+    @Override
     protected Map<String, Double> sensorEventAsValues(SensorEvent event) {
         Map<String, Double> result = new HashMap<String, Double>(3);
         result.put(CHANNEL_NAMES[0], new Double(event.values[0]));

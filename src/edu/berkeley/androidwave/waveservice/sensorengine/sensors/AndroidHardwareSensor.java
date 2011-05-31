@@ -50,6 +50,7 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
      * returns a specific version string, which should be sufficient to
      * uniquely identify different sensor hardware/plugins
      */
+    @Override
     public String getVersion() {
         return VERSION_BASE + "_" + this.getType();
     }
@@ -63,6 +64,7 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
      * TODO: specify in microseconds file:///usr/local/android-sdk-mac_86/docs/reference/android/hardware/SensorManager.html#registerListener(android.hardware.SensorEventListener, android.hardware.Sensor, int)
      */
     public void start(WaveSensorListener listener, double rate) throws Exception {
+    @Override
         if (started) {
             throw new Exception("Sensor already started");
         }
@@ -95,10 +97,12 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
         }
     }
     
+    @Override
     public void alterRate(double newRate) throws Exception {
         throw new UnsupportedOperationException("alterRate not yet implemented");
     }
     
+    @Override
     public void stop() throws Exception {
         if (!started) {
             throw new Exception("Sensor has not been started yet");

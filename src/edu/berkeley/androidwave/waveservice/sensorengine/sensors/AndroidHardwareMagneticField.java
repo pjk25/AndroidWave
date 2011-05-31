@@ -56,15 +56,18 @@ public class AndroidHardwareMagneticField extends AndroidHardwareSensor {
         super(sensorManager, "MAGNETIC_FIELD", units);
     }
 
+    @Override
     public Double getMaximumAvailableSamplingFrequency() {
         return null;
     }
     
+    @Override
     public Double getMaximumAvailablePrecision() {
         // TODO: determine precision
         return null;
     }
 
+    @Override
     protected Map<String, Double> sensorEventAsValues(SensorEvent event) {
         Map<String, Double> result = new HashMap<String, Double>(3);
         result.put(CHANNEL_NAMES[0], new Double(event.values[0]));

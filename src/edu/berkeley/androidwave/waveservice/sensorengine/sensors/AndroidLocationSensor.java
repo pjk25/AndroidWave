@@ -87,14 +87,17 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
      * returns a specific version string, which should be sufficient to
      * uniquely identify different sensor hardware/plugins
      */
+    @Override
     public String getVersion() {
         return VERSION_BASE + "_" + this.getType();
     }
 
+    @Override
     public Double getMaximumAvailableSamplingFrequency() {
         return null;
     }
     
+    @Override
     public Double getMaximumAvailablePrecision() {
         // TODO: determine this
         return null;
@@ -105,6 +108,7 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
      *       to use GPS (power intensive)
      */
     public void start(WaveSensorListener listener, double rate) throws Exception {
+    @Override
         if (started) {
             throw new Exception("Sensor already started");
         }
@@ -122,10 +126,12 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
                                                 this);
     }
     
+    @Override
     public void alterRate(double newRate) throws Exception {
         throw new Exception("not implemented yet");
     }
     
+    @Override
     public void stop() throws Exception {
         if (!started) {
             throw new Exception("Sensor has not been started yet");
