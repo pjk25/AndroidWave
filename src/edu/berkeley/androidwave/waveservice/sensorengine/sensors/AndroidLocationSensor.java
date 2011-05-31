@@ -36,7 +36,7 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
     
     protected final String VERSION_BASE = Build.DEVICE + "_" + Build.BOARD + "_" + Build.MODEL;
     
-    protected LocationManager locationManager;
+    protected LocationManager mLocationManager;
     
     protected Location currentLocationEstimate;
     
@@ -61,10 +61,10 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
         
         Set<WaveSensor> set = new HashSet<WaveSensor>(1);
         
-        LocationManager locationManager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);
+        LocationManager mLocationManager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);
         
-        if (locationManager != null) {
-            AndroidLocationSensor locationSensor = new AndroidLocationSensor(locationManager);
+        if (mLocationManager != null) {
+            AndroidLocationSensor locationSensor = new AndroidLocationSensor(mLocationManager);
             set.add(locationSensor);
         }
         
@@ -78,7 +78,8 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
             throw new NullPointerException("locationManager parameter cannot be null");
         }
         
-        this.locationManager = locationManager;
+        mLocationManager = locationManager;
+        started = false;
         currentLocationEstimate = null;
     }
     
@@ -104,13 +105,21 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
      *       to use GPS (power intensive)
      */
     public void start(WaveSensorListener listener, double rate) throws Exception {
+        if (started) {
+            throw new Exception("Sensor already started");
+        }
+        started = true;
+        
+        this.listener = listener;
+        desiredRate = rate;
+
         long minTime = (long) (1000.0 / rate);
         float minDistance = 0;
         
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                                               minTime,
-                                               minDistance,
-                                               this);
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                                                minTime,
+                                                minDistance,
+                                                this);
     }
     
     public void alterRate(double newRate) throws Exception {
@@ -118,7 +127,13 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
     }
     
     public void stop() throws Exception {
-        locationManager.removeUpdates(this);
+        if (!started) {
+            throw new Exception("Sensor has not been started yet");
+        }
+        
+        mLocationManager.removeUpdates(this);
+        
+        started = false;
     }
 
     /**
