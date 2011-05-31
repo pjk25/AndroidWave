@@ -79,11 +79,11 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
     public void testStart() throws Exception {
         AndroidHardwareAccelerometer fixtureOne = getFixtureOne(getContext());
         
-        fixtureOne.start(waveSensorListener, 5.0);
+        fixtureOne.start(waveSensorListener, 5.0, 0.001);
         
         // start after start throws Exception
         try {
-            fixtureOne.start(waveSensorListener, 6.0);
+            fixtureOne.start(waveSensorListener, 6.0, 0.001);
         } catch (Exception e) {
             assertTrue(e instanceof Exception);
         }
@@ -102,7 +102,7 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
             assertTrue(e instanceof Exception);
         }
         
-        fixtureOne.start(waveSensorListener, 5.0);
+        fixtureOne.start(waveSensorListener, 5.0, 0.001);
         fixtureOne.alterRate(8.0);
         
         // TODO: complete the test by checking the rate actually changes
@@ -119,7 +119,7 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
             assertTrue(e instanceof Exception);
         }
         
-        fixtureOne.start(waveSensorListener, 5.0);
+        fixtureOne.start(waveSensorListener, 5.0, 0.001);
         fixtureOne.stop();
         
         // TODO: complete the test by checking that data flow actually stops

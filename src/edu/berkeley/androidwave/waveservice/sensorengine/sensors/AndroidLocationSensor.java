@@ -9,6 +9,7 @@
 package edu.berkeley.androidwave.waveservice.sensorengine.sensors;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -35,6 +36,10 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
     private static final String TAG = AndroidLocationSensor.class.getSimpleName();
     
     protected final String VERSION_BASE = Build.DEVICE + "_" + Build.BOARD + "_" + Build.MODEL;
+    
+    public static final float GPS_THRESHOLD = (float)1000.0;
+    
+    protected Context mContext;
     
     protected LocationManager mLocationManager;
     
@@ -64,20 +69,21 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
         LocationManager mLocationManager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);
         
         if (mLocationManager != null) {
-            AndroidLocationSensor locationSensor = new AndroidLocationSensor(mLocationManager);
+            AndroidLocationSensor locationSensor = new AndroidLocationSensor(c, mLocationManager);
             set.add(locationSensor);
         }
         
         return set;
     }
     
-    public AndroidLocationSensor(LocationManager locationManager) {
+    public AndroidLocationSensor(Context c, LocationManager locationManager) {
         super("LOCATION", "degrees");
         
         if (locationManager == null) {
             throw new NullPointerException("locationManager parameter cannot be null");
         }
         
+        mContext = c;
         mLocationManager = locationManager;
         started = false;
         currentLocationEstimate = null;
@@ -104,31 +110,54 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
     }
     
     /**
-     * TODO: add an accuracy hint that will allow us to decide whether or not
-     *       to use GPS (power intensive)
+     * start
+     * 
+     * @param precisionHint desired precision IN METERS
      */
-    public void start(WaveSensorListener listener, double rate) throws Exception {
     @Override
+    public void start(WaveSensorListener listener, double rateHint, double precisionHint) throws Exception {
         if (started) {
             throw new Exception("Sensor already started");
         }
         started = true;
         
         this.listener = listener;
-        desiredRate = rate;
+        desiredRate = rateHint;
 
-        long minTime = (long) (1000.0 / rate);
-        float minDistance = 0;
+        long minTime = (long) (1000.0 / rateHint);
+        float minDistance = (float)precisionHint;
         
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                                                 minTime,
                                                 minDistance,
                                                 this);
+
+        // TODO: determine the gps use threshold more precisely
+        if (precisionHint < GPS_THRESHOLD) {
+            if (!mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                Log.d(TAG, "GPS Provider is not enabled. Enabling GPS Provider...");
+                Intent enableGPS = new Intent("android.location.GPS_ENABLED_CHANGE");
+                enableGPS.putExtra("enabled", true);
+                mContext.sendBroadcast(enableGPS);
+                Log.d(TAG, "GPS Provider has been enabled.");
+            }
+            
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                                    minTime,
+                                                    minDistance,
+                                                    this);
+        }
+        
     }
     
     @Override
     public void alterRate(double newRate) throws Exception {
-        throw new Exception("not implemented yet");
+        throw new Exception("alterRate not implemented");
+    }
+    
+    @Override
+    public void alterPrecision(double newPrecision) throws Exception {
+        throw new UnsupportedOperationException("alterPrecision not implemented");
     }
     
     @Override

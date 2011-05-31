@@ -53,7 +53,7 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
     public void testConstructor() {
         // test null locationManager throws exception
         try {
-            new AndroidLocationSensor(null);
+            new AndroidLocationSensor(getContext(), null);
         } catch (Exception e) {
             assertTrue(e instanceof Exception);
         }
@@ -70,11 +70,11 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
             assertTrue(e instanceof Exception);
         }
         
-        fixtureOne.start(waveSensorListener, 5.0);
+        fixtureOne.start(waveSensorListener, 5.0, 1000);
         
         // start after start throws Exception
         try {
-            fixtureOne.start(waveSensorListener, 6.0);
+            fixtureOne.start(waveSensorListener, 6.0, 1000);
         } catch (Exception e) {
             assertTrue(e instanceof Exception);
         }
@@ -93,7 +93,7 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
             assertTrue(e instanceof Exception);
         }
         
-        fixtureOne.start(waveSensorListener, 5.0);
+        fixtureOne.start(waveSensorListener, 5.0, 1000);
         fixtureOne.alterRate(8.0);
         
         // TODO: complete the test by checking the rate actually changes
@@ -110,7 +110,7 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
             assertTrue(e instanceof Exception);
         }
         
-        fixtureOne.start(waveSensorListener, 5.0);
+        fixtureOne.start(waveSensorListener, 5.0, 1000);
         fixtureOne.stop();
         
         // TODO: complete the test by checking that data flow actually stops

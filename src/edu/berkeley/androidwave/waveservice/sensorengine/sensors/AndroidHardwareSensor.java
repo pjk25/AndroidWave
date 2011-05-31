@@ -63,15 +63,15 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
      * 
      * TODO: specify in microseconds file:///usr/local/android-sdk-mac_86/docs/reference/android/hardware/SensorManager.html#registerListener(android.hardware.SensorEventListener, android.hardware.Sensor, int)
      */
-    public void start(WaveSensorListener listener, double rate) throws Exception {
     @Override
+    public void start(WaveSensorListener listener, double rateHint, double precisionHint) throws Exception {
         if (started) {
             throw new Exception("Sensor already started");
         }
         started = true;
         
         this.listener = listener;
-        desiredRate = rate;
+        desiredRate = rateHint;
         
         /**
          * The documentation 
@@ -79,14 +79,14 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
          * suggests that the sensorManagerRate can be specified in mircrosend
          * delay between samples, however in practice it seems to always fail
          */
-        // sensorManagerRate = (int) (1000.0 * 1000.0 / rate); // convert seconds to microseconds
+        // sensorManagerRate = (int) (1000.0 * 1000.0 / rateHint); // convert seconds to microseconds
         
         sensorManagerRate = SensorManager.SENSOR_DELAY_NORMAL;
-        if (rate < 5.0) {
+        if (rateHint < 5.0) {
             sensorManagerRate = SensorManager.SENSOR_DELAY_NORMAL;
-        } else if (rate < 8.0) {
+        } else if (rateHint < 8.0) {
             sensorManagerRate = SensorManager.SENSOR_DELAY_UI;
-        } else if (rate < 12.0) {
+        } else if (rateHint < 12.0) {
             sensorManagerRate = SensorManager.SENSOR_DELAY_GAME;
         } else {
             sensorManagerRate = SensorManager.SENSOR_DELAY_FASTEST;
@@ -99,7 +99,12 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
     
     @Override
     public void alterRate(double newRate) throws Exception {
-        throw new UnsupportedOperationException("alterRate not yet implemented");
+        throw new UnsupportedOperationException("alterRate not implemented");
+    }
+    
+    @Override
+    public void alterPrecision(double newPrecision) throws Exception {
+        throw new UnsupportedOperationException("alterPrecision not implemented");
     }
     
     @Override

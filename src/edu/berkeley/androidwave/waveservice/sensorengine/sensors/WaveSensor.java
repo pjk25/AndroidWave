@@ -107,7 +107,7 @@ public abstract class WaveSensor {
      * convention, we fan out the sensor data from a single WaveSensorListener
      * outside of this instance. Currently, this will be the SensorEngine.
      */
-    public abstract void start(WaveSensorListener listener, double rate) throws Exception;
+    public abstract void start(WaveSensorListener listener, double rateHint, double precisionHint) throws Exception;
     
     /**
      * throws an exception if the sensor has not been started, or if the
@@ -115,6 +115,13 @@ public abstract class WaveSensor {
      * the maximum rate is not null).
      */
     public abstract void alterRate(double newRate) throws Exception;
+    
+    /**
+     * throws an exception if the sensor has not been started, or if the
+     * requested newPrecision is smaller than the maximum precision for this
+     * sensor (if the maximum precision is not null).
+     */
+    public abstract void alterPrecision(double newPrecision) throws Exception;
     
     /**
      * stop the sensor
