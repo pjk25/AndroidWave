@@ -82,7 +82,9 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
             sensorManagerRate = SensorManager.SENSOR_DELAY_FASTEST;
         }
         
-        mSensorManager.registerListener(this, hardwareSensor, sensorManagerRate);
+        if (!mSensorManager.registerListener(this, hardwareSensor, sensorManagerRate)) {
+            throw new Exception("SensorManager.registerListener returned false");
+        }
     }
     
     public void alterRate(double newRate) throws Exception {
