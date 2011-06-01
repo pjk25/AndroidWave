@@ -27,8 +27,6 @@ import java.util.Set;
  * Specialized {@link WaveSensor} subclass for location.  Should automatically
  * select between Network/GPS/etc.
  * 
- * TODO: add some kind of accurracy hint, possibly to WaveSensor
- * 
  * http://developer.android.com/guide/topics/location/obtaining-user-location.html
  */
 public class AndroidLocationSensor extends WaveSensor implements LocationListener {
@@ -36,6 +34,8 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
     private static final String TAG = AndroidLocationSensor.class.getSimpleName();
     
     protected final String VERSION_BASE = Build.DEVICE + "_" + Build.BOARD + "_" + Build.MODEL;
+    
+    // public static final String TEST_PROVIDER_NAME = "edu.berkeley.androidwave.SimpleTestProvider";
     
     public static final float GPS_THRESHOLD = (float)1000.0;
     
@@ -134,25 +134,48 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
 
         // TODO: determine the gps use threshold more precisely
         if (precisionHint < GPS_THRESHOLD) {
-            if (!mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                Log.d(TAG, "GPS Provider is not enabled. Enabling GPS Provider...");
-                Intent enableGPS = new Intent("android.location.GPS_ENABLED_CHANGE");
-                enableGPS.putExtra("enabled", true);
-                mContext.sendBroadcast(enableGPS);
-                Log.d(TAG, "GPS Provider has been enabled.");
+            if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                // Log.d(TAG, "GPS Provider is not enabled. Enabling GPS Provider...");
+                // Intent enableGPS = new Intent("android.location.GPS_ENABLED_CHANGE");
+                // enableGPS.putExtra("enabled", true);
+                // mContext.sendBroadcast(enableGPS);
+                // Log.d(TAG, "GPS Provider has been enabled.");
+
+                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                                        minTime,
+                                                        minDistance,
+                                                        this);
             }
-            
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                                                    minTime,
-                                                    minDistance,
-                                                    this);
         }
         
+        // for testing purposes only
+        // if (true) { // <- ideally we want to know if this is a test scenario
+        //     Log.d(TAG, "AndroidLocationSensor.start: checking for location provider "+TEST_PROVIDER_NAME);
+        //     if (mLocationManager.isProviderEnabled(TEST_PROVIDER_NAME)) {
+        //         Log.d(TAG, "AndroidLocationSensor.start: requesting location updates from "+TEST_PROVIDER_NAME);
+        //         mLocationManager.requestLocationUpdates(TEST_PROVIDER_NAME,
+        //                                                 minTime,
+        //                                                 minDistance,
+        //                                                 this);
+        //         // 
+        //         // // grab the last location and fake it.
+        //         // final Location lastLoc = mLocationManager.getLastKnownLocation(TEST_PROVIDER_NAME);
+        //         // if (lastLoc != null) {
+        //         //     // fire the event on another thread
+        //         //     new Thread(new Runnable() {
+        //         //         @Override
+        //         //         public void run() {
+        //         //             onLocationChanged(lastLoc);
+        //         //         }
+        //         //     }).start();
+        //         // }
+        //     }
+        // }
     }
     
     @Override
     public void alterRate(double newRate) throws Exception {
-        throw new Exception("alterRate not implemented");
+        throw new UnsupportedOperationException("alterRate not implemented");
     }
     
     @Override
@@ -175,6 +198,8 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
      * ---------------------- LocationListener Methods -----------------------
      */
     public void onLocationChanged(Location location) {
+        Log.d(TAG, "onLocationChanged("+location+")");
+        
         if (isBetterLocation(location, currentLocationEstimate)) {
             currentLocationEstimate = location;
         }
