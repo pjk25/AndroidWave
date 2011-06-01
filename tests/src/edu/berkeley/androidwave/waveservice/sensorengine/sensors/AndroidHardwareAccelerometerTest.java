@@ -20,6 +20,7 @@ import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.Log;
 import java.util.Set;
 
 /**
@@ -34,12 +35,31 @@ import java.util.Set;
  */
 public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
     
+    private static final String TAG = AndroidHardwareAccelerometerTest.class.getSimpleName();
+
+    WaveSensorEvent firstEvent;
+    int eventCount;
+    
     WaveSensorListener waveSensorListener = new WaveSensorListener() {
         public void onWaveSensorChanged(WaveSensorEvent event) {
-            // nothing for now
+            // We store this event so that it can be asserted back on the test
+            // thread
+            synchronized(AndroidHardwareAccelerometerTest.this) {
+                if (firstEvent == null) {
+                    firstEvent = event;
+                }
+                eventCount++;
+                AndroidHardwareAccelerometerTest.this.notify();
+            }
         }
     };
     
+    @Override
+    public void setUp() {
+        firstEvent = null;
+        eventCount = 0;
+    }
+
     /**
      * testInstancesAvailableInContext
      * 
@@ -79,16 +99,21 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
     public void testStart() throws Exception {
         AndroidHardwareAccelerometer fixtureOne = getFixtureOne(getContext());
         
-        fixtureOne.start(waveSensorListener, 5.0, 0.001);
+        synchronized(this) {
+            fixtureOne.start(waveSensorListener, 5.0, 0.001);
         
-        // start after start throws Exception
-        try {
-            fixtureOne.start(waveSensorListener, 6.0, 0.001);
-        } catch (Exception e) {
-            assertTrue(e instanceof Exception);
+            // start after start throws Exception
+            try {
+                fixtureOne.start(waveSensorListener, 6.0, 0.001);
+            } catch (Exception e) {
+                assertTrue(e instanceof Exception);
+            }
+        
+            Log.d(TAG, "waiting for data...");
+            this.wait(2*1000);  // wait up to 2 seconds
+            Log.d(TAG, "checking for data");
+            assertNotNull(firstEvent);
         }
-        
-        // TODO: complete the test by checking that data starts flowing
     }
     
     @SmallTest
@@ -122,7 +147,12 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
         fixtureOne.start(waveSensorListener, 5.0, 0.001);
         fixtureOne.stop();
         
-        // TODO: complete the test by checking that data flow actually stops
+        // make sure data flow stops
+        synchronized(this) {
+            int c = eventCount;
+            this.wait(1*1000); // wait 1 second for more data to show
+            assertEquals("eventCount should stay same", c, eventCount);
+        }
     }
     
     /**
