@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class WaveSensorEventTest extends AndroidTestCase {
     
-    public void testGetValueQuantized() {
+    public void testGetValueConformedToPrecision() {
         
         WaveSensorEvent fixtureOne = getFixtureOne(getContext());
         
