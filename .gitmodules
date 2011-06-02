@@ -1,0 +1,6 @@
+[submodule "src/edu/berkeley/androidwave/waverecipe/waverecipealgorithm"]
+	path = src/edu/berkeley/androidwave/waverecipe/waverecipealgorithm
+	url = git://github.com/pjk25/waverecipealgorithm.git
+[submodule "src/edu/berkeley/androidwave/waveclient"]
+	path = src/edu/berkeley/androidwave/waveclient
+	url = git://github.com/pjk25/waveclient.git
