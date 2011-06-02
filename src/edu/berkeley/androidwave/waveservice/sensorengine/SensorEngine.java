@@ -387,7 +387,7 @@ public class SensorEngine implements WaveSensorListener {
                     WaveSensorChannelDescription[] wscds = wsd.getChannels();
                     for (WaveSensorChannelDescription wscd : wscds) {
                         String name = wscd.getName();
-                        values.put(name, event.getValueQuantized(name, sa.precision));
+                        values.put(name, event.getValueConformedToPrecision(name, sa.precision));
                     }
                     // call up the algorithmInstance of the authorization
                     stats.algorithmInstance.ingestSensorData(new WaveSensorData(event.timestamp, values));

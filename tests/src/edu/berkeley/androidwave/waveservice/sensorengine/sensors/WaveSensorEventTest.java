@@ -27,9 +27,9 @@ public class WaveSensorEventTest extends AndroidTestCase {
         
         double step = 0.01;
         
-        assertEquals(1.00, fixtureOne.getValueQuantized("X", step), step / 100.0);
-        assertEquals(0.50, fixtureOne.getValueQuantized("Y", step), step / 100.0);
-        assertEquals(0.02, fixtureOne.getValueQuantized("Z", step), step / 100.0);
+        assertEquals(1.00, fixtureOne.getValueConformedToPrecision("X", step), step / 100.0);
+        assertEquals(0.50, fixtureOne.getValueConformedToPrecision("Y", step), step / 100.0);
+        assertEquals(0.02, fixtureOne.getValueConformedToPrecision("Z", step), step / 100.0);
     }
     
     /**

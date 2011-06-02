@@ -28,7 +28,7 @@ public class WaveSensorEvent {
         this.values = values;
     }
     
-    public double getValueQuantized(String name, double step) {
+    public double getValueConformedToPrecision(String name, double step) {
         double v = values.get(name).doubleValue();
         long factor = (long) (v / step);
         return ((double)factor) * step;
