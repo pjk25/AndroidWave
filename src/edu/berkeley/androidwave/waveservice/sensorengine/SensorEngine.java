@@ -300,6 +300,7 @@ public class SensorEngine implements WaveSensorListener {
             as.sensorToDescriptionMap.put(ws, wsd);
             SensorAttributes sa = authorization.getSensorAttributesForSensor(wsd);
             double requestedRate = sa.rate;
+            double requestedPrecision = sa.precision;
             // now that we have discovered the requested rate, see if the
             // matching hardware sensor is already running
             try {
@@ -307,11 +308,12 @@ public class SensorEngine implements WaveSensorListener {
                     if (ws.desiredRate < requestedRate) {
                         ws.alterRate(requestedRate);
                     }
+                    // TODO: add if then for alterPrecision
                 } else {
                     // sensor is not running, start it at the requested rate
                     // this just sets a guess at the actual hardware rate
                     // anyway.
-                    ws.start(this, requestedRate);
+                    ws.start(this, requestedRate, requestedPrecision);
                 }
             } catch (Exception e) {
                 Log.w(TAG, "Exception while altering rate", e);
