@@ -28,6 +28,11 @@ public class WaveSensorEvent {
         this.values = values;
     }
     
+    /**
+     * getValueConformedToPrecision
+     * 
+     * quantize the sensed values by the increment step
+     */
     public double getValueConformedToPrecision(String name, double step) {
         double v = values.get(name).doubleValue();
         long factor = (long) (v / step);

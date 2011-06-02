@@ -227,7 +227,7 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
         
         
         // dispatch the data to the listener
-        listener.onWaveSensorChanged(new WaveSensorEvent(this, location.getTime(), values));
+        listener.onWaveSensorChanged(new AndroidLocationSensorEvent(this, location.getTime(), values));
         
         // adjust the rate if necessary
         if (estimatedRate < 0.9 * desiredRate) {
