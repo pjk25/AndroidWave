@@ -53,6 +53,6 @@ public class AndroidLocationSensorEventTest extends AndroidTestCase {
         values.put("longitude", -122.259);
         values.put("altitude", 25.0);
         
-        return new WaveSensorEvent(sensor, System.currentTimeMillis(), values);
+        return new AndroidLocationSensorEvent(sensor, System.currentTimeMillis(), values);
     }
 }
