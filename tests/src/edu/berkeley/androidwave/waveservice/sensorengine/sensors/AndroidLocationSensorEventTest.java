@@ -24,19 +24,19 @@ public class AndroidLocationSensorEventTest extends AndroidTestCase {
     public void testGetValueConformedToPrecision() {
         AndroidLocationSensorEvent fixtureOne = getFixtureOne(getContext());
         
-        double step = 1000; // (500 meters)
+        double step = 1000; // (1000 meters)
         
         // AndroidLocationSensorEvent conforms by adding a random value, so we
         // run this test several times
         for (int i=0; i<100; i++) {
             // according to http://www.csgnetwork.com/degreelenllavcalc.html
             // at 37.870º N, 1 degree == 110993.99 m
-            // thus, a step of 1000m ~ 0.001 degrees
-            assertEquals(37.870, fixtureOne.getValueConformedToPrecision("latitude", step), 0.001);
+            // thus, a step of 1000m ~ 0.009 degrees
+            assertEquals("iteration "+i, 37.870, fixtureOne.getValueConformedToPrecision("latitude", step), 0.01);
             // we use 0.002 degrees for longitude as we do not know the exact conversion
-            assertEquals(-122.259, fixtureOne.getValueConformedToPrecision("longitude", step), 0.002);
+            assertEquals("iteration "+i, -122.259, fixtureOne.getValueConformedToPrecision("longitude", step), 0.01);
             // altitude is already in meters
-            assertEquals(25.0, fixtureOne.getValueConformedToPrecision("altitude", step), step / 4.0);
+            assertEquals("iteration "+i, 25.0, fixtureOne.getValueConformedToPrecision("altitude", step), step / 4.0);
         }
     }
     
