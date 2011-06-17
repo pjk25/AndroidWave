@@ -72,7 +72,7 @@ public class SensorEngine implements WaveSensorListener {
         }
         
         public void handleRecipeData(Object data) {
-            Log.d("AlgorithmOutputForwarder", "handleRecipeData("+data+")");
+            // Log.v(TAG+"/AlgorithmOutputForwarder", "handleRecipeData("+data+")");
             // TODO: do we really need the shadow object here?
             try {
                 WaveRecipeOutputData outputData = new WaveRecipeOutputDataShadow(data);
@@ -345,7 +345,7 @@ public class SensorEngine implements WaveSensorListener {
         // first update sensor stats for this sensor
         // SensorStats ss = runningSensors.get(event.sensor);
         long now = System.currentTimeMillis();
-        Log.d(TAG, "onWaveSensorChanged: now => "+now+", event.timestamp => "+event.timestamp);
+        // Log.v(TAG, "onWaveSensorChanged: now => "+now+", event.timestamp => "+event.timestamp);
         // long last = ss.lastSampleTime;
         // ss.lastSampleTime = now;
         // ss.estimatedRate = 1000.0 / (now - last);

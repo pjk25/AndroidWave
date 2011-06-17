@@ -143,7 +143,7 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
         // adjust the rate if necessary
         if (estimatedRate < 0.9 * desiredRate) {
             // TODO: increase sensor rate
-            Log.w(TAG, ""+event.sensor+" estimated rate less than 90% of desired rate ("+estimatedRate+" < 0.9 * "+desiredRate+")");
+            Log.d(TAG, ""+event.sensor+" estimated rate less than 90% of desired rate ("+estimatedRate+" < 0.9 * "+desiredRate+")");
         }
     }
 }

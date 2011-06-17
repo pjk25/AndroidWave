@@ -422,7 +422,7 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
         if (destination != null) {
             try {
                 // repackage the WaveRecipeOutputData as a ParcelableWaveRecipeOutputData
-                Log.d(TAG, "receiveDataForAuthorization: data => "+data);
+                // Log.v(TAG, "receiveDataForAuthorization: data => "+data);
                 ParcelableWaveRecipeOutputData dataImpl = new ParcelableWaveRecipeOutputData(data.getTime(), data.getValues());
                 destination.receiveWaveRecipeOutputData(dataImpl);
             } catch (RemoteException re) {
