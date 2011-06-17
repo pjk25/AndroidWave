@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.pm.*;
 import android.util.Log;
 import android.util.Xml;
+import dalvik.system.DexClassLoader;
 import java.io.*;
 import java.lang.ref.WeakReference;
 import java.security.CodeSigner;
@@ -43,6 +44,7 @@ public class WaveRecipe {
     
     private static final String X509_TYPE = "X.509";
     private static final String DESCRIPTION_XML_PATH = "assets/description.xml";
+    private static final String RECIPE_DEX_CACHE = "recipe-dalvik-cache";
     
     // for use in loading signatures
     private static final Object mSync = new Object();
@@ -125,13 +127,15 @@ public class WaveRecipe {
         recipe.certificate = (X509Certificate)certs[0];
         
         // Create a loader for this apk
-        // http://yenliangl.blogspot.com/2009/11/dynamic-loading-of-classes-in-your.html
-        // http://www.mail-archive.com/android-developers@googlegroups.com/msg07714.html
-        dalvik.system.PathClassLoader recipePathClassLoader =
-            new dalvik.system.PathClassLoader(recipeFile.getPath(), ClassLoader.getSystemClassLoader());
+        File recipeDalvikCache = context.getDir(RECIPE_DEX_CACHE, Context.MODE_PRIVATE);
+        DexClassLoader recipeDexClassLoader =
+            new dalvik.system.DexClassLoader(recipeFile.getPath(),
+                                             recipeDalvikCache.getPath(),
+                                             null,
+                                             ClassLoader.getSystemClassLoader());
         
         // try to load the description.xml
-        InputStream descriptionInputStream = recipePathClassLoader.getResourceAsStream(DESCRIPTION_XML_PATH);
+        InputStream descriptionInputStream = recipeDexClassLoader.getResourceAsStream(DESCRIPTION_XML_PATH);
         WaveRecipeXmlContentHandler contentHandler = new WaveRecipeXmlContentHandler(recipe);
         Xml.parse(descriptionInputStream, Xml.Encoding.UTF_8, contentHandler);
         
@@ -139,9 +143,9 @@ public class WaveRecipe {
         
         // try to load the WaveRecipeAlgorithm implementation
         try {
-            recipe.algorithmMainClass = (Class<WaveRecipeAlgorithm>)Class.forName(implementationClassName, true, recipePathClassLoader);
+            recipe.algorithmMainClass = (Class<WaveRecipeAlgorithm>)Class.forName(implementationClassName, true, recipeDexClassLoader);
         } catch (ClassNotFoundException cnfe) {
-            throw new Exception("Could not find main recipe class "+implementationClassName+". Permissions for /data/dalvik-cache may be incorrect.");
+            throw new Exception("Could not find main recipe class "+implementationClassName);
         }
         
         return recipe;
