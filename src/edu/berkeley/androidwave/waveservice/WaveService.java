@@ -29,6 +29,7 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -186,12 +187,24 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
             
             try {
                 HttpGet get = new HttpGet(path);
-                
                 HttpResponse response = new DefaultHttpClient().execute(get);
                 HttpEntity entity = response.getEntity();
                 
+                // log the headers
+                Log.d(TAG, "Response Details:");
+                Header[] allHeaders = response.getAllHeaders();
+                for (int i=0; i<allHeaders.length; i++) {
+                    Header h = allHeaders[i];
+                    if (h.getName().equals("Content-Type")) {
+                        if (!h.getValue().equals("text/plain")) {
+                            Log.w(TAG, "\tContent-Type is not text/plain, check that your internet connection is properly configured");
+                        }
+                    }
+                    Log.d(TAG, "\t"+h.getName()+": "+h.getValue());
+                }
+                
                 statusLine = response.getStatusLine();
-                Log.d(TAG, "\trequest complete, status => "+statusLine.getReasonPhrase());
+                Log.d(TAG, "\t\trequest complete, status => "+statusLine.getReasonPhrase());
                 if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
                     FileOutputStream fos = new FileOutputStream(file);
                     MessageDigest md = MessageDigest.getInstance("SHA1");
