@@ -25,13 +25,10 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -188,15 +185,25 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
             Log.d(TAG, "About to download recipe from "+path);
             
             try {
-                HttpResponse response = new DefaultHttpClient().execute(new HttpGet(path));
+                HttpGet get = new HttpGet(path);
+                
+                HttpResponse response = new DefaultHttpClient().execute(get);
                 HttpEntity entity = response.getEntity();
                 
                 statusLine = response.getStatusLine();
-                Log.d(TAG, "\t request complete, status => "+statusLine.getReasonPhrase());
+                Log.d(TAG, "\trequest complete, status => "+statusLine.getReasonPhrase());
                 if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
                     FileOutputStream fos = new FileOutputStream(file);
+                    MessageDigest md = MessageDigest.getInstance("SHA1");
+                    DigestOutputStream dos = new DigestOutputStream(fos, md);
                     entity.writeTo(fos);
+                    dos.close();
+                    fos.close();
+                    Log.d(TAG, "\t\tdownloaded file has SHA1 "+byteArray2Hex(dos.getMessageDigest().digest()));
+                    entity.consumeContent();
                 }
+            } catch (NoSuchAlgorithmException nsae) {
+                Log.d(TAG, "Exception during recipe download", nsae);
             } catch (FileNotFoundException fnfe) {
                 Log.d(TAG, "Exception during recipe download", fnfe);
             } catch (IOException ioe) {
@@ -617,4 +624,15 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
             return false;
         }
     };
+    
+    /**
+     * http://www.javablogging.com/sha1-and-md5-checksums-in-java/
+     */
+    private static String byteArray2Hex(byte[] hash) {
+        Formatter formatter = new Formatter();
+        for (byte b : hash) {
+            formatter.format("%02x", b);
+        }
+        return formatter.toString();
+    }
 }

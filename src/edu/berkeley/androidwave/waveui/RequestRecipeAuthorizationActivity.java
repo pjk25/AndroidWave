@@ -211,6 +211,7 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
         }
     }
     
+    // TODO: consider making this argument a WaveRecipe object
     private void afterRecipeCached(File recipeCacheFile) {
         try {
             theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile);
