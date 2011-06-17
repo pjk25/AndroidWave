@@ -71,7 +71,7 @@ public class WaveRecipe {
      * 
      * TODO: We should never have mulitple recipe objects floating around with
      *       the same id.
-     * TODO: throw a more specific Exception(s) upon error
+     * TODO: throw more specific Exception(s) upon error
      */
     public static WaveRecipe createFromDisk(Context context, File recipeFile)
         throws Exception {

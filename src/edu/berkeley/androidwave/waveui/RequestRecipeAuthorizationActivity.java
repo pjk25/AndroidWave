@@ -177,13 +177,7 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
                 theRecipe = null;
                 File recipeCacheFile = mService.recipeCacheFileForId(recipeId);
                 if (recipeCacheFile.exists()) {
-                    try {
-                        theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile);
-                        afterRecipeCached();
-                    } catch (Exception e) {
-                        Toast.makeText(this, "Exception encountered, see log.", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "Exception encountered in afterBind", e);
-                    }
+                    afterRecipeCached(recipeCacheFile);
                 } else {
                     // attempt to download the recipe
                     progressDialog = ProgressDialog.show(RequestRecipeAuthorizationActivity.this,
@@ -217,21 +211,42 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
         }
     }
     
-    private void afterRecipeCached() throws Exception {
-        // Create an authorization object
-        recipeAuthorization = new WaveRecipeAuthorization(theRecipe);
-        recipeAuthorization.setRecipeClientName(recipeClientName);
-        recipeAuthorization.setRecipeClientSignatures(recipeClientSignatures);
+    private void afterRecipeCached(File recipeCacheFile) {
+        try {
+            theRecipe = WaveRecipe.createFromDisk(this, recipeCacheFile);
 
-        // update the UI
-        recipeName.setText("Recipe: "+theRecipe.getName());
-        recipeDescription.setText(theRecipe.getDescription());
-        String recipeSigner = theRecipe.getCertificate().getSubjectDN().toString();
-        recipeSig.setText("Signed by: "+recipeSigner);
+            // Create an authorization object
+            recipeAuthorization = new WaveRecipeAuthorization(theRecipe);
+            recipeAuthorization.setRecipeClientName(recipeClientName);
+            recipeAuthorization.setRecipeClientSignatures(recipeClientSignatures);
 
-        ratePrecButton.setEnabled(true);
-        authButton.setEnabled(true);
-        denyButton.setEnabled(true);
+            // update the UI
+            recipeName.setText("Recipe: "+theRecipe.getName());
+            recipeDescription.setText(theRecipe.getDescription());
+            String recipeSigner = theRecipe.getCertificate().getSubjectDN().toString();
+            recipeSig.setText("Signed by: "+recipeSigner);
+
+            ratePrecButton.setEnabled(true);
+            authButton.setEnabled(true);
+            denyButton.setEnabled(true);
+        } catch (Exception e) {
+            Log.d(TAG, "Exception creating recipe from "+recipeCacheFile+" in afterRecipeCached", e);
+            boolean didDelete = recipeCacheFile.delete();
+            Log.d(TAG, "\trecipeCacheFile.delete() => "+didDelete);
+            
+            // TODO: remove the bad recipe file (in fact it should not go right to the cache where it is)
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(RequestRecipeAuthorizationActivity.this);
+            builder.setMessage("Error: Recipe retrieval failed (invalid recipe file)")
+                   .setCancelable(false)
+                   .setPositiveButton("Cancel Authorization", new DialogInterface.OnClickListener() {
+                       public void onClick(DialogInterface dialog, int id) {
+                           setResult(RESULT_CANCELED);
+                           RequestRecipeAuthorizationActivity.this.finish();
+                       }
+                   });
+            AlertDialog alert = builder.show();
+        }
     }
     
     private void updateGranularityText() {
@@ -374,24 +389,6 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
      public void handleRetrievalFinished(String recipeId, File f) {
          progressDialog.dismiss(); // dismiss so the dialog's onCancelled is not called
          
-         try {
-             theRecipe = WaveRecipe.createFromDisk(this, f);
-             afterRecipeCached();
-         } catch (Exception e) {
-             Log.d(TAG, "Exception in handleRetrievalFinished", e);
-             
-             // TODO: remove the bad recipe file (in fact it should not go right to the cache where it is)
-
-             AlertDialog.Builder builder = new AlertDialog.Builder(RequestRecipeAuthorizationActivity.this);
-             builder.setMessage("Error loading downloaded recipe.")
-                    .setCancelable(false)
-                    .setPositiveButton("Cancel Authorization", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            setResult(RESULT_CANCELED);
-                            RequestRecipeAuthorizationActivity.this.finish();
-                        }
-                    });
-             AlertDialog alert = builder.show();
-         }
+         afterRecipeCached(f);
      }
 }
