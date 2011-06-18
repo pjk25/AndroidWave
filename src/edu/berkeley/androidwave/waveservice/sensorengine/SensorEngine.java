@@ -385,10 +385,18 @@ public class SensorEngine implements WaveSensorListener {
                     // for now simple channel handling
                     // TODO: better channel handling
                     WaveSensorChannelDescription[] wscds = wsd.getChannels();
-                    for (WaveSensorChannelDescription wscd : wscds) {
-                        String name = wscd.getName();
-                        values.put(name, event.getValueConformedToPrecision(name, sa.precision));
+                    if (wscds.length > 0) {
+                        for (WaveSensorChannelDescription wscd : wscds) {
+                            String name = wscd.getName();
+                            values.put(name, event.getValueConformedToPrecision(name, sa.precision));
+                        }
+                    } else {
+                        // no channels specified, send all
+                        for (String name : event.values.keySet()) {
+                            values.put(name, event.getValueConformedToPrecision(name, sa.precision));
+                        }
                     }
+                    assert values.size() > 0;
                     // call up the algorithmInstance of the authorization
                     stats.algorithmInstance.ingestSensorData(new WaveSensorData(event.timestamp, values));
                 }

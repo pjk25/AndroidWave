@@ -32,7 +32,7 @@ public class AccelerometerMagnitudeAlgorithm implements WaveRecipeAlgorithm {
     
     public void ingestSensorData(Object sensorData) {
         // System.out.println("AccelerometerMagnitudeAlgorithm.ingestSensorData("+sensorData+")");
-        Log.v(TAG, "ingestSensorData("+sensorData+")");
+        // Log.v(TAG, "ingestSensorData("+sensorData+")");
         try {
             WaveSensorData theSensorData = new WaveSensorDataShadow(sensorData);
             
