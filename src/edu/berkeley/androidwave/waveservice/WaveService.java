@@ -553,7 +553,8 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
              * the appropriate recipe algorithm instance (one instance for
              * each authorization), invoked in separate threads.  We also need
              * to link the callbacks up to the listener here.  This method
-             * more or less instantiates an instance of the authenticates the call to the sensor engine.
+             * more or less instantiates an instance of the authenticates the
+             * call to the sensor engine.
              */
             
             // check the validity of the key

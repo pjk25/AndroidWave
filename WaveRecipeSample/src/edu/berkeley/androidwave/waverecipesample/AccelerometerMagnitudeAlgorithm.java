@@ -11,7 +11,6 @@ package edu.berkeley.androidwave.waverecipesample;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.*;
 
 import android.util.Log;
-// import java.lang.Math;
 
 public class AccelerometerMagnitudeAlgorithm implements WaveRecipeAlgorithm {
     
@@ -33,7 +32,7 @@ public class AccelerometerMagnitudeAlgorithm implements WaveRecipeAlgorithm {
     
     public void ingestSensorData(Object sensorData) {
         // System.out.println("AccelerometerMagnitudeAlgorithm.ingestSensorData("+sensorData+")");
-        // Log.v(TAG, "ingestSensorData("+sensorData+")");
+        Log.v(TAG, "ingestSensorData("+sensorData+")");
         try {
             WaveSensorData theSensorData = new WaveSensorDataShadow(sensorData);
             
