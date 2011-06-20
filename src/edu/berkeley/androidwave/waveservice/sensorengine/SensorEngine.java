@@ -84,6 +84,7 @@ public class SensorEngine implements WaveSensorListener {
                     // rate is good, truncate precision
                     outputData.quantize(maxOutputPrecision);
                     destination.receiveDataForAuthorization(outputData, authorization);
+                    lastForwardTime = now;
                 } else {
                     Log.d(TAG, "Dropped excessive recipe output");
                 }
