@@ -17,6 +17,8 @@ import edu.berkeley.androidwave.waveservice.sensorengine.sensors.*;
 
 import android.content.Context;
 import android.hardware.SensorEvent;    // <- should change on necessary changes to WaveSensorListener
+import android.os.Debug;
+import android.os.SystemClock;
 import android.util.Log;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -75,10 +77,10 @@ public class SensorEngine implements WaveSensorListener {
             // Log.v(TAG+"/AlgorithmOutputForwarder", "handleRecipeData("+data+")");
             // TODO: do we really need the shadow object here?
             try {
+                // creating the shadow object seems expensive, so we should eliminate it somehow
                 WaveRecipeOutputData outputData = new WaveRecipeOutputDataShadow(data);
                 // drop this data if it exceeds the max rate
-                // TODO: Consider SystemClock.elapsedRealTime() in place of System.currentTimeMillis()
-                long now = System.currentTimeMillis();
+                long now = SystemClock.elapsedRealtime();
                 double thisRate = 1000.0 / (now - lastForwardTime);
                 if (thisRate < maxOutputRate) {
                     // rate is good, truncate precision
@@ -264,6 +266,13 @@ public class SensorEngine implements WaveSensorListener {
     public boolean scheduleAuthorization(WaveRecipeAuthorization authorization, WaveRecipeOutputListener listener)
             throws SensorNotAvailableException {
         
+        // DEBUG
+        try {
+            Debug.startMethodTracing("androidwave");
+        } catch (Exception e) {
+            Log.d(TAG, "Exception while Debug.startMethodTracing(...)", e);
+        }
+        
         if (scheduledAuthorizations.containsKey(authorization)) {
             return false;
         }
@@ -328,6 +337,13 @@ public class SensorEngine implements WaveSensorListener {
     }
     
     public boolean descheduleAuthorization(WaveRecipeAuthorization authorization) {
+        // DEBUG
+        try {
+            Debug.stopMethodTracing();
+        } catch (Exception e) {
+            Log.d(TAG, "Exception while Debug.stopMethodTracing()", e);
+        }
+        
         if (!scheduledAuthorizations.containsKey(authorization)) {
             return false;
         }
@@ -345,7 +361,7 @@ public class SensorEngine implements WaveSensorListener {
     public void onWaveSensorChanged(WaveSensorEvent event) {
         // first update sensor stats for this sensor
         // SensorStats ss = runningSensors.get(event.sensor);
-        long now = System.currentTimeMillis();
+        //long now = SystemClock.uptimeMillis();
         // Log.v(TAG, "onWaveSensorChanged: now => "+now+", event.timestamp => "+event.timestamp);
         // long last = ss.lastSampleTime;
         // ss.lastSampleTime = now;
@@ -353,7 +369,6 @@ public class SensorEngine implements WaveSensorListener {
         
         // check which authorizations are relevant, then feed the throttled
         // data to the algorithm instances.
-        // TODO: feed on separate threads
         // TODO: optimize the lookups
         boolean hasResponder = false;
         for (Map.Entry<WaveRecipeAuthorization, AuthorizationStats> entry : scheduledAuthorizations.entrySet()) {
@@ -399,6 +414,7 @@ public class SensorEngine implements WaveSensorListener {
                     }
                     assert values.size() > 0;
                     // call up the algorithmInstance of the authorization
+                    // TODO: call ingestSensorData on different thread
                     stats.algorithmInstance.ingestSensorData(new WaveSensorData(event.timestamp, values));
                 }
             }

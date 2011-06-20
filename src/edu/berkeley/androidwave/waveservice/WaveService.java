@@ -418,7 +418,7 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
     public void receiveDataForAuthorization(WaveRecipeOutputData data, WaveRecipeAuthorization authorization) {
         // forward the data through IPC to the listener
         IWaveRecipeOutputDataListener destination = listenerMap.get(authorization);
-        // TODO: spawn a thread to write data to the listener
+        // TODO: spawn a thread to write data to the listener (although maybe we don't need to, as ipc already goes through its own thread)
         if (destination != null) {
             try {
                 // repackage the WaveRecipeOutputData as a ParcelableWaveRecipeOutputData

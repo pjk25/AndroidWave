@@ -4,6 +4,8 @@
       android:versionCode="1"
       android:versionName="1.0">
       
+    <uses-sdk android:minSdkVersion="4" />
+    
     <permission android:description="@string/wave_service_permission_description"
                 android:label="WaveService"
                 android:name="edu.berkeley.androidwave.permission.WAVE_SERVICE"
@@ -17,7 +19,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- <uses-permission android:name="android.permission.READ_PHONE_STATE" /> -->
     <!-- <uses-permission android:name="android.permission.WAKE_LOCK" /> -->
-    <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /><!-- FOR DEBUG TRACING -->
 
     <application android:label="@string/app_name">
         <!-- The activities -->
@@ -55,5 +57,4 @@
         <!-- The private service -->
         <!-- <service android:name="edu.berkeley.androidwave.waveservice.WaveService" /> -->
     </application>
-    <uses-sdk android:minSdkVersion="4" />
 </manifest> 

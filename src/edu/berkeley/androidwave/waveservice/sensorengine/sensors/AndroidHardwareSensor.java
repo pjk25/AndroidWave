@@ -13,6 +13,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
+import android.os.SystemClock;
 import android.util.Log;
 import java.util.Map;
 
@@ -39,6 +40,15 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
     protected long lastSampleTime;
     protected double estimatedRate;
     
+    // average sensor rate statistics (for debugging)
+    private long startTime;
+    private int sampleCount;
+    private int underRateCount;
+    
+    
+    /**
+     * Constructor
+     */
     public AndroidHardwareSensor(SensorManager sensorManager, String type, String units) {
         super(type, units);
         
@@ -95,6 +105,11 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
         if (!mSensorManager.registerListener(this, hardwareSensor, sensorManagerRate)) {
             throw new Exception("SensorManager.registerListener("+this+", "+hardwareSensor+", "+sensorManagerRate+") returned false");
         }
+        
+        // DEBUG
+        startTime = SystemClock.uptimeMillis();
+        sampleCount = 0;
+        underRateCount = 0;
     }
     
     @Override
@@ -116,6 +131,10 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
         mSensorManager.unregisterListener(this);
         
         started = false;
+        
+        // DEBUG
+        Log.d(TAG, ""+this+" stopping with average rate "+(1000.0*sampleCount/(SystemClock.uptimeMillis()-startTime)));
+        Log.d(TAG, "\tunderRateRatio => "+((double)underRateCount/(double)sampleCount));
     }
     
     /**
@@ -132,10 +151,11 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
     }
     
     public void onSensorChanged(SensorEvent event) {
+        sampleCount++;  // <- DEBUG
+        
         // first update sensor stats for this sensor
-        long last = lastSampleTime;
+        estimatedRate = 1000.0 * 1000.0 * 1000.0 / (event.timestamp - lastSampleTime);   // event.timestamp unit is nanoseconds
         lastSampleTime = event.timestamp;
-        estimatedRate = 1000.0 / (event.timestamp - last);
         
         // dispatch the data to the listener
         listener.onWaveSensorChanged(new WaveSensorEvent(this, event.timestamp, sensorEventAsValues(event)));
@@ -143,7 +163,12 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
         // adjust the rate if necessary
         if (estimatedRate < 0.9 * desiredRate) {
             // TODO: increase sensor rate
-            Log.d(TAG, ""+event.sensor+" estimated rate less than 90% of desired rate ("+estimatedRate+" < 0.9 * "+desiredRate+")");
+            // Log.v(TAG, ""+event.sensor+" estimated rate less than 90% of desired rate ("+estimatedRate+" < 0.9 * "+desiredRate+")");
+        }
+        
+        // DEBUG
+        if (estimatedRate < desiredRate) {
+            underRateCount++;
         }
     }
 }
