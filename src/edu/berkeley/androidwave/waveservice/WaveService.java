@@ -11,7 +11,6 @@ package edu.berkeley.androidwave.waveservice;
 import edu.berkeley.androidwave.waveclient.*;
 import edu.berkeley.androidwave.waveexception.WaveRecipeNotCachedException;
 import edu.berkeley.androidwave.waveexception.SensorNotAvailableException;
-import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeOutputData;
 import edu.berkeley.androidwave.waveservice.sensorengine.SensorEngine;
 import edu.berkeley.androidwave.waveservice.sensorengine.WaveRecipeOutputListener;
 
@@ -415,7 +414,7 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
     /**
      * WaveRecipeOutputListener methods
      */
-    public void receiveDataForAuthorization(WaveRecipeOutputData data, WaveRecipeAuthorization authorization) {
+    public void receiveDataForAuthorization(long time, Map<String, Double> values, WaveRecipeAuthorization authorization) {
         // forward the data through IPC to the listener
         IWaveRecipeOutputDataListener destination = listenerMap.get(authorization);
         // TODO: spawn a thread to write data to the listener (although maybe we don't need to, as ipc already goes through its own thread)
@@ -423,14 +422,14 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
             try {
                 // repackage the WaveRecipeOutputData as a ParcelableWaveRecipeOutputData
                 // Log.v(TAG, "receiveDataForAuthorization: data => "+data);
-                ParcelableWaveRecipeOutputData dataImpl = new ParcelableWaveRecipeOutputData(data.getTime(), data.getValues());
+                ParcelableWaveRecipeOutputData dataImpl = new ParcelableWaveRecipeOutputData(time, values);
                 destination.receiveWaveRecipeOutputData(dataImpl);
             } catch (RemoteException re) {
                 Log.d(TAG, "RemoteException in receiveDataForAuthorization, connection to client must have been dropped.", re);
                 boolean didUnschedule = sensorEngine.descheduleAuthorization(authorization);
                 Log.d(TAG, "sensorEngine.descheduleAuthorization("+authorization+") => "+didUnschedule);
             } catch (Exception e) {
-                Log.d(TAG, "Exception in receiveDataForAuthorization("+data+", "+authorization+")");
+                Log.d(TAG, "Exception in receiveDataForAuthorization("+time+", "+values+", "+authorization+")");
             }
         } else {
             Log.d(TAG, "could not look up destination in receiveDataForAuthorization");

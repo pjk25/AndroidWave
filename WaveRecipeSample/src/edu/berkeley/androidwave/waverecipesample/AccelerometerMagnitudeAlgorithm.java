@@ -11,6 +11,8 @@ package edu.berkeley.androidwave.waverecipesample;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.*;
 
 import android.util.Log;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AccelerometerMagnitudeAlgorithm implements WaveRecipeAlgorithm {
     
@@ -54,12 +56,13 @@ public class AccelerometerMagnitudeAlgorithm implements WaveRecipeAlgorithm {
             double mag = Math.hypot(x, y);
             mag = Math.hypot(mag, z);
             
-            long dataTime = theSensorData.getTime();
-            WaveRecipeOutputData outputData = new WaveRecipeOutputData(dataTime);
-            // output in g
-            outputData.setChannelValue("magnitude", mag / 9.81);
+            long time = theSensorData.getTime();
             
-            theListener.handleRecipeData(outputData);
+            Map<String, Double> values = new HashMap<String, Double>(1);
+            // output in g
+            values.put("magnitude", mag / 9.81);
+            
+            theListener.handleRecipeData(time, values);
         } catch (Exception e) {
             Log.d(TAG, "Exception in ingestSensorData", e);
         }

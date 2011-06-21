@@ -73,25 +73,38 @@ public class SensorEngine implements WaveSensorListener {
             destination = dest;
         }
         
-        public void handleRecipeData(Object data) {
+        /**
+         * NOTE: the quantization step here might cause problems with location
+         *       data, as precision is set in meters
+         */
+        public void handleRecipeData(long time, Map<String, Double> values) {
             // Log.v(TAG+"/AlgorithmOutputForwarder", "handleRecipeData("+data+")");
-            // TODO: do we really need the shadow object here?
             try {
-                // creating the shadow object seems expensive, so we should eliminate it somehow
-                WaveRecipeOutputData outputData = new WaveRecipeOutputDataShadow(data);
+                // TODO: should we use the data's timestamp instead of SystemClock.elapsedRealtime() ?
                 // drop this data if it exceeds the max rate
                 long now = SystemClock.elapsedRealtime();
                 double thisRate = 1000.0 / (now - lastForwardTime);
                 if (thisRate < maxOutputRate) {
                     // rate is good, truncate precision
-                    outputData.quantize(maxOutputPrecision);
-                    destination.receiveDataForAuthorization(outputData, authorization);
+                    quantizeValueMap(values, maxOutputPrecision);
+                    destination.receiveDataForAuthorization(time, values, authorization);
                     lastForwardTime = now;
                 } else {
                     Log.d(TAG, "Dropped excessive recipe output");
                 }
             } catch (Exception e) {
                 Log.d("AlgorithmOutputForwarder", "Exception encountered", e);
+            }
+        }
+        
+        private void quantizeValueMap(Map<String, Double> m, double s) {
+            for (Map.Entry<String, Double> entry : m.entrySet()) {
+                double v = entry.getValue().doubleValue();
+                
+                long factor = (long) (v / s);
+                v = ((double)factor) * s;
+                
+                m.put(entry.getKey(), v);
             }
         }
     }
@@ -415,7 +428,11 @@ public class SensorEngine implements WaveSensorListener {
                     assert values.size() > 0;
                     // call up the algorithmInstance of the authorization
                     // TODO: call ingestSensorData on different thread
-                    stats.algorithmInstance.ingestSensorData(new WaveSensorData(event.timestamp, values));
+                    try {
+                        stats.algorithmInstance.ingestSensorData(new WaveSensorData(event.timestamp, values));
+                    } catch (Exception e) {
+                        Log.d(TAG, "onWaveSensorChanged", e);
+                    }
                 }
             }
         }
