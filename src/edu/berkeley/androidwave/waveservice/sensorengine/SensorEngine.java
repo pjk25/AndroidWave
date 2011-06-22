@@ -17,7 +17,6 @@ import edu.berkeley.androidwave.waveservice.sensorengine.sensors.*;
 
 import android.content.Context;
 import android.hardware.SensorEvent;    // <- should change on necessary changes to WaveSensorListener
-import android.os.Debug;
 import android.os.SystemClock;
 import android.util.Log;
 import java.io.IOException;
@@ -279,13 +278,6 @@ public class SensorEngine implements WaveSensorListener {
     public boolean scheduleAuthorization(WaveRecipeAuthorization authorization, WaveRecipeOutputListener listener)
             throws SensorNotAvailableException {
         
-        // DEBUG
-        try {
-            Debug.startMethodTracing("androidwave");
-        } catch (Exception e) {
-            Log.d(TAG, "Exception while Debug.startMethodTracing(...)", e);
-        }
-        
         if (scheduledAuthorizations.containsKey(authorization)) {
             return false;
         }
@@ -350,12 +342,6 @@ public class SensorEngine implements WaveSensorListener {
     }
     
     public boolean descheduleAuthorization(WaveRecipeAuthorization authorization) {
-        // DEBUG
-        try {
-            Debug.stopMethodTracing();
-        } catch (Exception e) {
-            Log.d(TAG, "Exception while Debug.stopMethodTracing()", e);
-        }
         
         if (!scheduledAuthorizations.containsKey(authorization)) {
             return false;
