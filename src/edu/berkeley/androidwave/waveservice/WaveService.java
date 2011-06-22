@@ -174,7 +174,7 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
         protected RecipeRetrievalResponder rrResponder;
         protected String recipeId;
         
-        private StatusLine statusLine;
+        private String statusText;
         
         protected File doInBackground(Object... args) {
             rrResponder = (RecipeRetrievalResponder) args[0];
@@ -202,7 +202,7 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
                     Log.d(TAG, "\t"+h.getName()+": "+h.getValue());
                 }
                 
-                statusLine = response.getStatusLine();
+                StatusLine statusLine = response.getStatusLine();
                 Log.d(TAG, "\t\trequest complete, status => "+statusLine.getReasonPhrase());
                 if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
                     FileOutputStream fos = new FileOutputStream(file);
@@ -214,12 +214,16 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
                     Log.d(TAG, "\t\tdownloaded file has SHA1 "+byteArray2Hex(dos.getMessageDigest().digest()));
                     entity.consumeContent();
                 }
+                statusText = statusLine.getReasonPhrase();
             } catch (NoSuchAlgorithmException nsae) {
-                Log.d(TAG, "Exception during recipe download", nsae);
+                Log.d(TAG, "NoSuchAlgorithmException during recipe download", nsae);
+                statusText = "NoSuchAlgorithmException";
             } catch (FileNotFoundException fnfe) {
-                Log.d(TAG, "Exception during recipe download", fnfe);
+                Log.d(TAG, "FileNotFoundException during recipe download", fnfe);
+                statusText = "FileNotFoundException";
             } catch (IOException ioe) {
-                Log.d(TAG, "Exception during recipe download", ioe);
+                Log.d(TAG, "IOException during recipe download", ioe);
+                statusText = "Could not connect to server";
             }
             
             return file;
@@ -229,7 +233,7 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
             if (result.exists()) {
                 rrResponder.handleRetrievalFinished(recipeId, result);
             } else {
-                rrResponder.handleRetrievalFailed(recipeId, (statusLine == null ? "Unknown reason" : statusLine.getReasonPhrase()));
+                rrResponder.handleRetrievalFailed(recipeId, statusText);
             }
         }
         
