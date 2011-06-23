@@ -560,48 +560,52 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
              * call to the sensor engine.
              */
             
-            // check the validity of the key
-            if (clientKeyNameMap.containsKey(key)) {
-                // recall the package name for the given key
-                // this is a valid key
-                String clientPackageName = clientKeyNameMap.get(key);
-                // look up the authorization
-                for (WaveRecipeAuthorization auth : authorizations) {
-                    if (auth.getRecipe().getId().equals(recipeId)) {
-                        if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
-                            if (auth.validForDate(new Date())) {
-                                // authorization was found and is valid
-                                // check if already registered
-                                if (listenerMap.containsKey(auth)) {
-                                    // listener already registered
-                                    Log.d(TAG, "registerRecipeOutputListener called when already registered registered (for recipeId="+recipeId+")");
-                                    return false;
+            try {
+                // check the validity of the key
+                if (clientKeyNameMap.containsKey(key)) {
+                    // recall the package name for the given key
+                    // this is a valid key
+                    String clientPackageName = clientKeyNameMap.get(key);
+                    // look up the authorization
+                    for (WaveRecipeAuthorization auth : authorizations) {
+                        if (auth.getRecipe().getId().equals(recipeId)) {
+                            if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
+                                if (auth.validForDate(new Date())) {
+                                    // authorization was found and is valid
+                                    // check if already registered
+                                    if (listenerMap.containsKey(auth)) {
+                                        // listener already registered
+                                        Log.d(TAG, "registerRecipeOutputListener called when already registered registered (for recipeId="+recipeId+")");
+                                        return false;
+                                    } else {
+                                        listenerMap.put(auth, listener);
+                                        // Warning: passing WaveService.this could possibly mess with AIDL.  Not sure right now.
+                                        boolean didSchedule;
+                                        try {
+                                            didSchedule = sensorEngine.scheduleAuthorization(auth, WaveService.this);
+                                        } catch (SensorNotAvailableException snae) {
+                                            Log.d(TAG, "Exception while scheduling authorization", snae);
+                                            didSchedule = false;
+                                        }
+                                        if (!didSchedule) {
+                                            listenerMap.remove(auth);
+                                        }
+                                        if (didSchedule) {
+                                            Log.d(TAG, "registered output listener for recipeId="+recipeId);
+                                        }
+                                        return didSchedule;
+                                    }
                                 } else {
-                                    listenerMap.put(auth, listener);
-                                    // Warning: passing WaveService.this could possibly mess with AIDL.  Not sure right now.
-                                    boolean didSchedule;
-                                    try {
-                                        didSchedule = sensorEngine.scheduleAuthorization(auth, WaveService.this);
-                                    } catch (SensorNotAvailableException snae) {
-                                        Log.d(TAG, "Exception while scheduling authorization", snae);
-                                        didSchedule = false;
-                                    }
-                                    if (!didSchedule) {
-                                        listenerMap.remove(auth);
-                                    }
-                                    if (didSchedule) {
-                                        Log.d(TAG, "registered output listener for recipeId="+recipeId);
-                                    }
-                                    return didSchedule;
+                                    Log.d(TAG, "registerRecipeOutputListener called for revoked recipe (for recipeId="+recipeId+")");
                                 }
-                            } else {
-                                Log.d(TAG, "registerRecipeOutputListener called for revoked recipe (for recipeId="+recipeId+")");
                             }
                         }
                     }
+                } else {
+                    Log.d(TAG, "registerRecipeOutputListener called using invalid key (for recipeId="+recipeId+")");
                 }
-            } else {
-                Log.d(TAG, "registerRecipeOutputListener called using invalid key (for recipeId="+recipeId+")");
+            } catch (Exception e) {
+                Log.d(TAG, "Exception in registerRecipeOutputListener", e);
             }
             return false;
         }
