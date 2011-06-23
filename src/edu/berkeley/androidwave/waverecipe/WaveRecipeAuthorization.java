@@ -17,10 +17,11 @@ import android.content.pm.Signature;
 import android.util.Log;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Iterator;
-import java.util.Map.Entry;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.json.*;
 
 /**
@@ -44,8 +45,12 @@ public class WaveRecipeAuthorization {
     
     protected Set<SensorAttributes> sensorAttributes;
     
+    private Map<WaveSensorDescription, SensorAttributes> descriptionToAttributesCache;
+    
     public WaveRecipeAuthorization(WaveRecipe recipe) {
         this.recipe = recipe;
+        sensorAttributes = null;
+        descriptionToAttributesCache = new HashMap<WaveSensorDescription, SensorAttributes>();
     }
     
     public WaveRecipe getRecipe() {
@@ -97,23 +102,33 @@ public class WaveRecipeAuthorization {
         return sensorAttributes;
     }
     
+    private void rebuildDescriptionToAttributesCache() {
+        // Log.v(TAG, "rebuildDescriptionToAttributesCache()");
+        descriptionToAttributesCache = new HashMap<WaveSensorDescription, SensorAttributes>(sensorAttributes == null ? 0 : sensorAttributes.size());
+        if (sensorAttributes != null) {
+            for (SensorAttributes sa : sensorAttributes) {
+                descriptionToAttributesCache.put(sa.sensorDescription, sa);
+            }
+        }
+    }
+    
     public void setSensorAttributes(Set<SensorAttributes> s) {
         sensorAttributes = s;
+        
+        rebuildDescriptionToAttributesCache();
     }
     
     /**
      * getSensorAttributesForSensor
-     * 
-     * TODO: optimize this lookup
      */
     public SensorAttributes getSensorAttributesForSensor(WaveSensorDescription wsd) {
-        // TODO: synchronize on sensorAttributes Set
-        for (SensorAttributes sa : sensorAttributes) {
-            if (sa.sensorDescription.equals(wsd)) {
-                return sa;
-            }
+        SensorAttributes cachedValue = descriptionToAttributesCache.get(wsd);
+        if (cachedValue == null) {
+            // refresh cache
+            rebuildDescriptionToAttributesCache();
+            cachedValue = descriptionToAttributesCache.get(wsd);
         }
-        return null;
+        return cachedValue;
     }
     
     /**
@@ -300,7 +315,7 @@ public class WaveRecipeAuthorization {
             
             // restore the sensorAttributes
             if (o.has("sensorAttributes")) {
-                auth.sensorAttributes = new HashSet<SensorAttributes>();
+                Set<SensorAttributes> sas = new HashSet<SensorAttributes>();
                 JSONArray saja = o.getJSONArray("sensorAttributes");
                 for (int i=0; i<saja.length(); i++) {
                     JSONObject element = saja.getJSONObject(i);
@@ -311,10 +326,11 @@ public class WaveRecipeAuthorization {
                     sa.rate = element.getDouble("rate");
                     sa.precision = element.getDouble("precision");
                 
-                    auth.sensorAttributes.add(sa);
+                    sas.add(sa);
                 }
+                auth.setSensorAttributes(sas);
             } else {
-                auth.sensorAttributes = null;
+                auth.setSensorAttributes(null);
             }
         } catch (JSONException e) {
             auth = null;

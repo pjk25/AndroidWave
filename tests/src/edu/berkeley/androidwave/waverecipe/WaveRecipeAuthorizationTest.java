@@ -113,5 +113,8 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
         WaveRecipeAuthorization restored = WaveRecipeAuthorization.fromJSONString(recipeOne, jsonString);
         
         assertEquals(original, restored);
+        
+        WaveSensorDescription wsd = recipeOne.getSensors()[0];
+        assertNull(auth.getSensorAttributesForSensor(wsd));
     }
 }
