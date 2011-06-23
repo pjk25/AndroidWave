@@ -59,14 +59,14 @@ public class SensorEngine implements WaveSensorListener {
     
     class AlgorithmOutputForwarder implements WaveRecipeAlgorithmListener {
         long lastForwardTime;
-        double maxOutputRate;
+        double minOutputInterval;
         double maxOutputPrecision;
         WaveRecipeAuthorization authorization;
         WaveRecipeOutputListener destination;
         
         AlgorithmOutputForwarder(double rate, double precision, WaveRecipeAuthorization auth, WaveRecipeOutputListener dest) {
             lastForwardTime = 0;
-            maxOutputRate = rate;
+            minOutputInterval = 1000.0 / rate; // in milliseconds
             maxOutputPrecision = precision;
             authorization = auth;
             destination = dest;
@@ -82,14 +82,15 @@ public class SensorEngine implements WaveSensorListener {
                 // TODO: should we use the data's timestamp instead of SystemClock.elapsedRealtime() ?
                 // drop this data if it exceeds the max rate
                 long now = SystemClock.elapsedRealtime();
-                double thisRate = 1000.0 / (now - lastForwardTime);
-                if (thisRate < maxOutputRate) {
+                long thisInterval = now - lastForwardTime;
+                if (thisInterval >= 0.9 * minOutputInterval) {
                     // rate is good, truncate precision
                     quantizeValueMap(values, maxOutputPrecision);
                     destination.receiveDataForAuthorization(time, values, authorization);
                     lastForwardTime = now;
                 } else {
-                    Log.d(TAG, "Dropped excessive recipe output");
+                    Log.d(TAG, String.format("Dropped excessive recipe output (thisInterval => %d, minOutputInterval => %.0f)", thisInterval, minOutputInterval));
+                    Log.v(TAG, String.format("time => %d, now => %d, (delta => %d)", time/(1000*1000), now, (now - time/(1000*1000))));
                 }
             } catch (Exception e) {
                 Log.d("AlgorithmOutputForwarder", "Exception encountered", e);
