@@ -157,19 +157,7 @@ public class SensorEngineTest extends AndroidTestCase {
     /**
      * testScheduleWaveRecipeAuthorization
      * 
-     * This is the big one, where the sensor engine fulfils sensing needs for
-     * a recipe authorization
+     * We do not currently test this in an automated way, but instead rely on
+     * our sample client applications for testing
      */
-    @LargeTest
-    public void testScheduleWaveRecipeAuthorization() throws Exception {
-        
-        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        WaveRecipe recipe = WaveRecipe.createFromDisk(getContext(), targetFile);
-        
-        //WaveRecipeAuthorization auth = new WaveRecipeAuthorization(recipe);
-        
-        
-        
-        fail("test not finished yet");
-    }
 }
