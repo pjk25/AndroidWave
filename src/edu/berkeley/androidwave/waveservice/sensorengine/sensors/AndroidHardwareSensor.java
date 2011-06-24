@@ -91,7 +91,6 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
          */
         // sensorManagerRate = (int) (1000.0 * 1000.0 / rateHint); // convert seconds to microseconds
         
-        sensorManagerRate = SensorManager.SENSOR_DELAY_NORMAL;
         if (rateHint < 5.0) {
             sensorManagerRate = SensorManager.SENSOR_DELAY_NORMAL;
         } else if (rateHint < 8.0) {
@@ -102,6 +101,7 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
             sensorManagerRate = SensorManager.SENSOR_DELAY_FASTEST;
         }
         
+        lastSampleTime = 0;
         if (!mSensorManager.registerListener(this, hardwareSensor, sensorManagerRate)) {
             throw new Exception("SensorManager.registerListener("+this+", "+hardwareSensor+", "+sensorManagerRate+") returned false");
         }
@@ -114,7 +114,27 @@ public abstract class AndroidHardwareSensor extends WaveSensor implements Sensor
     
     @Override
     public void alterRate(double newRate) throws Exception {
-        throw new UnsupportedOperationException("alterRate not implemented");
+        if (!started) {
+            throw new Exception("Sensor has not been started yet");
+        }
+        
+        desiredRate = newRate;
+        
+        if (desiredRate < 5.0) {
+            sensorManagerRate = SensorManager.SENSOR_DELAY_NORMAL;
+        } else if (desiredRate < 8.0) {
+            sensorManagerRate = SensorManager.SENSOR_DELAY_UI;
+        } else if (desiredRate < 12.0) {
+            sensorManagerRate = SensorManager.SENSOR_DELAY_GAME;
+        } else {
+            sensorManagerRate = SensorManager.SENSOR_DELAY_FASTEST;
+        }
+        
+        lastSampleTime = 0;
+        mSensorManager.unregisterListener(this);
+        if (!mSensorManager.registerListener(this, hardwareSensor, sensorManagerRate)) {
+            throw new Exception("SensorManager.registerListener("+this+", "+hardwareSensor+", "+sensorManagerRate+") returned false");
+        }
     }
     
     @Override
