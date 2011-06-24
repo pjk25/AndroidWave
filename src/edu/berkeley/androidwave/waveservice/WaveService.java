@@ -464,25 +464,30 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
         public boolean isAuthorized(String key, String recipeId) {
             // Log.d(TAG, "mPublicBinder.isAuthorized(\""+key+"\", \""+recipeId+"\")");
             
-            // check the validity of the key
-            if (clientKeyNameMap.containsKey(key)) {
-                // recall the package name for the given key
-                // this is a valid key
-                String clientPackageName = clientKeyNameMap.get(key);
+            try {
+                // check the validity of the key
+                if (clientKeyNameMap.containsKey(key)) {
+                    // recall the package name for the given key
+                    // this is a valid key
+                    String clientPackageName = clientKeyNameMap.get(key);
                 
-                for (WaveRecipeAuthorization auth : authorizations) {
-                    if (auth.getRecipe().getId().equals(recipeId)) {
-                        if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
-                            if (auth.validForDate(new Date())) {
-                                return true;
-                            } else {
-                                Log.d(TAG, "isAuthorized called for revoked recipe (for recipeId="+recipeId+")");
+                    for (WaveRecipeAuthorization auth : authorizations) {
+                        if (auth.getRecipe().getId().equals(recipeId)) {
+                            if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
+                                if (auth.validForDate(new Date())) {
+                                    return true;
+                                } else {
+                                    Log.d(TAG, "isAuthorized called for revoked recipe (for recipeId="+recipeId+")");
+                                }
                             }
                         }
                     }
+                } else {
+                    Log.d(TAG, "isAuthorized called using invalid key (for recipeId="+recipeId+")");
                 }
-            } else {
-                Log.d(TAG, "isAuthorized called using invalid key (for recipeId="+recipeId+")");
+            } catch (Exception e) {
+                Log.d(TAG, "Exception in isAuthorized", e);
+                throw new RuntimeException(e);
             }
             return false;
         }
@@ -493,25 +498,30 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
         public WaveRecipeAuthorizationInfo retrieveAuthorizationInfo(String key, String recipeId) {
             // Log.d(TAG, "mPublicBinder.retrieveAuthorizationInfo(\""+key+"\", \""+recipeId+"\")");
 
-            // check the validity of the key
-            if (clientKeyNameMap.containsKey(key)) {
-                // recall the package name for the given key
-                // this is a valid key
-                String clientPackageName = clientKeyNameMap.get(key);
+            try {
+                // check the validity of the key
+                if (clientKeyNameMap.containsKey(key)) {
+                    // recall the package name for the given key
+                    // this is a valid key
+                    String clientPackageName = clientKeyNameMap.get(key);
 
-                for (WaveRecipeAuthorization auth : authorizations) {
-                    if (auth.getRecipe().getId().equals(recipeId)) {
-                        if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
-                            if (auth.validForDate(new Date())) {
-                                return auth.asInfo();
-                            } else {
-                                Log.d(TAG, "retrieveAuthorizationInfo called for revoked recipe (for recipeId="+recipeId+")");
+                    for (WaveRecipeAuthorization auth : authorizations) {
+                        if (auth.getRecipe().getId().equals(recipeId)) {
+                            if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
+                                if (auth.validForDate(new Date())) {
+                                    return auth.asInfo();
+                                } else {
+                                    Log.d(TAG, "retrieveAuthorizationInfo called for revoked recipe (for recipeId="+recipeId+")");
+                                }
                             }
                         }
                     }
+                } else {
+                    Log.d(TAG, "retrieveAuthorizationInfo called using invalid key (for recipeId="+recipeId+")");
                 }
-            } else {
-                Log.d(TAG, "retrieveAuthorizationInfo called using invalid key (for recipeId="+recipeId+")");
+            } catch (Exception e) {
+                Log.d(TAG, "Exception in retrieveAuthorizationInfo", e);
+                throw new RuntimeException(e);
             }
             return null;
         }
@@ -606,6 +616,7 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
                 }
             } catch (Exception e) {
                 Log.d(TAG, "Exception in registerRecipeOutputListener", e);
+                throw new RuntimeException(e);
             }
             return false;
         }
@@ -614,33 +625,38 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
         * unregisterRecipeOutputListener
         */
         public boolean unregisterRecipeOutputListener(String key, String recipeId) {
-            // check the validity of the key
-            if (clientKeyNameMap.containsKey(key)) {
-                // recall the package name for the given key
-                // this is a valid key
-                String clientPackageName = clientKeyNameMap.get(key);
-                // look up the authorization
-                for (WaveRecipeAuthorization auth : authorizations) {
-                    if (auth.getRecipe().getId().equals(recipeId)) {
-                        if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
-                            if (auth.validForDate(new Date())) {
-                                // authorization was found and is valid
-                                if (listenerMap.containsKey(auth)) {
-                                    listenerMap.remove(auth);
-                                    Log.d(TAG, "unregistered output listener for recipeId="+recipeId);
-                                    return true;
+            try {
+                // check the validity of the key
+                if (clientKeyNameMap.containsKey(key)) {
+                    // recall the package name for the given key
+                    // this is a valid key
+                    String clientPackageName = clientKeyNameMap.get(key);
+                    // look up the authorization
+                    for (WaveRecipeAuthorization auth : authorizations) {
+                        if (auth.getRecipe().getId().equals(recipeId)) {
+                            if (clientPackageName.equals(auth.getRecipeClientName().getPackageName())) {
+                                if (auth.validForDate(new Date())) {
+                                    // authorization was found and is valid
+                                    if (listenerMap.containsKey(auth)) {
+                                        listenerMap.remove(auth);
+                                        Log.d(TAG, "unregistered output listener for recipeId="+recipeId);
+                                        return true;
+                                    } else {
+                                        Log.d(TAG, "unregisterRecipeOutputListener called when nothing was registered (for recipeId="+recipeId+")");
+                                        return false;
+                                    }
                                 } else {
-                                    Log.d(TAG, "unregisterRecipeOutputListener called when nothing was registered (for recipeId="+recipeId+")");
-                                    return false;
+                                    Log.d(TAG, "unregisterRecipeOutputListener called for revoked recipe (for recipeId="+recipeId+")");
                                 }
-                            } else {
-                                Log.d(TAG, "unregisterRecipeOutputListener called for revoked recipe (for recipeId="+recipeId+")");
                             }
                         }
                     }
+                } else {
+                    Log.d(TAG, "unregisterRecipeOutputListener called using invalid key (for recipeId="+recipeId+")");
                 }
-            } else {
-                Log.d(TAG, "unregisterRecipeOutputListener called using invalid key (for recipeId="+recipeId+")");
+            } catch (Exception e) {
+                Log.d(TAG, "Exception in unregisterRecipeOutputListener", e);
+                throw new RuntimeException(e);
             }
             return false;
         }
