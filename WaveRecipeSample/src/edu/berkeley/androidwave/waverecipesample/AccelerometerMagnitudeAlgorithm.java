@@ -32,37 +32,33 @@ public class AccelerometerMagnitudeAlgorithm implements WaveRecipeAlgorithm {
         return false;
     }
     
-    public void ingestSensorData(Object sensorData) {
+    public void ingestSensorData(long time, Map<String, Double>values) {
         // System.out.println("AccelerometerMagnitudeAlgorithm.ingestSensorData("+sensorData+")");
         // Log.v(TAG, "ingestSensorData("+sensorData+")");
         try {
-            WaveSensorData theSensorData = new WaveSensorDataShadow(sensorData);
-            
             // input values are in m/s^2
             double x = 0.0;
             double y = 0.0;
             double z = 0.0;
             
-            if (theSensorData.hasChannelName("x")) {
-                x = theSensorData.getChannelValue("x");
+            if (values.containsKey("x")) {
+                x = values.get("x");
             }
-            if (theSensorData.hasChannelName("y")) {
-                y = theSensorData.getChannelValue("y");
+            if (values.containsKey("y")) {
+                y = values.get("y");
             }
-            if (theSensorData.hasChannelName("z")) {
-                z = theSensorData.getChannelValue("z");
+            if (values.containsKey("z")) {
+                z = values.get("z");
             }
             
             double mag = Math.hypot(x, y);
             mag = Math.hypot(mag, z);
             
-            long time = theSensorData.getTime();
-            
-            Map<String, Double> values = new HashMap<String, Double>(1);
+            Map<String, Double> outValues = new HashMap<String, Double>(1);
             // output in g
-            values.put("magnitude", mag / 9.81);
+            outValues.put("magnitude", mag / 9.81);
             
-            theListener.handleRecipeData(time, values);
+            theListener.handleRecipeData(time, outValues);
         } catch (Exception e) {
             Log.d(TAG, "Exception in ingestSensorData", e);
         }

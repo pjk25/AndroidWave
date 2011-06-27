@@ -16,7 +16,7 @@ import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.*;
 import edu.berkeley.androidwave.waveservice.sensorengine.sensors.*;
 
 import android.content.Context;
-import android.hardware.SensorEvent;    // <- should change on necessary changes to WaveSensorListener
+import android.os.Debug;
 import android.os.SystemClock;
 import android.util.Log;
 import java.io.IOException;
@@ -81,17 +81,17 @@ public class SensorEngine implements WaveSensorListener {
             try {
                 // TODO: should we use the data's timestamp instead of SystemClock.elapsedRealtime() ?
                 // drop this data if it exceeds the max rate
-                long now = SystemClock.elapsedRealtime();
-                long thisInterval = now - lastForwardTime;
-                if (thisInterval >= 0.9 * minOutputInterval) {
+                // long now = SystemClock.elapsedRealtime();
+                // long thisInterval = now - lastForwardTime;
+                // if (thisInterval >= 0.9 * minOutputInterval) {
                     // rate is good, truncate precision
                     quantizeValueMap(values, maxOutputPrecision);
                     destination.receiveDataForAuthorization(time, values, authorization);
-                    lastForwardTime = now;
-                } else {
-                    Log.d(TAG, String.format("Dropped excessive recipe output (thisInterval => %d, minOutputInterval => %.0f)", thisInterval, minOutputInterval));
-                    Log.v(TAG, String.format("time => %d, now => %d, (delta => %d)", time/(1000*1000), now, (now - time/(1000*1000))));
-                }
+                //     lastForwardTime = now;
+                // } else {
+                //     Log.d(TAG, String.format("Dropped excessive recipe output (thisInterval => %d, minOutputInterval => %.0f)", thisInterval, minOutputInterval));
+                //     Log.v(TAG, String.format("\ttime => %d, now => %d, (delta => %d)", time/(1000*1000), now, (now - time/(1000*1000))));
+                // }
             } catch (Exception e) {
                 Log.d("AlgorithmOutputForwarder", "Exception encountered", e);
             }
@@ -279,6 +279,13 @@ public class SensorEngine implements WaveSensorListener {
     public boolean scheduleAuthorization(WaveRecipeAuthorization authorization, WaveRecipeOutputListener listener)
             throws SensorNotAvailableException {
         
+        // DEBUG
+        try {
+            Debug.startMethodTracing("androidwave");
+        } catch (Exception e) {
+            Log.d(TAG, "Exception while Debug.startMethodTracing(...)", e);
+        }
+        
         if (scheduledAuthorizations.containsKey(authorization)) {
             return false;
         }
@@ -324,7 +331,6 @@ public class SensorEngine implements WaveSensorListener {
                     if (ws.desiredRate < requestedRate) {
                         ws.alterRate(requestedRate);
                     }
-                    // TODO: add if then for alterPrecision
                 } else {
                     // sensor is not running, start it at the requested rate
                     // this just sets a guess at the actual hardware rate
@@ -343,6 +349,13 @@ public class SensorEngine implements WaveSensorListener {
     }
     
     public boolean descheduleAuthorization(WaveRecipeAuthorization authorization) {
+        
+        // DEBUG
+        try {
+            Debug.stopMethodTracing();
+        } catch (Exception e) {
+            Log.d(TAG, "Exception while Debug.stopMethodTracing()", e);
+        }
         
         if (!scheduledAuthorizations.containsKey(authorization)) {
             return false;
@@ -416,7 +429,7 @@ public class SensorEngine implements WaveSensorListener {
                     // call up the algorithmInstance of the authorization
                     // TODO: call ingestSensorData on different thread
                     try {
-                        stats.algorithmInstance.ingestSensorData(new WaveSensorData(event.timestamp, values));
+                        stats.algorithmInstance.ingestSensorData(event.timestamp, values);
                     } catch (Exception e) {
                         Log.d(TAG, "onWaveSensorChanged", e);
                     }

@@ -13,6 +13,7 @@ import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.*;
 import android.util.Log;
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.Map;
 
 class WaveRecipeAlgorithmShadow implements WaveRecipeAlgorithm {
     
@@ -70,12 +71,12 @@ class WaveRecipeAlgorithmShadow implements WaveRecipeAlgorithm {
         return ((Boolean)returnVal).booleanValue();
     }
     
-    public void ingestSensorData(Object sensorData) {
+    public void ingestSensorData(long time, Map<String, Double> values) {
         //Log.d(TAG, "ingestSensorData("+sensorData+")");
         try {
-            implIngestSensorDataMethod.invoke(algorithmImpl, sensorData);
+            implIngestSensorDataMethod.invoke(algorithmImpl, time, values);
         } catch (Exception e) {
-            Log.d(TAG, "Exception while forwarding ingestSensorData("+sensorData+")", e);
+            Log.d(TAG, "Exception while forwarding ingestSensorData("+time+", "+values+")", e);
             throw new RuntimeException(e);
         }
     }
