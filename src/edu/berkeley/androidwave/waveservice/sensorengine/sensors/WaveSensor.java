@@ -104,12 +104,17 @@ public abstract class WaveSensor {
     public abstract Double getMaximumAvailablePrecision();
     
     /**
+     * registerListener
      * 
+     * @param listener a WaveRecipeAlgorithm instance to which sensor data is sent
+     * @param wsd a WaveSensorDescription instance used to resolve channel names
+     * @param rateHint the desired maximum sampling rate
+     * @param precisionHint the desired maximum precision
      */
     public abstract void registerListener(WaveRecipeAlgorithm listener, WaveSensorDescription wsd, double rateHint, double precisionHint) throws Exception;
     
     /**
-     * 
+     * unregisterListener
      */
     public abstract void unregisterListener(WaveRecipeAlgorithm listener) throws Exception;
     
