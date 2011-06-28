@@ -39,6 +39,9 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
     protected Sensor hardwareSensor;
     
     class SensorDataForwarder implements SensorEventListener {
+        int sampleCount;
+        int droppedSampleCount;
+        
         long lastForwardTime;
         int sensorManagerRate;
         long minOutputInterval; // in nanoseconds
@@ -47,6 +50,9 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
         WaveRecipeAlgorithm destination;
         
         SensorDataForwarder(int smr, double rate, double precision, WaveSensorDescription wsd, WaveRecipeAlgorithm dest) {
+            sampleCount = 0;
+            droppedSampleCount = 0;
+            
             sensorManagerRate = smr;
             lastForwardTime = 0;
             minOutputInterval = (long) (1000.0 * 1000.0 * 1000.0 / rate);
@@ -63,8 +69,9 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
         }
 
         public void onSensorChanged(SensorEvent event) {
-            long interval = event.timestamp - lastForwardTime;
+            sampleCount++;
             
+            long interval = event.timestamp - lastForwardTime;
             if (interval >= 0.9 * minOutputInterval) {
                 lastForwardTime = event.timestamp;
                 
@@ -91,6 +98,9 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
                 } catch (Exception e) {
                     Log.d(TAG, "onSensorChanged", e);
                 }
+            } else {
+                droppedSampleCount++;
+                // Log.v(TAG, String.format("Excessive sensor data dropped (interval => %d, minOutputInterval => %d)", interval, minOutputInterval));
             }
         }
     }
@@ -158,7 +168,9 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
             throw new Exception(""+listener+" not yet registered.");
         }
         
-        mSensorManager.unregisterListener(forwarderMap.get(listener));
+        SensorDataForwarder sdf = forwarderMap.get(listener);
+        Log.d(TAG, "unregisterListener("+listener+"), droppedSampleRatio => "+(1.0*sdf.droppedSampleCount/sdf.sampleCount));
+        mSensorManager.unregisterListener(sdf);
         forwarderMap.remove(listener);
     }
     
