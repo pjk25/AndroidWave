@@ -8,6 +8,10 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine.sensors;
 
+import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
+import edu.berkeley.androidwave.waverecipe.WaveSensorChannelDescription;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
+
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -29,7 +33,7 @@ import java.util.Set;
  * 
  * http://developer.android.com/guide/topics/location/obtaining-user-location.html
  */
-public class AndroidLocationSensor extends WaveSensor implements LocationListener {
+public class AndroidLocationSensor extends WaveSensor {
     
     private static final String TAG = AndroidLocationSensor.class.getSimpleName();
     
@@ -45,13 +49,96 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
     
     protected Location currentLocationEstimate;
     
-    protected WaveSensorListener listener;
+    Map<WaveRecipeAlgorithm, LocationDataForwarder> forwarderMap;
     
-    protected boolean started;
-    protected int sensorManagerRate;
-    protected long lastSampleTime;
-    protected double estimatedRate;
+    class LocationDataForwarder implements LocationListener {
+        long lastForwardTime;
+        int sensorManagerRate;
+        long minOutputInterval;
+        double maxOutputPrecision;  // in meters
+        WaveSensorDescription authorizedDescription;
+        WaveRecipeAlgorithm destination;
+        
+        LocationDataForwarder(double rate, double precision, WaveSensorDescription wsd, WaveRecipeAlgorithm dest) {
+            lastForwardTime = 0;
+            minOutputInterval = (long) (1000.0 * 1000.0 * 1000.0 / rate);
+            maxOutputPrecision = precision;
+            authorizedDescription = wsd;
+            destination = dest;
+        }
 
+        /**
+         * ---------------------- LocationListener Methods -----------------------
+         */
+        public void onLocationChanged(Location location) {
+            Log.d(TAG, "onLocationChanged("+location+")");
+
+            if (isBetterLocation(location, currentLocationEstimate)) {
+                currentLocationEstimate = location;
+            }
+            
+            long interval = location.getTime() - lastForwardTime;
+            
+            if (interval >= 0.9 * minOutputInterval) {
+                lastForwardTime = location.getTime();
+                
+                Map<String, Double> values = new HashMap<String, Double>(6);
+                values.put("latitude", new Double(location.getLatitude()));
+                values.put("longitude", new Double(location.getLongitude()));
+                if (location.hasAccuracy()) {
+                    values.put("accuracy", new Double(location.getAccuracy()));
+                }
+                if (location.hasAltitude()) {
+                    values.put("altitude", new Double(location.getAltitude()));
+                }
+                if (location.hasBearing()) {
+                    values.put("bearing", new Double(location.getBearing()));
+                }
+                if (location.hasSpeed()) {
+                    values.put("speed", new Double(location.getSpeed()));
+                }
+                
+                // degrade location values
+                // TODO: degrade location values
+                
+                // for now simple channel handling
+                // TODO: better channel handling
+                // WaveSensorChannelDescription[] wscds = authorizedDescription.getChannels();
+                // if (wscds.length > 0) {
+                //     values = new HashMap<String, Double>();
+                //     for (WaveSensorChannelDescription wscd : wscds) {
+                //         String name = wscd.getName();
+                //         values.put(name, sensorEventQuantizedChannel(event, name, maxOutputPrecision));
+                //     }
+                // } else {
+                //     // no channels specified, send all
+                //     values = sensorEventQuantized(event, maxOutputPrecision);
+                // }
+                // assert values.size() > 0;
+                
+                // call up the algorithmInstance of the authorization
+                // TODO: call ingestSensorData on different thread
+                try {
+                    destination.ingestSensorData(location.getTime(), values);
+                } catch (Exception e) {
+                    Log.d(TAG, "onLocationChanged", e);
+                }
+            }
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            Log.d(TAG, "onStatusChanged("+provider+", "+status+", "+extras+")");
+        }
+
+        public void onProviderEnabled(String provider) {
+            Log.d(TAG, "onProviderEnabled("+provider+")");
+        }
+
+        public void onProviderDisabled(String provider) {
+            Log.d(TAG, "onProviderDisabled("+provider+")");
+        }
+    }
+    
     /**
      * instancesAvailableInContext
      * 
@@ -85,7 +172,6 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
         
         mContext = c;
         mLocationManager = locationManager;
-        started = false;
         currentLocationEstimate = null;
     }
     
@@ -110,27 +196,24 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
     }
     
     /**
-     * start
      * 
-     * @param precisionHint desired precision IN METERS
      */
     @Override
-    public void start(WaveSensorListener listener, double rateHint, double precisionHint) throws Exception {
-        if (started) {
-            throw new Exception("Sensor already started");
+    public synchronized void registerListener(WaveRecipeAlgorithm listener, WaveSensorDescription wsd, double rateHint, double precisionHint)
+            throws Exception {
+        if (forwarderMap.containsKey(listener)) {
+            throw new Exception(""+listener+" already registered.");
         }
-        started = true;
         
-        this.listener = listener;
-        desiredRate = rateHint;
-
-        long minTime = (long) (1000.0 / rateHint);
+        long minTime = (long) (1000.0 / rateHint);  // in milliseconds
         float minDistance = (float)precisionHint;
-        
+
+        LocationDataForwarder ldf = new LocationDataForwarder(rateHint, precisionHint, wsd, listener);
+        forwarderMap.put(listener, ldf);
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                                                 minTime,
                                                 minDistance,
-                                                this);
+                                                ldf);
 
         // TODO: determine the gps use threshold more precisely
         if (precisionHint < GPS_THRESHOLD) {
@@ -144,10 +227,10 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
                 mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                                                         minTime,
                                                         minDistance,
-                                                        this);
+                                                        ldf);
             }
         }
-        
+
         // for testing purposes only
         // if (true) { // <- ideally we want to know if this is a test scenario
         //     Log.d(TAG, "AndroidLocationSensor.start: checking for location provider "+TEST_PROVIDER_NAME);
@@ -173,81 +256,21 @@ public class AndroidLocationSensor extends WaveSensor implements LocationListene
         // }
     }
     
+    /**
+     * 
+     */
     @Override
-    public void alterRate(double newRate) throws Exception {
-        throw new UnsupportedOperationException("alterRate not implemented");
-    }
-    
-    @Override
-    public void alterPrecision(double newPrecision) throws Exception {
-        throw new UnsupportedOperationException("alterPrecision not implemented");
-    }
-    
-    @Override
-    public void stop() throws Exception {
-        if (!started) {
-            throw new Exception("Sensor has not been started yet");
+    public synchronized void unregisterListener(WaveRecipeAlgorithm listener)
+            throws Exception {
+        if (!forwarderMap.containsKey(listener)) {
+            throw new Exception(""+listener+" not yet registered.");
         }
         
-        mLocationManager.removeUpdates(this);
-        
-        started = false;
+        mLocationManager.removeUpdates(forwarderMap.get(listener));
+        forwarderMap.remove(listener);
     }
 
-    /**
-     * ---------------------- LocationListener Methods -----------------------
-     */
-    public void onLocationChanged(Location location) {
-        Log.d(TAG, "onLocationChanged("+location+")");
-        
-        if (isBetterLocation(location, currentLocationEstimate)) {
-            currentLocationEstimate = location;
-        }
-        
-        // first update sensor stats for this sensor
-        long last = lastSampleTime;
-        lastSampleTime = location.getTime();
-        estimatedRate = 1000.0 / (location.getTime() - last);
-        
-        Map<String, Double> values = new HashMap<String, Double>(6);
-        values.put("latitude", new Double(location.getLatitude()));
-        values.put("longitude", new Double(location.getLongitude()));
-        if (location.hasAccuracy()) {
-            values.put("accuracy", new Double(location.getAccuracy()));
-        }
-        if (location.hasAltitude()) {
-            values.put("altitude", new Double(location.getAltitude()));
-        }
-        if (location.hasBearing()) {
-            values.put("bearing", new Double(location.getBearing()));
-        }
-        if (location.hasSpeed()) {
-            values.put("speed", new Double(location.getSpeed()));
-        }
-        
-        
-        // dispatch the data to the listener
-        listener.onWaveSensorChanged(new AndroidLocationSensorEvent(this, location.getTime(), values));
-        
-        // adjust the rate if necessary
-        if (estimatedRate < 0.9 * desiredRate) {
-            // TODO: increase sensor rate
-            Log.w(TAG, ""+this+" estimated rate less than 90% of desired rate ("+estimatedRate+" < 0.9 * "+desiredRate+")");
-        }
-    }
-    
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.d(TAG, "onStatusChanged("+provider+", "+status+", "+extras+")");
-    }
-    
-    public void onProviderEnabled(String provider) {
-        Log.d(TAG, "onProviderEnabled("+provider+")");
-    }
-    
-    public void onProviderDisabled(String provider) {
-        Log.d(TAG, "onProviderDisabled("+provider+")");
-    }
-    
+
     /**
      * http://developer.android.com/guide/topics/location/obtaining-user-location.html
      * 

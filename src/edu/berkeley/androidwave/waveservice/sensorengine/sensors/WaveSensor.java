@@ -10,6 +10,7 @@ package edu.berkeley.androidwave.waveservice.sensorengine.sensors;
 
 import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
 import edu.berkeley.androidwave.waverecipe.WaveSensorChannelDescription;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 
 import android.content.Context;
 import java.util.ArrayList;
@@ -103,30 +104,14 @@ public abstract class WaveSensor {
     public abstract Double getMaximumAvailablePrecision();
     
     /**
-     * We throw an exception if the sensor is already started, as by
-     * convention, we fan out the sensor data from a single WaveSensorListener
-     * outside of this instance. Currently, this will be the SensorEngine.
+     * 
      */
-    public abstract void start(WaveSensorListener listener, double rateHint, double precisionHint) throws Exception;
+    public abstract void registerListener(WaveRecipeAlgorithm listener, WaveSensorDescription wsd, double rateHint, double precisionHint) throws Exception;
     
     /**
-     * throws an exception if the sensor has not been started, or if the
-     * requested newRate is faster than the maximum rate for this sensor (if
-     * the maximum rate is not null).
+     * 
      */
-    public abstract void alterRate(double newRate) throws Exception;
-    
-    /**
-     * throws an exception if the sensor has not been started, or if the
-     * requested newPrecision is smaller than the maximum precision for this
-     * sensor (if the maximum precision is not null).
-     */
-    public abstract void alterPrecision(double newPrecision) throws Exception;
-    
-    /**
-     * stop the sensor
-     */
-    public abstract void stop() throws Exception;
+    public abstract void unregisterListener(WaveRecipeAlgorithm listener) throws Exception;
     
     /**
      * return the names of this sensor's channels as an ArrayList

@@ -70,11 +70,26 @@ public class AndroidHardwareAccelerometer extends AndroidHardwareSensor {
     }
     
     @Override
-    protected Map<String, Double> sensorEventAsValues(SensorEvent event) {
-        Map<String, Double> result = new HashMap<String, Double>(3);
-        result.put(CHANNEL_NAMES[0], new Double(event.values[0]));
-        result.put(CHANNEL_NAMES[1], new Double(event.values[1]));
-        result.put(CHANNEL_NAMES[2], new Double(event.values[2]));
-        return result;
+    protected double sensorEventQuantizedChannel(SensorEvent event, String channelName, double precision) {
+        double v = 0.0;
+        if (channelName.equals(CHANNEL_NAMES[0])) {
+            v = event.values[0];
+        } else if (channelName.equals(CHANNEL_NAMES[1])) {
+            v = event.values[1];
+        } else if (channelName.equals(CHANNEL_NAMES[2])) {
+            v = event.values[2];
+        }
+        long m = (long) (v / precision);
+        return (m * precision);
+    }
+    
+    @Override
+    protected Map<String, Double> sensorEventQuantized(SensorEvent event, double precision) {
+        HashMap<String, Double> values = new HashMap<String, Double>(3);
+        for (int i=0; i<3; i++) {
+            long m = (long) (event.values[i] / precision);
+            values.put(CHANNEL_NAMES[i], (m * precision));
+        }
+        return values;
     }
 }

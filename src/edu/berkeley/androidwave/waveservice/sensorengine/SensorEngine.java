@@ -16,7 +16,7 @@ import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.*;
 import edu.berkeley.androidwave.waveservice.sensorengine.sensors.*;
 
 import android.content.Context;
-import android.os.Debug;
+// import android.os.Debug;
 import android.os.SystemClock;
 import android.util.Log;
 import java.io.IOException;
@@ -38,35 +38,23 @@ import java.util.Set;
  * SensorEngine is a singleton, because there is only one set of underlying
  * hardware sensors.
  */
-public class SensorEngine implements WaveSensorListener {
+public class SensorEngine {
     
     private static final String TAG = SensorEngine.class.getSimpleName();
     
     protected static SensorEngine theInstance;
     
-    class AuthorizationStats {
-        public WaveRecipeLocalDeviceSupportInfo supportInfo;
-        public WaveRecipeAlgorithm algorithmInstance;
-        public HashMap<WaveSensor, WaveSensorDescription>sensorToDescriptionMap;  // an inversion of supportInfo.descriptionToSensorMap
-        public HashMap<WaveSensorDescription, Long>lastSampleTimes;
-
-        AuthorizationStats(WaveRecipeLocalDeviceSupportInfo supportInfo) {
-            this.supportInfo = supportInfo;
-            sensorToDescriptionMap = new HashMap<WaveSensor, WaveSensorDescription>();
-            lastSampleTimes = new HashMap<WaveSensorDescription, Long>();
-        }
-    }
     
     class AlgorithmOutputForwarder implements WaveRecipeAlgorithmListener {
         long lastForwardTime;
-        double minOutputInterval;
+        long minOutputInterval;
         double maxOutputPrecision;
         WaveRecipeAuthorization authorization;
         WaveRecipeOutputListener destination;
         
         AlgorithmOutputForwarder(double rate, double precision, WaveRecipeAuthorization auth, WaveRecipeOutputListener dest) {
             lastForwardTime = 0;
-            minOutputInterval = 1000.0 / rate; // in milliseconds
+            minOutputInterval = (long) (1000.0 / rate); // in milliseconds
             maxOutputPrecision = precision;
             authorization = auth;
             destination = dest;
@@ -81,17 +69,17 @@ public class SensorEngine implements WaveSensorListener {
             try {
                 // TODO: should we use the data's timestamp instead of SystemClock.elapsedRealtime() ?
                 // drop this data if it exceeds the max rate
-                // long now = SystemClock.elapsedRealtime();
-                // long thisInterval = now - lastForwardTime;
-                // if (thisInterval >= 0.9 * minOutputInterval) {
+                long now = SystemClock.elapsedRealtime();
+                long thisInterval = now - lastForwardTime;
+                if (thisInterval >= 0.9 * minOutputInterval) {
                     // rate is good, truncate precision
-                    quantizeValueMap(values, maxOutputPrecision);
+                    // quantizeValueMap(values, maxOutputPrecision);
                     destination.receiveDataForAuthorization(time, values, authorization);
-                //     lastForwardTime = now;
-                // } else {
-                //     Log.d(TAG, String.format("Dropped excessive recipe output (thisInterval => %d, minOutputInterval => %.0f)", thisInterval, minOutputInterval));
-                //     Log.v(TAG, String.format("\ttime => %d, now => %d, (delta => %d)", time/(1000*1000), now, (now - time/(1000*1000))));
-                // }
+                    lastForwardTime = now;
+                } else {
+                    Log.d(TAG, String.format("Dropped excessive recipe output (thisInterval => %d, minOutputInterval => %d)", thisInterval, minOutputInterval));
+                    Log.v(TAG, String.format("\ttime => %d, now => %d, (delta => %d)", time/(1000*1000), now, (now - time/(1000*1000))));
+                }
             } catch (Exception e) {
                 Log.d("AlgorithmOutputForwarder", "Exception encountered", e);
             }
@@ -115,8 +103,8 @@ public class SensorEngine implements WaveSensorListener {
      */
     protected Context mContext;
     protected Set<WaveSensor> availableLocalSensors;
-    protected Map<WaveRecipeAuthorization, AuthorizationStats> scheduledAuthorizations;
-    protected List<WaveSensor> runningSensors;
+    protected Map<WaveRecipeAuthorization, WaveRecipeLocalDeviceSupportInfo> scheduledAuthorizations;
+    protected Map<WaveRecipeAuthorization, WaveRecipeAlgorithm> authorizationToAlgorithmMap;
     
     /**
      * Private Constructor for Singleton
@@ -125,8 +113,8 @@ public class SensorEngine implements WaveSensorListener {
         mContext = c;
         
         availableLocalSensors = null;
-        scheduledAuthorizations = new HashMap<WaveRecipeAuthorization, AuthorizationStats>();
-        runningSensors = new ArrayList<WaveSensor>();
+        scheduledAuthorizations = new HashMap<WaveRecipeAuthorization, WaveRecipeLocalDeviceSupportInfo>();
+        authorizationToAlgorithmMap = new HashMap<WaveRecipeAuthorization, WaveRecipeAlgorithm>();
     }
     
     public static void init(Context c) { //throws Exception {
@@ -280,11 +268,11 @@ public class SensorEngine implements WaveSensorListener {
             throws SensorNotAvailableException {
         
         // DEBUG
-        try {
-            Debug.startMethodTracing("androidwave");
-        } catch (Exception e) {
-            Log.d(TAG, "Exception while Debug.startMethodTracing(...)", e);
-        }
+        // try {
+        //     Debug.startMethodTracing("androidwave");
+        // } catch (Exception e) {
+        //     Log.d(TAG, "Exception while Debug.startMethodTracing(...)", e);
+        // }
         
         if (scheduledAuthorizations.containsKey(authorization)) {
             return false;
@@ -296,13 +284,15 @@ public class SensorEngine implements WaveSensorListener {
             throw new SensorNotAvailableException();
         }
         
-        AuthorizationStats as = new AuthorizationStats(supportInfo);
+        WaveRecipeAlgorithm algorithmInstance;
         try {
-            as.algorithmInstance = authorization.getRecipe().getAlgorithmInstance();
+            algorithmInstance = authorization.getRecipe().getAlgorithmInstance();
+            authorizationToAlgorithmMap.put(authorization, algorithmInstance);
         } catch (Exception e) {
             Log.d(TAG, "Exception while getting algorithm instance for authorization", e);
             return false;
         }
+        
         // link up the output of the algorithm instance
         double maxRate = 0.0;
         double maxPrecision = 0.0;
@@ -313,141 +303,55 @@ public class SensorEngine implements WaveSensorListener {
             Log.w(TAG, "Exception while getting authorization output rates", e);
             return false;
         }
-        as.algorithmInstance.setWaveRecipeAlgorithmListener(new AlgorithmOutputForwarder(maxRate, maxPrecision, authorization, listener));
+        algorithmInstance.setWaveRecipeAlgorithmListener(new AlgorithmOutputForwarder(maxRate, maxPrecision, authorization, listener));
         
         // start the sensors needed for this authorization
+        boolean allStarted = true;
         for (Map.Entry<WaveSensorDescription, WaveSensor> entry : supportInfo.getDescriptionToSensorMap().entrySet()) {
             WaveSensorDescription wsd = entry.getKey();
             WaveSensor ws = entry.getValue();
             
-            as.sensorToDescriptionMap.put(ws, wsd);
             SensorAttributes sa = authorization.getSensorAttributesForSensor(wsd);
             double requestedRate = sa.rate;
             double requestedPrecision = sa.precision;
-            // now that we have discovered the requested rate, see if the
-            // matching hardware sensor is already running
+            
             try {
-                if (runningSensors.contains(ws)) {
-                    if (ws.desiredRate < requestedRate) {
-                        ws.alterRate(requestedRate);
-                    }
-                } else {
-                    // sensor is not running, start it at the requested rate
-                    // this just sets a guess at the actual hardware rate
-                    // anyway.
-                    ws.start(this, requestedRate, requestedPrecision);
-                }
+                ws.registerListener(algorithmInstance, wsd, requestedRate, requestedPrecision);
             } catch (Exception e) {
-                Log.w(TAG, "Exception while altering rate", e);
+                Log.d(TAG, "Exception while starting sensor", e);
+                allStarted = false;
             }
         }
         
         // all sensors for this authorization should be started at this point
-        scheduledAuthorizations.put(authorization, as);
+        scheduledAuthorizations.put(authorization, supportInfo);
         
-        return true;
+        return allStarted;
     }
     
     public boolean descheduleAuthorization(WaveRecipeAuthorization authorization) {
         
         // DEBUG
-        try {
-            Debug.stopMethodTracing();
-        } catch (Exception e) {
-            Log.d(TAG, "Exception while Debug.stopMethodTracing()", e);
-        }
+        // try {
+        //     Debug.stopMethodTracing();
+        // } catch (Exception e) {
+        //     Log.d(TAG, "Exception while Debug.stopMethodTracing()", e);
+        // }
         
-        if (!scheduledAuthorizations.containsKey(authorization)) {
+        WaveRecipeLocalDeviceSupportInfo supportInfo = scheduledAuthorizations.get(authorization);
+        if (supportInfo == null) {
             return false;
         }
         
-        // we do not stop sensors here, we stop in onSensorChanged if there is
-        // no place left to forward the data
+        // stop the sensors needed for this authorization
+        for (WaveSensor ws : supportInfo.getDescriptionToSensorMap().values()) {
+            try {
+                ws.unregisterListener(authorizationToAlgorithmMap.remove(authorization));
+            } catch (Exception e) {
+                Log.d(TAG, "Exception while stopping sensor", e);
+            }
+        }
         scheduledAuthorizations.remove(authorization);
         return true;
-    }
-    
-    
-    /**
-     * --------------------- WaveSensorListener Methods ---------------------
-     */
-    public void onWaveSensorChanged(WaveSensorEvent event) {
-        // first update sensor stats for this sensor
-        // SensorStats ss = runningSensors.get(event.sensor);
-        //long now = SystemClock.uptimeMillis();
-        // Log.v(TAG, "onWaveSensorChanged: now => "+now+", event.timestamp => "+event.timestamp);
-        // long last = ss.lastSampleTime;
-        // ss.lastSampleTime = now;
-        // ss.estimatedRate = 1000.0 / (now - last);
-        
-        // check which authorizations are relevant, then feed the throttled
-        // data to the algorithm instances.
-        // TODO: optimize the lookups
-        boolean hasResponder = false;
-        for (Map.Entry<WaveRecipeAuthorization, AuthorizationStats> entry : scheduledAuthorizations.entrySet()) {
-            WaveRecipeAuthorization auth = entry.getKey();
-            AuthorizationStats stats = entry.getValue();
-            
-            // look up the authorized rate for this sensor in this authorization
-            // (should be null if the recipe for this sensor was unscheduled)
-            WaveSensorDescription wsd = stats.sensorToDescriptionMap.get(event.sensor);
-            if (wsd != null) {
-                hasResponder = true;
-                SensorAttributes sa = auth.getSensorAttributesForSensor(wsd);
-                // decide whether to dispatch data
-                // we have a simple dropping scheme for event.timestamp to avoid delivering
-                // faster than the authorized rate
-                Long lastDeliveredTime = stats.lastSampleTimes.get(wsd);
-                boolean shouldSend = true;
-                if (lastDeliveredTime != null) {
-                    double rateForThis = 1000.0 / (event.timestamp - lastDeliveredTime.longValue());
-                    if (rateForThis > sa.rate) {
-                        shouldSend = false;
-                    }
-                }
-                // now dispatch the data if necessary
-                if (shouldSend) {
-                    // store this timestamp
-                    stats.lastSampleTimes.put(wsd, new Long(event.timestamp));
-                    // package the sensor data
-                    Map<String, Double> values = new HashMap<String, Double>();
-                    // for now simple channel handling
-                    // TODO: better channel handling
-                    WaveSensorChannelDescription[] wscds = wsd.getChannels();
-                    if (wscds.length > 0) {
-                        for (WaveSensorChannelDescription wscd : wscds) {
-                            String name = wscd.getName();
-                            values.put(name, event.getValueConformedToPrecision(name, sa.precision));
-                        }
-                    } else {
-                        // no channels specified, send all
-                        for (String name : event.values.keySet()) {
-                            values.put(name, event.getValueConformedToPrecision(name, sa.precision));
-                        }
-                    }
-                    assert values.size() > 0;
-                    // call up the algorithmInstance of the authorization
-                    // TODO: call ingestSensorData on different thread
-                    try {
-                        stats.algorithmInstance.ingestSensorData(event.timestamp, values);
-                    } catch (Exception e) {
-                        Log.d(TAG, "onWaveSensorChanged", e);
-                    }
-                }
-            }
-        }
-        
-        if (!hasResponder) {
-            // no authorizations require this sensor, so shut it down
-            Log.d(TAG, "No listeners for "+event.sensor+", stopping.");
-            try {
-                // TODO: it seems that a queue of messages builds up, so we
-                //       end up calling stop multiple times.  Makes the log
-                //       ugly, but we catch the Exception that results.
-                event.sensor.stop();
-            } catch (Exception e) {
-                Log.w(TAG, "Exception while stopping sensor", e);
-            }
-        }
     }
 }
