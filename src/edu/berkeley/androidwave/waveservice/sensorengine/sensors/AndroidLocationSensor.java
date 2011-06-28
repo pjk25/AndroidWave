@@ -61,7 +61,7 @@ public class AndroidLocationSensor extends WaveSensor {
         
         LocationDataForwarder(double rate, double precision, WaveSensorDescription wsd, WaveRecipeAlgorithm dest) {
             lastForwardTime = 0;
-            minOutputInterval = (long) (1000.0 * 1000.0 * 1000.0 / rate);
+            minOutputInterval = (long) (1000.0 / rate); // LocationSensor uses millisecond timestamps
             maxOutputPrecision = precision;
             authorizedDescription = wsd;
             destination = dest;
