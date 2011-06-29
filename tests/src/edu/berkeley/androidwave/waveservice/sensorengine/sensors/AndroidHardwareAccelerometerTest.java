@@ -14,6 +14,7 @@ import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorit
 import android.content.Context;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
+import android.os.SystemClock;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
@@ -61,6 +62,24 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
             try {
                 AndroidHardwareAccelerometerTest.this.notify();
             } catch (IllegalMonitorStateException imse) {}
+        }
+    }
+    
+    class SlimWaveRecipeAlgorithm implements WaveRecipeAlgorithm {
+        
+        int eventCount;
+        
+        SlimWaveRecipeAlgorithm() {
+            eventCount = 0;
+        }
+
+        public boolean setWaveRecipeAlgorithmListener(Object listener) {
+            // return true so data will start to flow
+            return true;
+        }
+
+        public void ingestSensorData(long time, Map<String, Double>values) {
+            eventCount++;
         }
     }
 
@@ -136,6 +155,40 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
             this.wait(1*1000);  // wait 1 second for more data
             assertEquals("eventCount should stay same", c, alg.eventCount);
         }
+    }
+    
+    @LargeTest
+    public void testSensorDispatchRate() throws Exception {
+        AndroidHardwareAccelerometer fixtureOne = getFixtureOne(getContext());
+        
+        WaveSensorDescription wsd = new WaveSensorDescription(WaveSensorDescription.Type.ACCELEROMETER, "-m/s^2");
+        wsd.addChannel(new WaveSensorChannelDescription("x"));
+        wsd.addChannel(new WaveSensorChannelDescription("y"));
+        wsd.addChannel(new WaveSensorChannelDescription("z"));
+        
+        SlimWaveRecipeAlgorithm alg = new SlimWaveRecipeAlgorithm();
+        
+        double requestedRate = 5.0;
+        int testDuration = 10*1000; // in milliseconds
+        
+        long startTime = SystemClock.elapsedRealtime();
+        fixtureOne.registerListener(alg, wsd, requestedRate, 0.001);
+        
+        try {
+            Thread.sleep(testDuration);
+        } catch (InterruptedException ie) {}
+        
+        fixtureOne.unregisterListener(alg);
+        long stopTime = SystemClock.elapsedRealtime();
+        int receivedSamples = alg.eventCount;
+        
+        double realDuration = (stopTime - startTime) / 1000.0; // includes millisecond conversion
+        int expectedSamples = (int) (requestedRate * realDuration);
+        // rate is not exceeded
+        assertTrue("requested rate not exceeded", receivedSamples <= expectedSamples);
+        // 90% of expected samples were received
+        String msg = String.format("75%% of requested rate met (%d received, %d expected)", receivedSamples, expectedSamples);
+        assertTrue(msg, receivedSamples >= 0.75 * expectedSamples);
     }
     
     /**
