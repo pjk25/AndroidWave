@@ -37,12 +37,18 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
     
     private static final String TAG = AndroidHardwareAccelerometerTest.class.getSimpleName();
 
-    int eventCount;
-    long lastTime;
-    Map<String, Double> lastValues;
-
     class HatWaveRecipeAlgorithm implements WaveRecipeAlgorithm {
         
+        int eventCount;
+        long lastTime;
+        Map<String, Double> lastValues;
+        
+        HatWaveRecipeAlgorithm() {
+            eventCount = 0;
+            lastTime = 0;
+            lastValues = null;
+        }
+
         public boolean setWaveRecipeAlgorithmListener(Object listener) {
             // return true so data will start to flow
             return true;
@@ -56,13 +62,6 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
                 AndroidHardwareAccelerometerTest.this.notify();
             } catch (IllegalMonitorStateException imse) {}
         }
-    }
-
-    @Override
-    public void setUp() {
-        eventCount = 0;
-        lastTime = 0;
-        lastValues = null;
     }
 
     /**
@@ -102,8 +101,6 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
     
     @MediumTest
     public void testRegisterListener() throws Exception {
-        // WaveRecipe recipeOne = WaveRecipeTest.getFixtureOne(getContext());
-        // WaveRecipeLocalDeviceSupportInfo supportInfo = new WaveRecipeLocalDeviceSupportInfo(recipeOne);
         
         AndroidHardwareAccelerometer fixtureOne = getFixtureOne(getContext());
         
@@ -112,7 +109,7 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
         wsd.addChannel(new WaveSensorChannelDescription("y"));
         wsd.addChannel(new WaveSensorChannelDescription("z"));
         
-        WaveRecipeAlgorithm alg = new HatWaveRecipeAlgorithm();
+        HatWaveRecipeAlgorithm alg = new HatWaveRecipeAlgorithm();
         
         synchronized(this) {
             // successful start
@@ -129,15 +126,15 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
             Log.d(TAG, "waiting for data...");
             this.wait(2*1000);    // wait up to 2 seconds
             Log.d(TAG, "checking for data");
-            assertNotNull(lastValues);
+            assertNotNull(alg.lastValues);
         }
         
         // test stop
         fixtureOne.unregisterListener(alg);
         synchronized(this) {
-            int c = eventCount;
+            int c = alg.eventCount;
             this.wait(1*1000);  // wait 1 second for more data
-            assertEquals("eventCount should stay same", c, eventCount);
+            assertEquals("eventCount should stay same", c, alg.eventCount);
         }
     }
     
