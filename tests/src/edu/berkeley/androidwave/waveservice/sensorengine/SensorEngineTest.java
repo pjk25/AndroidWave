@@ -8,7 +8,6 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
 
-import edu.berkeley.androidwave.TestUtils;
 import edu.berkeley.androidwave.waverecipe.*;
 import edu.berkeley.androidwave.waveservice.sensorengine.sensors.WaveSensor;
 
@@ -130,8 +129,7 @@ public class SensorEngineTest extends AndroidTestCase {
     @LargeTest
     public void testSupportInfoForRecipe() throws Exception {
         
-        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        WaveRecipe recipe = WaveRecipe.createFromDisk(getContext(), targetFile);
+        WaveRecipe recipe = WaveRecipeTest.getFixtureOne(getContext());
         assertNotNull("recipe should not be null", recipe);
         
         /**

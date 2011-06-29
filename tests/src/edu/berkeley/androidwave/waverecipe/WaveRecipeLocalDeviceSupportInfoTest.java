@@ -8,8 +8,6 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
-import edu.berkeley.androidwave.TestUtils;
-
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
@@ -34,8 +32,8 @@ public class WaveRecipeLocalDeviceSupportInfoTest extends AndroidTestCase {
      */
     @SmallTest
     public void testNewInstanceIsSupportedReturnsFalse() throws Exception {
-        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        WaveRecipe recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile);
+        
+        WaveRecipe recipeOne = WaveRecipeTest.getFixtureOne(getContext());
         
         WaveRecipeLocalDeviceSupportInfo newInfo = new WaveRecipeLocalDeviceSupportInfo(recipeOne);
         assertFalse(newInfo.isSupported());

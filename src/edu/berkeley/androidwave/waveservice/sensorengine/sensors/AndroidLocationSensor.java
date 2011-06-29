@@ -157,6 +157,7 @@ public class AndroidLocationSensor extends WaveSensor {
         
         if (mLocationManager != null) {
             AndroidLocationSensor locationSensor = new AndroidLocationSensor(c, mLocationManager);
+            // TODO: add channels
             set.add(locationSensor);
         }
         
@@ -172,6 +173,7 @@ public class AndroidLocationSensor extends WaveSensor {
         
         mContext = c;
         mLocationManager = locationManager;
+        forwarderMap = new HashMap<WaveRecipeAlgorithm, LocationDataForwarder>();
         currentLocationEstimate = null;
     }
     

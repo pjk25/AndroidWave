@@ -8,19 +8,22 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine.sensors;
 
-import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
+import edu.berkeley.androidwave.waverecipe.*;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.os.Build;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,29 +38,40 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
     
     private static final String TAG = AndroidLocationSensorTest.class.getSimpleName();
     
-    protected LocationManager locationManager;
+    // protected LocationManager locationManager;
 
-    private WaveSensorEvent firstEvent;
-    private int eventCount;
-    
-    WaveSensorListener waveSensorListener = new WaveSensorListener() {
-        public void onWaveSensorChanged(WaveSensorEvent event) {
-            // We store this event so that it can be asserted back on the test
-            // thread
-            synchronized(AndroidLocationSensorTest.this) {
-                if (firstEvent == null) {
-                    firstEvent = event;
-                }
-                eventCount++;
-                AndroidLocationSensorTest.this.notify();
-            }
+    int eventCount;
+    long lastTime;
+    Map<String, Double> lastValues;
+
+    class LstWaveRecipeAlgorithm implements WaveRecipeAlgorithm {
+        
+        public boolean setWaveRecipeAlgorithmListener(Object listener) {
+            // return true so data will start to flow
+            return true;
         }
-    };
-    
+
+        public void ingestSensorData(long time, Map<String, Double>values) {
+            eventCount++;
+            lastTime = time;
+            lastValues = values;
+            try {
+                AndroidLocationSensorTest.this.notify();
+            } catch (IllegalMonitorStateException imse) {}
+        }
+    }
+
     @Override
     public void setUp() {
-        firstEvent = null;
         eventCount = 0;
+        lastTime = 0;
+        lastValues = null;
+    }
+    
+    // @Override
+    // public void setUp() {
+        // firstEvent = null;
+        // eventCount = 0;
         
         // set up a location provider for testing
         // locationManager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
@@ -94,7 +108,7 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
         //         } catch (InterruptedException ie) {}
         //     }
         // }).start();
-    }
+    // }
     
     @Override
     public void tearDown() {
@@ -116,6 +130,14 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
         }
     }
 
+    /**
+     * Make sure getting our fixtures doesn't throw an Exception
+     */
+    @SmallTest
+    public void testFixtures() {
+        assertNotNull(getFixtureOne(getContext()));
+    }
+    
     @SmallTest
     public void testConstructor() {
         // test null locationManager throws exception
@@ -126,63 +148,44 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
         }
     }
     
-    @SmallTest
-    public void testStart() throws Exception {
+    @MediumTest
+    public void testRegisterListener() throws Exception {
+        
+        if (Build.DEVICE.equals("generic") && Build.MODEL.equals("sdk")) {
+            // this is the simulator, for which we don't test location updates
+            return;
+        }
+        
         AndroidLocationSensor fixtureOne = getFixtureOne(getContext());
         
-        synchronized(this) {
-            // use a precision hint of 500, as it is less than the GPS activation threshold
-            fixtureOne.start(waveSensorListener, 5.0, 500);
+        WaveSensorDescription wsd = new WaveSensorDescription(WaveSensorDescription.Type.LOCATION, "degrees");
         
-            // start after start throws Exception
+        WaveRecipeAlgorithm alg = new LstWaveRecipeAlgorithm();
+        
+        synchronized(this) {
+            // successful start
+            // 1Hz, 1m accuracy
+            fixtureOne.registerListener(alg, wsd, 1.0, 1.0);
+            
+            // start after start throws exception
             try {
-                fixtureOne.start(waveSensorListener, 6.0, 500);
+                fixtureOne.registerListener(alg, wsd, 1.0, 1.0);
             } catch (Exception e) {
                 assertTrue(e instanceof Exception);
             }
-        
-            // Log.d(TAG, "waiting for data...");
-            // this.wait(20*1000);  // wait up to 20 seconds
-            // Log.d(TAG, "checking for data");
-            // assertNotNull(firstEvent);
-        }
-    }
-    
-    @SmallTest
-    public void testAlterRate() throws Exception {
-        AndroidLocationSensor fixtureOne = getFixtureOne(getContext());
-
-        // alter before start throws exception
-        try {
-            fixtureOne.alterRate(8.0);
-        } catch (Exception e) {
-            assertTrue(e instanceof Exception);
+            
+            // data is received
+            Log.d(TAG, "waiting for data...");
+            this.wait(10*1000);    // wait up to 10 seconds
+            Log.d(TAG, "checking for data");
+            assertNotNull(lastValues);
         }
         
-        fixtureOne.start(waveSensorListener, 5.0, 500);
-        fixtureOne.alterRate(8.0);
-        
-        // TODO: complete the test by checking the rate actually changes
-    }
-    
-    @SmallTest
-    public void testStop() throws Exception {
-        AndroidLocationSensor fixtureOne = getFixtureOne(getContext());
-
-        // stop without start throws exception
-        try {
-            fixtureOne.stop();
-        } catch (Exception e) {
-            assertTrue(e instanceof Exception);
-        }
-        
-        fixtureOne.start(waveSensorListener, 5.0, 500);
-        fixtureOne.stop();
-        
-        // make sure data flow stops
+        // test stop
+        fixtureOne.unregisterListener(alg);
         synchronized(this) {
             int c = eventCount;
-            this.wait(3*1000); // wait 3 seconds for more data
+            this.wait(3*1000);  // wait 3 seconds for more data
             assertEquals("eventCount should stay same", c, eventCount);
         }
     }

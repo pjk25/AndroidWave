@@ -8,9 +8,8 @@
 
 package edu.berkeley.androidwave.waveservice.sensorengine.sensors;
 
-// import edu.berkeley.androidwave.TestUtils;
-import edu.berkeley.androidwave.waverecipe.WaveSensorDescription;
-// import edu.berkeley.androidwave.waverecipe.WaveSensorChannelDescription;
+import edu.berkeley.androidwave.waverecipe.*;
+import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 
 import android.content.Context;
 import android.hardware.SensorEvent;
@@ -21,6 +20,7 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -37,27 +37,32 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
     
     private static final String TAG = AndroidHardwareAccelerometerTest.class.getSimpleName();
 
-    WaveSensorEvent firstEvent;
     int eventCount;
-    
-    WaveSensorListener waveSensorListener = new WaveSensorListener() {
-        public void onWaveSensorChanged(WaveSensorEvent event) {
-            // We store this event so that it can be asserted back on the test
-            // thread
-            synchronized(AndroidHardwareAccelerometerTest.this) {
-                if (firstEvent == null) {
-                    firstEvent = event;
-                }
-                eventCount++;
-                AndroidHardwareAccelerometerTest.this.notify();
-            }
+    long lastTime;
+    Map<String, Double> lastValues;
+
+    class HatWaveRecipeAlgorithm implements WaveRecipeAlgorithm {
+        
+        public boolean setWaveRecipeAlgorithmListener(Object listener) {
+            // return true so data will start to flow
+            return true;
         }
-    };
-    
+
+        public void ingestSensorData(long time, Map<String, Double>values) {
+            eventCount++;
+            lastTime = time;
+            lastValues = values;
+            try {
+                AndroidHardwareAccelerometerTest.this.notify();
+            } catch (IllegalMonitorStateException imse) {}
+        }
+    }
+
     @Override
     public void setUp() {
-        firstEvent = null;
         eventCount = 0;
+        lastTime = 0;
+        lastValues = null;
     }
 
     /**
@@ -95,62 +100,43 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
         }
     }
     
-    @SmallTest
-    public void testStart() throws Exception {
+    @MediumTest
+    public void testRegisterListener() throws Exception {
+        // WaveRecipe recipeOne = WaveRecipeTest.getFixtureOne(getContext());
+        // WaveRecipeLocalDeviceSupportInfo supportInfo = new WaveRecipeLocalDeviceSupportInfo(recipeOne);
+        
         AndroidHardwareAccelerometer fixtureOne = getFixtureOne(getContext());
         
-        synchronized(this) {
-            fixtureOne.start(waveSensorListener, 5.0, 0.001);
+        WaveSensorDescription wsd = new WaveSensorDescription(WaveSensorDescription.Type.ACCELEROMETER, "-m/s^2");
+        wsd.addChannel(new WaveSensorChannelDescription("x"));
+        wsd.addChannel(new WaveSensorChannelDescription("y"));
+        wsd.addChannel(new WaveSensorChannelDescription("z"));
         
-            // start after start throws Exception
+        WaveRecipeAlgorithm alg = new HatWaveRecipeAlgorithm();
+        
+        synchronized(this) {
+            // successful start
+            fixtureOne.registerListener(alg, wsd, 5.0, 0.1);
+            
+            // start after start throws exception
             try {
-                fixtureOne.start(waveSensorListener, 6.0, 0.001);
+                fixtureOne.registerListener(alg, wsd, 5.0, 0.1);
             } catch (Exception e) {
                 assertTrue(e instanceof Exception);
             }
-        
+            
+            // data is received
             Log.d(TAG, "waiting for data...");
-            this.wait(2*1000);  // wait up to 2 seconds
+            this.wait(2*1000);    // wait up to 2 seconds
             Log.d(TAG, "checking for data");
-            assertNotNull(firstEvent);
-        }
-    }
-    
-    @SmallTest
-    public void testAlterRate() throws Exception {
-        AndroidHardwareAccelerometer fixtureOne = getFixtureOne(getContext());
-
-        // alter before start throws exception
-        try {
-            fixtureOne.alterRate(8.0);
-        } catch (Exception e) {
-            assertTrue(e instanceof Exception);
+            assertNotNull(lastValues);
         }
         
-        fixtureOne.start(waveSensorListener, 5.0, 0.001);
-        fixtureOne.alterRate(8.0);
-        
-        // TODO: complete the test by checking the rate actually changes
-    }
-    
-    @SmallTest
-    public void testStop() throws Exception {
-        AndroidHardwareAccelerometer fixtureOne = getFixtureOne(getContext());
-
-        // stop without start throws exception
-        try {
-            fixtureOne.stop();
-        } catch (Exception e) {
-            assertTrue(e instanceof Exception);
-        }
-        
-        fixtureOne.start(waveSensorListener, 5.0, 0.001);
-        fixtureOne.stop();
-        
-        // make sure data flow stops
+        // test stop
+        fixtureOne.unregisterListener(alg);
         synchronized(this) {
             int c = eventCount;
-            this.wait(1*1000); // wait 1 second for more data to show
+            this.wait(1*1000);  // wait 1 second for more data
             assertEquals("eventCount should stay same", c, eventCount);
         }
     }

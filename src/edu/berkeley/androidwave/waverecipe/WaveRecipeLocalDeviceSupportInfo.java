@@ -11,6 +11,7 @@ package edu.berkeley.androidwave.waverecipe;
 import edu.berkeley.androidwave.waveservice.sensorengine.sensors.WaveSensor;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * WaveRecipeLocalDeviceSupportInfo
@@ -23,7 +24,7 @@ public class WaveRecipeLocalDeviceSupportInfo {
     
     protected boolean supported;
     
-    protected HashMap<WaveSensorDescription, WaveSensor> descriptionToSensorMap;
+    protected Map<WaveSensorDescription, WaveSensor> descriptionToSensorMap;
     
     public WaveRecipeLocalDeviceSupportInfo(WaveRecipe recipe) {
         associatedRecipe = recipe;
@@ -45,7 +46,7 @@ public class WaveRecipeLocalDeviceSupportInfo {
         this.supported = supported;
     }
     
-    public HashMap<WaveSensorDescription, WaveSensor> getDescriptionToSensorMap() {
+    public Map<WaveSensorDescription, WaveSensor> getDescriptionToSensorMap() {
         return descriptionToSensorMap;
     }
 }

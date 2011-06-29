@@ -8,7 +8,7 @@
 
 package edu.berkeley.androidwave.waverecipe;
 
-import edu.berkeley.androidwave.TestUtils;
+import edu.berkeley.androidwave.waverecipe.WaveRecipeTest;
 import edu.berkeley.androidwave.waveclient.WaveRecipeAuthorizationInfo;
 
 import android.content.ComponentName;
@@ -34,8 +34,8 @@ public class WaveRecipeAuthorizationTest extends AndroidTestCase {
     WaveRecipeAuthorization auth;
     
     protected void setUp() throws Exception {
-        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile);
+        
+        recipeOne = WaveRecipeTest.getFixtureOne(getContext());
         
         auth = new WaveRecipeAuthorization(recipeOne);
     }

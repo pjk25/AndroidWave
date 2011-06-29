@@ -67,10 +67,7 @@ public class WaveRecipeTest extends AndroidTestCase {
     public void testPreconditions()
             throws Exception {
         
-        // build an instance from the fixture
-        // first copy the fixture to the recipes cache
-        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile);
+        recipeOne = getFixtureOne(getContext());
         
         // test the values in the recipeOne fixture
         assertEquals("getId should match that of recipe xml", "edu.berkeley.waverecipe.AccelerometerMagnitude", recipeOne.getId());
@@ -147,8 +144,8 @@ public class WaveRecipeTest extends AndroidTestCase {
     
     public void testToFromInternalId()
             throws Exception {
-        File targetFile = TestUtils.copyTestAssetToInternal(getContext(), "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
-        recipeOne = WaveRecipe.createFromDisk(getContext(), targetFile);
+        
+        recipeOne = getFixtureOne(getContext());
 
         // try getting an id for a sensordescription not associated with this recipe
         WaveSensorDescription wrongDescription = new WaveSensorDescription(WaveSensorDescription.Type.MAGNETOMETER, "none");
@@ -168,5 +165,20 @@ public class WaveRecipeTest extends AndroidTestCase {
         // make sure a bogus id returns a null sensor
         restored = recipeOne.getSensorForInternalId("bogus");
         assertNull("a bogus id should return null", restored);
+    }
+    
+    /**
+     * FIXTURES
+     */
+    
+    public static WaveRecipe getFixtureOne(Context c) {
+        WaveRecipe r = null;
+        try {
+            File targetFile = TestUtils.copyTestAssetToInternal(c, "fixtures/waverecipes/one.waverecipe", "waverecipes/one.waverecipe");
+            r = WaveRecipe.createFromDisk(c, targetFile);
+        } catch (Exception e) {
+            fail("Exception "+e+" while creating WaveRecipe fixture one");
+        }
+        return r;
     }
 }
