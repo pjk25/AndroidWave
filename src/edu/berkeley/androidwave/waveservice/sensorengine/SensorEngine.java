@@ -4,8 +4,6 @@
 //  
 //  Created by Philip Kuryloski on 2011-03-08.
 //  Copyright 2011 University of California, Berkeley. All rights reserved.
-//  
-//  Uses portions by Mr. Charles Wang <charleswang007@gmail.com>
 // 
 
 package edu.berkeley.androidwave.waveservice.sensorengine;
