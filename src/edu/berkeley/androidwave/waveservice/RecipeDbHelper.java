@@ -204,10 +204,8 @@ public class RecipeDbHelper {
         }
 
         /**
-        *
-        * Creates the underlying database with table name and column names taken from the
-        * NotePad class.
-        */
+         *
+         */
         @Override
         public void onCreate(SQLiteDatabase db) {
             
