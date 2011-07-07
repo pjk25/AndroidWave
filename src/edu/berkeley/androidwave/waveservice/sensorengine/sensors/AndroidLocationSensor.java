@@ -20,6 +20,8 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import com.ibm.util.CoordinateConversion;
+import com.ibm.util.UtmLocation;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,6 +44,8 @@ public class AndroidLocationSensor extends WaveSensor {
     // public static final String TEST_PROVIDER_NAME = "edu.berkeley.androidwave.SimpleTestProvider";
     
     public static final float GPS_THRESHOLD = (float)1000.0;
+    
+    protected static CoordinateConversion cc = new CoordinateConversion();
     
     protected Context mContext;
     
@@ -72,6 +76,8 @@ public class AndroidLocationSensor extends WaveSensor {
          */
         public void onLocationChanged(Location location) {
             Log.d(TAG, "onLocationChanged("+location+")");
+            
+            // TODO: optimize this method if necessary
 
             if (isBetterLocation(location, currentLocationEstimate)) {
                 currentLocationEstimate = location;
@@ -91,15 +97,42 @@ public class AndroidLocationSensor extends WaveSensor {
                 if (location.hasAltitude()) {
                     values.put("altitude", new Double(location.getAltitude()));
                 }
-                if (location.hasBearing()) {
-                    values.put("bearing", new Double(location.getBearing()));
-                }
-                if (location.hasSpeed()) {
-                    values.put("speed", new Double(location.getSpeed()));
-                }
+                // Bearing and Speed omitted so better lat/lon cannot be
+                // inferred after they are artificially degraded
+                // if (location.hasBearing()) {
+                //     values.put("bearing", new Double(location.getBearing()));
+                // }
+                // if (location.hasSpeed()) {
+                //     values.put("speed", new Double(location.getSpeed()));
+                // }
                 
-                // degrade location values
-                // TODO: degrade location values
+                // degrade location values if necessary
+                boolean shouldFilter = (!location.hasAccuracy()) || location.getAccuracy() < maxOutputPrecision;
+                if (shouldFilter) {
+                    double lat = values.get("latitude").doubleValue();
+                    double lon = values.get("longitude").doubleValue();
+                    
+                    UtmLocation utm = cc.latLon2UtmLocation(lat, lon);
+                    
+                    double angle = 2 * Math.PI * Math.random();
+                    double dist = Math.random() * maxOutputPrecision / 2.0;
+                    
+                    double eShift = dist * Math.cos(angle);
+                    double nShift = dist * Math.sin(angle);
+                    
+                    utm.shiftEasting(eShift);
+                    utm.shiftNorthing(nShift);
+                    
+                    double[] nLatLon = cc.utm2LatLon(utm.toString());
+                    
+                    values.put("latitude", new Double(nLatLon[0]));
+                    values.put("longitude", new Double(nLatLon[1]));
+                    
+                    if (location.hasAltitude()) {
+                        double newAlt = location.getAltitude() + ((Math.random() - 0.5) * maxOutputPrecision / 4.0);
+                        values.put("altitude", new Double(newAlt));
+                    }
+                }
                 
                 // for now simple channel handling
                 // TODO: better channel handling
