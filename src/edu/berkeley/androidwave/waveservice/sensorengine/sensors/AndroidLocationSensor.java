@@ -19,6 +19,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import com.ibm.util.CoordinateConversion;
 import com.ibm.util.UtmLocation;
@@ -242,6 +243,8 @@ public class AndroidLocationSensor extends WaveSensor {
         if (forwarderMap.containsKey(listener)) {
             throw new Exception(""+listener+" already registered.");
         }
+        
+        Looper.prepare();
         
         long minTime = (long) (1000.0 / rateHint);  // in milliseconds
         float minDistance = (float)precisionHint;
