@@ -41,6 +41,8 @@ public class AndroidLocationSensor extends WaveSensor {
     
     protected final String VERSION_BASE = Build.DEVICE + "_" + Build.BOARD + "_" + Build.MODEL;
     
+    private static final String[] CHANNEL_NAMES = new String[] {"latitude", "longitude", "altitude"};
+    
     // public static final String TEST_PROVIDER_NAME = "edu.berkeley.androidwave.SimpleTestProvider";
     
     public static final float GPS_THRESHOLD = (float)1000.0;
@@ -91,9 +93,6 @@ public class AndroidLocationSensor extends WaveSensor {
                 Map<String, Double> values = new HashMap<String, Double>(6);
                 values.put("latitude", new Double(location.getLatitude()));
                 values.put("longitude", new Double(location.getLongitude()));
-                if (location.hasAccuracy()) {
-                    values.put("accuracy", new Double(location.getAccuracy()));
-                }
                 if (location.hasAltitude()) {
                     values.put("altitude", new Double(location.getAltitude()));
                 }
@@ -190,7 +189,11 @@ public class AndroidLocationSensor extends WaveSensor {
         
         if (mLocationManager != null) {
             AndroidLocationSensor locationSensor = new AndroidLocationSensor(c, mLocationManager);
-            // TODO: add channels
+            
+            locationSensor.channels.add(new WaveSensorChannel(CHANNEL_NAMES[0]));
+            locationSensor.channels.add(new WaveSensorChannel(CHANNEL_NAMES[1]));
+            locationSensor.channels.add(new WaveSensorChannel(CHANNEL_NAMES[2]));
+            
             set.add(locationSensor);
         }
         

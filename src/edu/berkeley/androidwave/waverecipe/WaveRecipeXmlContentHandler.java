@@ -66,6 +66,8 @@ class WaveRecipeXmlContentHandler extends DefaultHandler {
         throws Exception {
         if (s.equalsIgnoreCase("accelerometer")) {
             return WaveSensorDescription.Type.ACCELEROMETER;
+        } else if (s.equalsIgnoreCase("location")) {
+            return WaveSensorDescription.Type.LOCATION;
         } else {
             throw new Exception("Unknown sensor type \""+s+"\"");
         }
