@@ -278,6 +278,7 @@ public class RequestRecipeAuthorizationActivity extends Activity implements Reci
             ArrayList<String> listItems = new ArrayList<String>(tableEntries.size());
             
             for (TableEntry te : tableEntries) {
+                // TODO: for rates less than 1Hz, display in seconds or minutes per update
                 listItems.add(String.format("%fHz, %f%s", te.outputRate, te.outputPrecision, wrod.getUnits()));
             }
             
