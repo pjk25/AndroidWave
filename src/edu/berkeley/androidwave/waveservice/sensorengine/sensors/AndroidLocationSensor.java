@@ -115,6 +115,7 @@ public class AndroidLocationSensor extends WaveSensor {
                     UtmLocation utm = cc.latLon2UtmLocation(lat, lon);
                     
                     double angle = 2 * Math.PI * Math.random();
+                    // TODO: should dist be the difference between the max precision and the given accuracy?
                     double dist = Math.random() * maxOutputPrecision / 2.0;
                     
                     double eShift = dist * Math.cos(angle);
