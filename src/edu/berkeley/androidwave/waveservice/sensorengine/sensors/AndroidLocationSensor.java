@@ -78,7 +78,7 @@ public class AndroidLocationSensor extends WaveSensor {
          * ---------------------- LocationListener Methods -----------------------
          */
         public void onLocationChanged(Location location) {
-            Log.d(TAG, "onLocationChanged("+location+")");
+            // Log.v(TAG, "onLocationChanged("+location+")");
             
             // TODO: optimize this method if necessary
 
@@ -245,57 +245,74 @@ public class AndroidLocationSensor extends WaveSensor {
             throw new Exception(""+listener+" already registered.");
         }
         
-        Looper.prepare();
+        Log.v(TAG, String.format("registerListener(%s, %s, %f, %f)", listener, wsd, rateHint, precisionHint));
         
-        long minTime = (long) (1000.0 / rateHint);  // in milliseconds
-        float minDistance = (float)precisionHint;
-
-        LocationDataForwarder ldf = new LocationDataForwarder(rateHint, precisionHint, wsd, listener);
+        // need to start a thread here that can receive the location updates
+        
+        final boolean useGps = precisionHint < GPS_THRESHOLD;
+        final long minTime = (long) (1000.0 / rateHint);  // in milliseconds
+        final float minDistance = (float)precisionHint;
+        
+        final LocationDataForwarder ldf = new LocationDataForwarder(rateHint, precisionHint, wsd, listener);
         forwarderMap.put(listener, ldf);
-        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                                                minTime,
-                                                minDistance,
-                                                ldf);
-
-        // TODO: determine the gps use threshold more precisely
-        if (precisionHint < GPS_THRESHOLD) {
-            if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                // Log.d(TAG, "GPS Provider is not enabled. Enabling GPS Provider...");
-                // Intent enableGPS = new Intent("android.location.GPS_ENABLED_CHANGE");
-                // enableGPS.putExtra("enabled", true);
-                // mContext.sendBroadcast(enableGPS);
-                // Log.d(TAG, "GPS Provider has been enabled.");
-
-                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+        
+        // TODO: may need to save this thread reference to quit the looper when
+        //       the sensor is unregistered
+        new Thread(new Runnable() {
+            public void run() {
+                
+                Looper.prepare();
+        
+                mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                                                         minTime,
                                                         minDistance,
                                                         ldf);
-            }
-        }
 
-        // for testing purposes only
-        // if (true) { // <- ideally we want to know if this is a test scenario
-        //     Log.d(TAG, "AndroidLocationSensor.start: checking for location provider "+TEST_PROVIDER_NAME);
-        //     if (mLocationManager.isProviderEnabled(TEST_PROVIDER_NAME)) {
-        //         Log.d(TAG, "AndroidLocationSensor.start: requesting location updates from "+TEST_PROVIDER_NAME);
-        //         mLocationManager.requestLocationUpdates(TEST_PROVIDER_NAME,
-        //                                                 minTime,
-        //                                                 minDistance,
-        //                                                 this);
-        //         // 
-        //         // // grab the last location and fake it.
-        //         // final Location lastLoc = mLocationManager.getLastKnownLocation(TEST_PROVIDER_NAME);
-        //         // if (lastLoc != null) {
-        //         //     // fire the event on another thread
-        //         //     new Thread(new Runnable() {
-        //         //         @Override
-        //         //         public void run() {
-        //         //             onLocationChanged(lastLoc);
-        //         //         }
-        //         //     }).start();
-        //         // }
-        //     }
-        // }
+                // TODO: determine the gps use threshold more precisely
+                if (useGps) {
+                    if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        // Log.d(TAG, "GPS Provider is not enabled. Enabling GPS Provider...");
+                        // Intent enableGPS = new Intent("android.location.GPS_ENABLED_CHANGE");
+                        // enableGPS.putExtra("enabled", true);
+                        // mContext.sendBroadcast(enableGPS);
+                        // Log.d(TAG, "GPS Provider has been enabled.");
+
+                        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                                                minTime,
+                                                                minDistance,
+                                                                ldf);
+                    }
+                }
+
+                // for testing purposes only
+                // if (true) { // <- ideally we want to know if this is a test scenario
+                //     Log.d(TAG, "AndroidLocationSensor.start: checking for location provider "+TEST_PROVIDER_NAME);
+                //     if (mLocationManager.isProviderEnabled(TEST_PROVIDER_NAME)) {
+                //         Log.d(TAG, "AndroidLocationSensor.start: requesting location updates from "+TEST_PROVIDER_NAME);
+                //         mLocationManager.requestLocationUpdates(TEST_PROVIDER_NAME,
+                //                                                 minTime,
+                //                                                 minDistance,
+                //                                                 this);
+                //         // 
+                //         // // grab the last location and fake it.
+                //         // final Location lastLoc = mLocationManager.getLastKnownLocation(TEST_PROVIDER_NAME);
+                //         // if (lastLoc != null) {
+                //         //     // fire the event on another thread
+                //         //     new Thread(new Runnable() {
+                //         //         @Override
+                //         //         public void run() {
+                //         //             onLocationChanged(lastLoc);
+                //         //         }
+                //         //     }).start();
+                //         // }
+                //     }
+                // }
+        
+                // Looper.loop() is required to keep this thread alive so that location
+                // updates are actually delivered
+                Looper.loop();
+            }
+        }).start();
     }
     
     /**
@@ -309,6 +326,7 @@ public class AndroidLocationSensor extends WaveSensor {
         }
         
         mLocationManager.removeUpdates(forwarderMap.get(listener));
+        // TODO: close down the listening Thread
         forwarderMap.remove(listener);
     }
 
