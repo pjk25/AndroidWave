@@ -66,12 +66,15 @@ public class AndroidLocationSensor extends WaveSensor {
         WaveSensorDescription authorizedDescription;
         WaveRecipeAlgorithm destination;
         
-        LocationDataForwarder(double rate, double precision, WaveSensorDescription wsd, WaveRecipeAlgorithm dest) {
+        Looper looper;
+        
+        LocationDataForwarder(double rate, double precision, WaveSensorDescription wsd, WaveRecipeAlgorithm dest, Looper l) {
             lastForwardTime = 0;
             minOutputInterval = (long) (1000.0 / rate); // LocationSensor uses millisecond timestamps
             maxOutputPrecision = precision;
             authorizedDescription = wsd;
             destination = dest;
+            looper = l;
         }
 
         /**
@@ -253,16 +256,28 @@ public class AndroidLocationSensor extends WaveSensor {
         final long minTime = (long) (1000.0 / rateHint);  // in milliseconds
         final float minDistance = (float)precisionHint;
         
-        final LocationDataForwarder ldf = new LocationDataForwarder(rateHint, precisionHint, wsd, listener);
-        forwarderMap.put(listener, ldf);
+        final double finalRateHint = rateHint;
+        final double finalPrecisionHint = precisionHint;
         
-        // TODO: may need to save this thread reference to quit the looper when
-        //       the sensor is unregistered
+        final WaveSensorDescription finalWsd = wsd;
+        final WaveRecipeAlgorithm finalListener = listener;
+        
         new Thread(new Runnable() {
             public void run() {
                 
                 Looper.prepare();
+                
+                Log.v(TAG, "Looper.myLooper() => "+Looper.myLooper());
         
+                LocationDataForwarder ldf = new LocationDataForwarder(finalRateHint,
+                                                                      finalPrecisionHint,
+                                                                      finalWsd,
+                                                                      finalListener,
+                                                                      Looper.myLooper());
+                
+                // TODO: forwarderMap should be a synchronized collection?
+                forwarderMap.put(finalListener, ldf);
+                
                 mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                                                         minTime,
                                                         minDistance,
@@ -311,6 +326,7 @@ public class AndroidLocationSensor extends WaveSensor {
                 // Looper.loop() is required to keep this thread alive so that location
                 // updates are actually delivered
                 Looper.loop();
+                Log.d(TAG, "end of run() reached.");
             }
         }).start();
     }
@@ -325,8 +341,9 @@ public class AndroidLocationSensor extends WaveSensor {
             throw new Exception(""+listener+" not yet registered.");
         }
         
-        mLocationManager.removeUpdates(forwarderMap.get(listener));
-        // TODO: close down the listening Thread
+        LocationDataForwarder ldf = forwarderMap.get(listener);
+        mLocationManager.removeUpdates(ldf);
+        ldf.looper.quit();
         forwarderMap.remove(listener);
     }
 
