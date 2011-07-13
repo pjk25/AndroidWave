@@ -270,6 +270,39 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
         downloadRecipeTask.cancel(true);
     }
     
+    private boolean clearRecipeCache() {
+        Log.d(TAG, "clearRecipeCache()");
+        
+        String[] c = WAVERECIPE_CACHE_DIR.split(File.separator, 2);
+        // create the storage directory
+        File filesDir = getDir(c[0], Context.MODE_PRIVATE);
+        // make necessary children directories
+        File parent;
+        if (c.length > 1) {
+            parent = new File(filesDir, c[1]);
+            parent.mkdirs();
+        } else {
+            parent = filesDir;
+        }
+        assert parent.exists() : parent;
+        assert parent.isDirectory() : parent;
+        
+        // now empty the parent
+        return deleteRecursive(parent);
+    }
+    
+    private boolean deleteRecursive(File f) {
+        if (f.isDirectory()) {
+            boolean deletedAll = true;
+            for (File child : f.listFiles()) {
+                deletedAll &= deleteRecursive(child);
+            }
+            return deletedAll;
+        } else {
+            return f.delete();
+        }
+    }
+    
     /**
      * recipeCacheFileForId
      */
@@ -396,6 +429,20 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
             }
         }
         return null;
+    }
+    
+    public synchronized void reset() {
+        Log.d(TAG, "begin reset()");
+        
+        // NOTE: resetting the listener map my result in some strang log messages
+        listenerMap = new HashMap<WaveRecipeAuthorization, IWaveRecipeOutputDataListener>();
+        
+        this.resetDatabase();
+        
+        // now clear the recipe cache
+        this.clearRecipeCache();
+        
+        Log.d(TAG, "end reset()");
     }
     
     /**

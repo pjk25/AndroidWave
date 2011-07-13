@@ -5,14 +5,19 @@ import edu.berkeley.androidwave.waverecipe.WaveRecipeAuthorization;
 import edu.berkeley.androidwave.waveservice.WaveService;
 
 import android.app.ListActivity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -143,6 +148,51 @@ public class AndroidWaveActivity extends ListActivity {
                 Toast.makeText(AndroidWaveActivity.this, "Edit cancelled.", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+    
+    /**
+     * Create the menu, which allows the user to export and empty the app's
+     * data storage database
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.manager_options_menu, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch  (item.getItemId()) {
+            case R.id.reset_wave:
+                return resetAndroidWave();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
+    /**
+     * Resets AndroidWave to freshly installed state.  All authorizations,
+     * cached recipes, and client keys are erased.
+     */
+    private boolean resetAndroidWave() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(AndroidWaveActivity.this);
+        builder.setMessage("Are you sure you want to fully reset AndroidWave?")
+               .setCancelable(false)
+               .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int id) {
+                       mService.reset();
+        
+                       reloadAuthorizations();
+                   }
+               })
+               .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int id) {
+                       // do nothing
+                   }
+               });
+        AlertDialog alert = builder.show();
+        return true;
     }
     
     /** Defines callbacks for service binding, passed to bindService() */

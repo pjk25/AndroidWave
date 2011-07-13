@@ -60,6 +60,8 @@ public class AndroidWaveActivityListAdapter extends ArrayAdapter<WaveRecipeAutho
             TextView clientPackageTextView = (TextView) v.findViewById(R.id.client_package);
             
             WaveRecipe recipe = auth.getRecipe();
+            assert recipe != null;
+            
             recipeNameTextView.setText("Recipe: "+recipe.getName());
             recipeIdTextView.setText(recipe.getId());
             

@@ -13,6 +13,7 @@
         authorized any recipes.  Any recipes that have been authorized will
         appear here.
     </string>
+    <string name="reset_wave">Reset AndroidWave...</string>
     <!-- ViewRecipeAuthorizationActivity strings -->
     <!-- RequestRecipeAuthorizationActivity strings -->
 </resources>
