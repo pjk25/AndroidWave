@@ -33,6 +33,8 @@ public class AndroidHardwareAccelerometer extends AndroidHardwareSensor {
      */
     public static Set<WaveSensor> instancesAvailableInContext(Context c) {
         
+        mContext = c;
+
         Set<WaveSensor> set = new HashSet<WaveSensor>(1);
         
         SensorManager sensorManager = (SensorManager)c.getSystemService(Context.SENSOR_SERVICE);

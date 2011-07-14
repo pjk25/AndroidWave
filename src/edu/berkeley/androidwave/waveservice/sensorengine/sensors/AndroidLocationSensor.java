@@ -244,11 +244,13 @@ public class AndroidLocationSensor extends WaveSensor {
     @Override
     public synchronized void registerListener(WaveRecipeAlgorithm listener, WaveSensorDescription wsd, double rateHint, double precisionHint)
             throws Exception {
+        // Log.v(TAG, String.format("registerListener(%s, %s, %f, %f)", listener, wsd, rateHint, precisionHint));
+
         if (forwarderMap.containsKey(listener)) {
             throw new Exception(""+listener+" already registered.");
         }
         
-        Log.v(TAG, String.format("registerListener(%s, %s, %f, %f)", listener, wsd, rateHint, precisionHint));
+        incrementActiveCount();
         
         // need to start a thread here that can receive the location updates
         
@@ -345,6 +347,8 @@ public class AndroidLocationSensor extends WaveSensor {
         mLocationManager.removeUpdates(ldf);
         ldf.looper.quit();
         forwarderMap.remove(listener);
+        
+        decrementActiveCount();
     }
 
 

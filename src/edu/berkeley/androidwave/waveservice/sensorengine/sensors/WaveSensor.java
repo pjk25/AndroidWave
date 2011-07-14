@@ -13,6 +13,8 @@ import edu.berkeley.androidwave.waverecipe.WaveSensorChannelDescription;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.WaveRecipeAlgorithm;
 
 import android.content.Context;
+import android.os.PowerManager;
+import android.util.Log;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +28,12 @@ import java.util.Set;
  *       external sensors.
  */
 public abstract class WaveSensor {
+    
+    private static final String TAG = WaveSensor.class.getSimpleName();
+    
+    protected static Context mContext = null;
+	private static PowerManager.WakeLock wakeLock = null;
+    private static int activeCount = 0;
     
     protected String type;
     protected String units;
@@ -46,6 +54,7 @@ public abstract class WaveSensor {
      * may, and should)
      */
     public static Set<WaveSensor> instancesAvailableInContext(Context c) {
+        mContext = c;
         return new HashSet<WaveSensor>();
     }
     
@@ -103,6 +112,28 @@ public abstract class WaveSensor {
      */
     public abstract Double getMaximumAvailablePrecision();
     
+    
+    public synchronized void incrementActiveCount() {
+        if (wakeLock == null) {
+            PowerManager powerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WaveSensor");
+        }
+        activeCount++;
+        if (activeCount == 1) {
+            Log.d(TAG, "Acquiring PARTIAL_WAKE_LOCK");
+            wakeLock.acquire();
+        }
+    }
+    
+    public synchronized void decrementActiveCount() {
+        activeCount--;
+        assert activeCount >= 0 : activeCount;
+        if (wakeLock != null && activeCount == 0) {
+            Log.d(TAG, "Releasing PARTIAL_WAKE_LOCK");
+            wakeLock.release();
+        }
+    }
+    
     /**
      * registerListener
      * 
@@ -111,12 +142,14 @@ public abstract class WaveSensor {
      * @param rateHint the desired maximum sampling rate
      * @param precisionHint the desired maximum precision
      */
-    public abstract void registerListener(WaveRecipeAlgorithm listener, WaveSensorDescription wsd, double rateHint, double precisionHint) throws Exception;
+    public abstract void registerListener(WaveRecipeAlgorithm listener, WaveSensorDescription wsd, double rateHint, double precisionHint)
+            throws Exception;
     
     /**
      * unregisterListener
      */
-    public abstract void unregisterListener(WaveRecipeAlgorithm listener) throws Exception;
+    public abstract void unregisterListener(WaveRecipeAlgorithm listener)
+            throws Exception;
     
     /**
      * return the names of this sensor's channels as an ArrayList
