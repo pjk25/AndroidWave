@@ -131,7 +131,7 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
             Log.d(TAG, "waiting for data...");
             this.wait(10*1000);    // wait up to 10 seconds
             Log.d(TAG, "checking for data");
-            assertNotNull("should have received data", lastValues);
+            assertNotNull("should have received data, was it sent with telnet to the simulator?", lastValues);
         }
         
         // test stop
