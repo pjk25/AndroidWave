@@ -54,7 +54,7 @@ public abstract class WaveSensor {
      * may, and should)
      */
     public static Set<WaveSensor> instancesAvailableInContext(Context c) {
-        mContext = c;
+        if (mContext == null) mContext = c;
         return new HashSet<WaveSensor>();
     }
     
@@ -113,6 +113,9 @@ public abstract class WaveSensor {
     public abstract Double getMaximumAvailablePrecision();
     
     
+    /**
+     * Aquires a PARTIAL_WAKE_LOCK when at least once sensor is active
+     */
     public synchronized void incrementActiveCount() {
         if (wakeLock == null) {
             PowerManager powerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
@@ -125,6 +128,9 @@ public abstract class WaveSensor {
         }
     }
     
+    /**
+     * @see incrementActiveCount
+     */
     public synchronized void decrementActiveCount() {
         activeCount--;
         assert activeCount >= 0 : activeCount;

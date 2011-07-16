@@ -44,13 +44,9 @@ public class AndroidLocationSensor extends WaveSensor {
     
     private static final String[] CHANNEL_NAMES = new String[] {"latitude", "longitude", "altitude"};
     
-    // public static final String TEST_PROVIDER_NAME = "edu.berkeley.androidwave.SimpleTestProvider";
-    
     public static final float GPS_THRESHOLD = (float)1000.0;
     
     protected static CoordinateConversion cc = new CoordinateConversion();
-    
-    protected Context mContext;
     
     protected LocationManager mLocationManager;
     
@@ -188,6 +184,8 @@ public class AndroidLocationSensor extends WaveSensor {
      */
     public static Set<WaveSensor> instancesAvailableInContext(Context c) {
         
+        if (mContext == null) mContext = c;
+
         Set<WaveSensor> set = new HashSet<WaveSensor>(1);
         
         LocationManager mLocationManager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);

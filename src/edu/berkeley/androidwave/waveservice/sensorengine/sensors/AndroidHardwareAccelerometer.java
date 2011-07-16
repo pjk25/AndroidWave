@@ -33,7 +33,7 @@ public class AndroidHardwareAccelerometer extends AndroidHardwareSensor {
      */
     public static Set<WaveSensor> instancesAvailableInContext(Context c) {
         
-        mContext = c;
+        if (mContext == null) mContext = c;
 
         Set<WaveSensor> set = new HashSet<WaveSensor>(1);
         

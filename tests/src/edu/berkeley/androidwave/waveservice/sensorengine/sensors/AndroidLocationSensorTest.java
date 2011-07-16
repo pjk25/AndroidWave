@@ -38,8 +38,6 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
     
     private static final String TAG = AndroidLocationSensorTest.class.getSimpleName();
     
-    // protected LocationManager locationManager;
-
     int eventCount;
     long lastTime;
     Map<String, Double> lastValues;
@@ -68,53 +66,6 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
         lastValues = null;
     }
     
-    // @Override
-    // public void setUp() {
-        // firstEvent = null;
-        // eventCount = 0;
-        
-        // set up a location provider for testing
-        // locationManager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
-        // 
-        // locationManager.addTestProvider(AndroidLocationSensor.TEST_PROVIDER_NAME,     // <- name
-        //                                 false,      // <- requiresNetwork
-        //                                 false,      // <- requiresSatellite
-        //                                 false,      // <- requiresCell
-        //                                 false,      // <- hasMonetaryCost
-        //                                 false,      // <- supportsAltitude
-        //                                 false,      // <- supportsSpeed
-        //                                 false,      // <- supportsBearing
-        //                                 Criteria.POWER_LOW, // <- powerRequirement
-        //                                 Criteria.ACCURACY_FINE); // <- accuracy
-        // 
-        // locationManager.setTestProviderEnabled(AndroidLocationSensor.TEST_PROVIDER_NAME, true);
-        // 
-        // locationManager.setTestProviderStatus(AndroidLocationSensor.TEST_PROVIDER_NAME, 
-        //                                       LocationProvider.AVAILABLE,
-        //                                       null,
-        //                                       System.currentTimeMillis());
-        // 
-        // final long startTime = System.currentTimeMillis();
-        // new Thread(new Runnable() {
-        //     @Override
-        //     public void run() {
-        //         Location location = new Location("Test");
-        //         long delta = System.currentTimeMillis() - startTime;
-        //         location.setLatitude(delta / 100);
-        //         location.setLongitude(20.0);
-        //         locationManager.setTestProviderLocation(AndroidLocationSensor.TEST_PROVIDER_NAME, location);
-        //         try {
-        //             Thread.sleep(500);
-        //         } catch (InterruptedException ie) {}
-        //     }
-        // }).start();
-    // }
-    
-    @Override
-    public void tearDown() {
-        // locationManager.removeTestProvider(AndroidLocationSensor.TEST_PROVIDER_NAME);
-    }
-
     /**
      * testInstancesAvailableInContext
      * 
@@ -148,13 +99,15 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
         }
     }
     
+    
+    /**
+     * See
+     * http://developer.android.com/guide/topics/location/obtaining-user-location.html#MockData
+     * for instructions on simulating GPS data so that this test will pass on
+     * the Android Emulator
+     */
     @MediumTest
     public void testRegisterListener() throws Exception {
-        
-        if (Build.DEVICE.equals("generic") && Build.MODEL.equals("sdk")) {
-            // this is the simulator, for which we don't test location updates
-            return;
-        }
         
         AndroidLocationSensor fixtureOne = getFixtureOne(getContext());
         
@@ -178,7 +131,7 @@ public class AndroidLocationSensorTest extends AndroidTestCase {
             Log.d(TAG, "waiting for data...");
             this.wait(10*1000);    // wait up to 10 seconds
             Log.d(TAG, "checking for data");
-            assertNotNull(lastValues);
+            assertNotNull("should have received data", lastValues);
         }
         
         // test stop
