@@ -267,8 +267,8 @@ public class AndroidLocationSensor extends WaveSensor {
                 
                 Looper.prepare();
                 
-                Log.v(TAG, "Looper.myLooper() => "+Looper.myLooper());
-        
+                // Log.v(TAG, "Looper.myLooper() => "+Looper.myLooper());
+                
                 LocationDataForwarder ldf = new LocationDataForwarder(finalRateHint,
                                                                       finalPrecisionHint,
                                                                       finalWsd,
@@ -299,30 +299,6 @@ public class AndroidLocationSensor extends WaveSensor {
                     }
                 }
 
-                // for testing purposes only
-                // if (true) { // <- ideally we want to know if this is a test scenario
-                //     Log.d(TAG, "AndroidLocationSensor.start: checking for location provider "+TEST_PROVIDER_NAME);
-                //     if (mLocationManager.isProviderEnabled(TEST_PROVIDER_NAME)) {
-                //         Log.d(TAG, "AndroidLocationSensor.start: requesting location updates from "+TEST_PROVIDER_NAME);
-                //         mLocationManager.requestLocationUpdates(TEST_PROVIDER_NAME,
-                //                                                 minTime,
-                //                                                 minDistance,
-                //                                                 this);
-                //         // 
-                //         // // grab the last location and fake it.
-                //         // final Location lastLoc = mLocationManager.getLastKnownLocation(TEST_PROVIDER_NAME);
-                //         // if (lastLoc != null) {
-                //         //     // fire the event on another thread
-                //         //     new Thread(new Runnable() {
-                //         //         @Override
-                //         //         public void run() {
-                //         //             onLocationChanged(lastLoc);
-                //         //         }
-                //         //     }).start();
-                //         // }
-                //     }
-                // }
-        
                 // Looper.loop() is required to keep this thread alive so that location
                 // updates are actually delivered
                 Looper.loop();
