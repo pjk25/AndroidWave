@@ -126,6 +126,8 @@ public class WaveRecipe {
         recipe.certificate = (X509Certificate)certs[0];
         
         // Create a loader for this apk
+        // TODO: Sometimes we get a crash when the DEX is updated (via recipe)
+        //       update.  Maybe we need to clear the previous DEX here.
         File recipeDalvikCache = context.getDir(RECIPE_DEX_CACHE, Context.MODE_PRIVATE);
         DexClassLoader recipeDexClassLoader =
             new dalvik.system.DexClassLoader(recipeFile.getPath(),
