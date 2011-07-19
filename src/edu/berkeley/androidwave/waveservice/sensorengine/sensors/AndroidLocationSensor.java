@@ -302,7 +302,7 @@ public class AndroidLocationSensor extends WaveSensor {
                 // Looper.loop() is required to keep this thread alive so that location
                 // updates are actually delivered
                 Looper.loop();
-                Log.d(TAG, "end of run() reached.");
+                Log.d(TAG, "Looper.loop() finished");
             }
         }).start();
     }

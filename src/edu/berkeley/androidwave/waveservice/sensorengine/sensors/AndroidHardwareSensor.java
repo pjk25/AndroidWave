@@ -19,6 +19,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import java.util.HashMap;
@@ -51,7 +52,9 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
         WaveSensorDescription authorizedDescription;
         WaveRecipeAlgorithm destination;
         
-        SensorDataForwarder(int smr, double rate, double precision, WaveSensorDescription wsd, WaveRecipeAlgorithm dest) {
+        Looper looper;
+        
+        SensorDataForwarder(int smr, double rate, double precision, WaveSensorDescription wsd, WaveRecipeAlgorithm dest, Looper l) {
             sampleCount = 0;
             droppedSampleCount = 0;
             
@@ -61,6 +64,7 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
             maxOutputPrecision = precision;
             authorizedDescription = wsd;
             destination = dest;
+            looper = l;
         }
 
         /**
@@ -155,11 +159,39 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
             sensorManagerRate = SensorManager.SENSOR_DELAY_FASTEST;
         }
         
-        SensorDataForwarder sdf = new SensorDataForwarder(sensorManagerRate, rateHint, precisionHint, wsd, listener);
-        forwarderMap.put(listener, sdf);
-        if (!mSensorManager.registerListener(sdf, hardwareSensor, sensorManagerRate)) {
-            throw new Exception("SensorManager.registerListener("+sdf+", "+hardwareSensor+", "+sensorManagerRate+") returned false");
-        }
+        final int finalSensorManagerRate = sensorManagerRate;
+        final double finalRateHint = rateHint;
+        final double finalPrecisionHint = precisionHint;
+        final WaveSensorDescription finalWsd = wsd;
+        final WaveRecipeAlgorithm finalListener = listener;
+        
+        new Thread(new Runnable() {
+            public void run() {
+                
+                Looper.prepare();
+                
+                SensorDataForwarder sdf = new SensorDataForwarder(finalSensorManagerRate,
+                                                                  finalRateHint,
+                                                                  finalPrecisionHint,
+                                                                  finalWsd,
+                                                                  finalListener,
+                                                                  Looper.myLooper());
+                
+                // TODO: forwarderMap should be a synchronized collection?
+                forwarderMap.put(finalListener, sdf);
+                
+                if (!mSensorManager.registerListener(sdf, hardwareSensor, finalSensorManagerRate)) {
+                    Log.d(TAG, "SensorManager.registerListener("+sdf+", "+hardwareSensor+", "+finalSensorManagerRate+") returned false");
+                    // TODO: signal this failure in the registerListener method
+                    return;
+                }
+                
+                // Looper.loop() is required to keep this thread alive so that location
+                // updates are actually delivered
+                Looper.loop();
+                Log.d(TAG, "Looper.loop() finished");
+            }
+        }).start();
     }
     
     /**
@@ -175,6 +207,7 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
         SensorDataForwarder sdf = forwarderMap.get(listener);
         Log.d(TAG, "unregisterListener("+listener+"), droppedSampleRatio => "+(1.0*sdf.droppedSampleCount/sdf.sampleCount));
         mSensorManager.unregisterListener(sdf);
+        sdf.looper.quit();
         forwarderMap.remove(listener);
         
         decrementActiveCount();
