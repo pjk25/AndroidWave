@@ -157,6 +157,14 @@ public class AndroidHardwareAccelerometerTest extends AndroidTestCase {
         }
     }
     
+    /**
+     * testSensorDispatchRate
+     * 
+     * NOTE: This test fails on the droid, even though the
+     *       AndroidWaveTesterClient
+     *       (https://github.com/pjk25/AndroidWaveTesterClient) can receive
+     *       accelerometer data at 30+ Hz.
+     */
     @LargeTest
     public void testSensorDispatchRate() throws Exception {
         AndroidHardwareAccelerometer fixtureOne = getFixtureOne(getContext());
