@@ -11,6 +11,7 @@ package edu.berkeley.androidwave.waverecipe;
 import edu.berkeley.androidwave.waverecipe.waverecipealgorithm.*;
 
 import android.util.Log;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
@@ -59,25 +60,24 @@ class WaveRecipeAlgorithmShadow implements WaveRecipeAlgorithm {
      * There are only two methods to shadow, so this class is currently small
      */
     
-    public boolean setWaveRecipeAlgorithmListener(Object listener) {
-        //Log.d(TAG, "setWaveRecipeAlgorithmListener("+listener+")");
+    public boolean setWaveRecipeAlgorithmListener(Object listener) throws Exception {
+        // Log.v(TAG, "setWaveRecipeAlgorithmListener("+listener+")");
         Object returnVal;
-        try {
-            returnVal = implSetWaveRecipeAlgorithmListenerMethod.invoke(algorithmImpl, listener);
-        } catch (Exception e) {
-            Log.d(TAG, "Exception while forwarding setWaveRecipeAlgorithmListener("+listener+")", e);
-            throw new RuntimeException(e);
-        }
+        returnVal = implSetWaveRecipeAlgorithmListenerMethod.invoke(algorithmImpl, listener);
         return ((Boolean)returnVal).booleanValue();
     }
     
-    public void ingestSensorData(long time, Map<String, Double> values) {
-        //Log.d(TAG, "ingestSensorData("+sensorData+")");
+    public void ingestSensorData(long time, Map<String, Double> values) throws Exception {
+        // Log.v(TAG, "ingestSensorData("+time+", "+values+")");
         try {
             implIngestSensorDataMethod.invoke(algorithmImpl, time, values);
-        } catch (Exception e) {
-            Log.d(TAG, "Exception while forwarding ingestSensorData("+time+", "+values+")", e);
-            throw new RuntimeException(e);
+        } catch (InvocationTargetException ite) {
+            Throwable cause = ite.getCause();
+            if (cause instanceof Exception) {
+                throw (Exception)cause;
+            } else {
+                throw new Exception(ite);
+            }
         }
     }
     

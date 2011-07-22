@@ -44,6 +44,7 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
     class SensorDataForwarder implements SensorEventListener {
         int sampleCount;
         int droppedSampleCount;
+        int exceptionCount;
         
         long lastForwardTime;
         int sensorManagerRate;
@@ -57,6 +58,7 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
         SensorDataForwarder(int smr, double rate, double precision, WaveSensorDescription wsd, WaveRecipeAlgorithm dest, Looper l) {
             sampleCount = 0;
             droppedSampleCount = 0;
+            exceptionCount = 0;
             
             sensorManagerRate = smr;
             lastForwardTime = 0;
@@ -102,7 +104,17 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
                 try {
                     destination.ingestSensorData(event.timestamp, values);
                 } catch (Exception e) {
-                    Log.d(TAG, "onSensorChanged", e);
+                    exceptionCount++;
+                    if (exceptionCount < 10) {
+                        Log.d(TAG, "Exception in recipe algorithm: "+e);
+                    } else if (exceptionCount > 50) {
+                        Log.w(TAG, "Excessive (> 50) exceptions in destination.ingestSensorData, stopping sensor.");
+                        try {
+                            unregisterListener(destination);
+                        } catch (Exception se) {
+                            Log.w(TAG, "Exception while attempting to cancel sensor due to excessive exceptions in associated listener", se);
+                        }
+                    }
                 }
             } else {
                 droppedSampleCount++;
