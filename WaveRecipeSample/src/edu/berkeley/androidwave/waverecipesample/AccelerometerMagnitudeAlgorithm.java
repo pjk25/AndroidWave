@@ -20,6 +20,11 @@ public class AccelerometerMagnitudeAlgorithm implements WaveRecipeAlgorithm {
     
     WaveRecipeAlgorithmListener theListener;  // <- this is actually a WaveRecipeAlgorithmListenerShadow instance
     
+    public void setAuthorizedMaxOutputRate(double maxOutputRate) {
+        // this recipe always outputs data at the input rate, so this method
+        // does nothing
+    }
+    
     public boolean setWaveRecipeAlgorithmListener(Object listener) {
         // System.out.println("AccelerometerMagnitudeAlgorithm.setWaveRecipeAlgorithmListener("+listener+")");
         Log.d(TAG, "setWaveRecipeAlgorithmListener("+listener+")");
