@@ -22,6 +22,7 @@ class WaveRecipeAlgorithmShadow implements WaveRecipeAlgorithm {
     
     Object algorithmImpl;
     
+    Method implSetAuthorizedMaxOutputRateMethod;
     Method implSetWaveRecipeAlgorithmListenerMethod;
     Method implIngestSensorDataMethod;
     
@@ -42,7 +43,9 @@ class WaveRecipeAlgorithmShadow implements WaveRecipeAlgorithm {
             String name = m.getName();
             thoseMethods.add(name);
             // and cache important methods
-            if (name.equals("setWaveRecipeAlgorithmListener")) {
+            if (name.equals("setAuthorizedMaxOutputRate")) {
+                implSetAuthorizedMaxOutputRateMethod = m;
+            } else if (name.equals("setWaveRecipeAlgorithmListener")) {
                 implSetWaveRecipeAlgorithmListenerMethod = m;
             } else if (name.equals("ingestSensorData")) {
                 implIngestSensorDataMethod = m;
@@ -57,8 +60,12 @@ class WaveRecipeAlgorithmShadow implements WaveRecipeAlgorithm {
     }
     
     /**
-     * There are only two methods to shadow, so this class is currently small
+     * There are only three methods to shadow, so this class is currently small
      */
+    
+    public void setAuthorizedMaxOutputRate(double maxOutputRate) throws Exception {
+        implSetAuthorizedMaxOutputRateMethod.invoke(algorithmImpl, maxOutputRate);
+    }
     
     public boolean setWaveRecipeAlgorithmListener(Object listener) throws Exception {
         // Log.v(TAG, "setWaveRecipeAlgorithmListener("+listener+")");

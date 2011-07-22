@@ -288,6 +288,9 @@ public class SensorEngine {
             authorizationToAlgorithmMap.put(authorization, algorithmInstance);
         } catch (Exception e) {
             Log.d(TAG, "Exception while getting algorithm instance for authorization", e);
+            // TODO: this could mean a recipe is bad (old WaveRecipeAlgorithm API
+            //       or other issue), so we should potentially do more than just
+            //       return false so that the offending recipe can be corrected
             return false;
         }
         
@@ -301,7 +304,16 @@ public class SensorEngine {
             Log.w(TAG, "Exception while getting authorization output rates", e);
             return false;
         }
-        algorithmInstance.setWaveRecipeAlgorithmListener(new AlgorithmOutputForwarder(maxRate, maxPrecision, authorization, listener));
+        try {
+            algorithmInstance.setAuthorizedMaxOutputRate(maxRate);
+        } catch (Exception e) {
+            Log.v(TAG, ""+e+" in WaveRecipeAlgorithm.setAuthorizedMaxOutputRate("+maxRate+"). Ignoring as support for this method is optional");
+        }
+        try {
+            algorithmInstance.setWaveRecipeAlgorithmListener(new AlgorithmOutputForwarder(maxRate, maxPrecision, authorization, listener));
+        } catch (Exception e) {
+            Log.w(TAG, e);
+        }
         
         // start the sensors needed for this authorization
         boolean allStarted = true;
