@@ -23,7 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Custom ListAdapter for displaying WaveRecipeAuthorizations in the
@@ -33,9 +33,9 @@ public class AndroidWaveActivityListAdapter extends ArrayAdapter<WaveRecipeAutho
     
     private static final String TAG = AndroidWaveActivityListAdapter.class.getSimpleName();
     
-    private ArrayList<WaveRecipeAuthorization> items;
+    private List<WaveRecipeAuthorization> items;
     
-    public AndroidWaveActivityListAdapter(Context context, int textViewResourceId, ArrayList<WaveRecipeAuthorization> items) {
+    public AndroidWaveActivityListAdapter(Context context, int textViewResourceId, List<WaveRecipeAuthorization> items) {
         super(context, textViewResourceId, items);
         this.items = items;
     }

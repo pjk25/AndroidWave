@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * AndroidWaveActivity
@@ -41,7 +42,7 @@ public class AndroidWaveActivity extends ListActivity {
     protected WaveService mService;
     protected boolean mBound = false;
     
-    protected ArrayList<WaveRecipeAuthorization> authorizations;
+    protected List<WaveRecipeAuthorization> authorizations;
     protected AndroidWaveActivityListAdapter listAdapter;
     
     // UI outlets

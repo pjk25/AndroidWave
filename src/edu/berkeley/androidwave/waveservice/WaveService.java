@@ -144,12 +144,13 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
      */
     
     /**
-     * deviceRecipeAuthorizations
+     * recipeAuthorizations
      * 
-     * Get an array of all recipes in-use as well as locally installed/stored
-     * recipes. @see edu.berkeley.androidwave.waverecipe.WaveRecipe
+     * The list of authorizations outstanding
+     * 
+     * @see WaveRecipeAuthorization
      */
-    public ArrayList<WaveRecipeAuthorization> recipeAuthorizations() {
+    public List<WaveRecipeAuthorization> recipeAuthorizations() {
         return authorizations;
     }
     
