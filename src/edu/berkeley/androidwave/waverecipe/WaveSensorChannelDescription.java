@@ -15,7 +15,6 @@ import org.json.JSONObject;
  *
  * @see WaveSensor
  */
-
 public class WaveSensorChannelDescription {
     
     protected String name;

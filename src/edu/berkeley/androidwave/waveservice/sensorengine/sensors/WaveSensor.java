@@ -23,6 +23,9 @@ import java.util.Set;
 /**
  * Generic Sensor class for AndroidWave
  * 
+ * Should apply to both local sensors, and external sensors (when they are
+ * later added to AndroidWave)
+ * 
  * TODO: use a plug-in architecture for WaveSensor subclasses, as we will need
  *       extras for different locally available hardware (when we support)
  *       external sensors.

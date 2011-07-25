@@ -22,6 +22,15 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+/**
+ * ContinuousGranularityTable
+ * 
+ * GranularityTable subclass for representing a continuous mapping between
+ * input and output granularities for a recipe.  Currently unused as the UI
+ * for manipulating such tables is not in place.
+ * 
+ * @see GranularityTable
+ */
 public class ContinuousGranularityTable extends GranularityTable {
     
     private static final String TAG = ContinuousGranularityTable.class.getSimpleName();

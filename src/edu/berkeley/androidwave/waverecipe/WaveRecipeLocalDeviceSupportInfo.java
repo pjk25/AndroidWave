@@ -16,6 +16,9 @@ import java.util.Map;
 /**
  * WaveRecipeLocalDeviceSupportInfo
  * 
+ * Provides a mapping between sensors described in a recipe to local sensors
+ * available on the device
+ * 
  * @see WaveRecipeAuthorization
  */
 public class WaveRecipeLocalDeviceSupportInfo {

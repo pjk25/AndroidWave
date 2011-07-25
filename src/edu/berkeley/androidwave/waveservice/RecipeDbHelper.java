@@ -23,6 +23,14 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
+/**
+ * RecipeDbHelper
+ * 
+ * Provides methods for persistent storage of recipe data and client keys in
+ * a SQLite database, as used by WaveService
+ * 
+ * @see WaveService
+ */
 public class RecipeDbHelper {
     
     private static final String TAG = "RecipeDbHelper";

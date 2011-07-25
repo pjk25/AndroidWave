@@ -23,18 +23,54 @@ public interface for Wave Client Applications. The WaveUI allows the user to
 manage the authorization (and de-authorization) of recipes, and is primarily a
 privacy oriented interface.
 
-### WaveService ###
+### Notable Packages ###
 
-WaveService has two primary sub-components: The recipes engine & The sync
-engine. The recipes engine provides the recipe "runtime" in which downloaded
-and verified recipes are executed. The sync engine in turn handles
-synchronization of data. Both are mentioned as they will have a _plugin_
-architecture.
+* **edu.berkeley.androidwave.waveclient** package which must be imported by
+  AndroidWave client applications. It contains the definition of the public
+  WaveService API for calling into the WaveService, the reverse direction
+  interface which clients must implement to receive data, and the Parcelable
+  objects which are exchanged over these interfaces. This package is contained
+  in the [waveclient](https://github.com/pjk25/waveclient) submodule.
 
-## Approach ##
+* **edu.berkeley.androidwave.waveexception** subclasses of Exception used
+  within AndroidWave
 
-We intend to use a test-driven approach to building this project. The skeleton project already contains test code.
+* **edu.berkeley.androidwave.waverecipe** package containing the WaveRecipe
+  and related classes. The WaveRecipe class is an in-memory representation of
+  a recipe.
+  
+  * **.waverecipealgorithm** package which must be imported by waverecipe
+    implementations.  Includes the interface which a recipe's data processing
+    algorithm must implement.  This package is contained in the
+    [waverecipealgorithm](https://github.com/pjk25/waverecipealgorithm)
+    submodule.
+    
+* **edu.berkeley.androidwave.waveservice** package containing the sensing
+  subsystem of AndroidWave.
+  
+  * **.sensors** package containing WaveSensor, the abstract parent class
+    representing a sensor on the device.  The package also contain subclasses
+    which wrap Android's existing hardware sensors.
+    
+* **edu.berkeley.androidwave.waveui** the user interface classes.
 
-## Additional Documentation ##
+## Related Projects ##
 
-See the [wiki](https://github.com/pjk25/AndroidWave/wiki) for additional documentation.
+* Submodules:
+  * https://github.com/pjk25/waveclient
+  * https://github.com/pjk25/waverecipealgorithm
+
+* Sample Clients
+  * https://github.com/pjk25/WaveClientSample
+  * https://github.com/pjk25/AndroidWaveTesterClient
+  * https://github.com/pjk25/WaveLogger
+  
+* Recipes
+  * https://github.com/pjk25/AndroidWaveRecipes
+  * https://github.com/pjk25/PassThroughRecipes
+
+## About ##
+
+The primary codebase (as of July 2011) was created by Philip Kuryloski while
+working as a postdoctoral scholar at the University of California, Berkeley,
+in 2011.

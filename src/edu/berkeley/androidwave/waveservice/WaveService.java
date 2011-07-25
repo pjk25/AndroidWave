@@ -155,16 +155,6 @@ public class WaveService extends Service implements WaveRecipeOutputListener {
     
     
     /**
-     * deviceChannels
-     *
-     * Get a list of all outgoing data channels the device supports
-     * @see WaveDeviceChannel
-     */
-    public WaveDeviceChannel deviceChannels() {
-        return null;
-    }
-    
-    /**
      * DownloadRecipeTask private inner class
      * 
      * an AsyncTask subclass, used for downloading a recipe on a background

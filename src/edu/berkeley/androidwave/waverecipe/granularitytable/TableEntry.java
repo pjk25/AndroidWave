@@ -13,6 +13,13 @@ import edu.berkeley.androidwave.waverecipe.SensorAttributes;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * TableEntry
+ * 
+ * An entry within a DiscreetGranularityTable
+ * 
+ * @see DiscreetGranularityTable
+ */
 public class TableEntry {
     public Set<SensorAttributes> sensorAttributes;
     public double outputRate;

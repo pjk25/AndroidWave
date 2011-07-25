@@ -23,6 +23,13 @@ import org.xml.sax.SAXException;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
+/**
+ * WaveRecipeXmlContentHandler
+ * 
+ * Used for parsing the description.xml file provided in a waverecipe package
+ * 
+ * @see WaveRecipe
+ */
 class WaveRecipeXmlContentHandler extends DefaultHandler {
     
     private static final String TAG = WaveRecipeXmlContentHandler.class.getSimpleName();

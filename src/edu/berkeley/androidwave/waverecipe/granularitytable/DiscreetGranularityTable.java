@@ -19,6 +19,12 @@ import java.util.Set;
 
 /**
  * DiscreetGranularityTable
+ * 
+ * GranularityTable subclass representing a fixed set of mappings from input
+ * to output granularity for a recipe
+ * 
+ * @see GranularityTable
+ * @see TableEntry
  */
 public class DiscreetGranularityTable extends GranularityTable {
     

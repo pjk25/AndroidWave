@@ -42,7 +42,11 @@ public class SensorEngine {
     
     protected static SensorEngine theInstance;
     
-    
+    /**
+     * Inner class which handles dispatch and throttling of output from a
+     * WaveRecipeAlgorithm before it is passed on to the appropriate
+     * client accross IPC
+     */
     class AlgorithmOutputForwarder implements WaveRecipeAlgorithmListener {
         long lastForwardTime;
         long minOutputInterval;

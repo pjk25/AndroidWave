@@ -16,6 +16,13 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
 
+/**
+ * WaveRecipeAlgorithmShadow
+ * 
+ * Shadow class for WaveRecipeAlgorithm, allowing the main package to call
+ * across the dynamic loading boundary to a dynamically loaded
+ * WaveRecipeAlgorithm from a recipe
+ */
 class WaveRecipeAlgorithmShadow implements WaveRecipeAlgorithm {
     
     private static final String TAG = WaveRecipeAlgorithmShadow.class.getSimpleName();

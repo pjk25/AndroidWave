@@ -48,7 +48,6 @@ import java.util.Map;
  * UI displayed when a client application requests authorization for a given
  * recipe
  * 
- * TODO: Handle download progress, failure and success updates from the service
  * TODO: More clearly define the recipe portion of the UI
  * TODO: Use dialogs instead of Toast where necessary file:///usr/local/android-sdk-mac_86/docs/guide/topics/ui/dialogs.html
  * TODO: This activity should not run if the app is already authorized

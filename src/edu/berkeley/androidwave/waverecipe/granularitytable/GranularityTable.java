@@ -14,6 +14,9 @@ import java.util.Set;
 
 /**
  * GranularityTable
+ * 
+ * In memory representation of a mapping between input and output
+ * granularities provided in a recipe's XML.
  */
 public abstract class GranularityTable {
     
