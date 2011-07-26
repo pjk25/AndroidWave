@@ -203,6 +203,9 @@ public class ViewRecipeAuthorizationActivity extends Activity {
             authorization.setRevokedDate(now);
             authorization.setModifiedDate(now);
             
+            // TODO: remove recipe cache file at this time, or devise a recipe
+            //       auto update mechanism
+            
             if (mService.saveAuthorization(authorization)) {
                 setResult(RESULT_OK);
                 finish();

@@ -222,6 +222,7 @@ public abstract class AndroidHardwareSensor extends WaveSensor {
         sdf.looper.quit();
         forwarderMap.remove(listener);
         
+        // make sure that any wake locks are released if necessary
         decrementActiveCount();
     }
     

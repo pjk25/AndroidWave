@@ -45,12 +45,15 @@ privacy oriented interface.
     [waverecipealgorithm](https://github.com/pjk25/waverecipealgorithm)
     submodule.
     
-* **edu.berkeley.androidwave.waveservice** package containing the sensing
+* **edu.berkeley.androidwave.waveservice** contains the WaveService
+  implementation
+
+  * **edu.berkeley.androidwave.sensorengine** package containing the sensing
   subsystem of AndroidWave.
   
-  * **.sensors** package containing WaveSensor, the abstract parent class
-    representing a sensor on the device.  The package also contain subclasses
-    which wrap Android's existing hardware sensors.
+    * **.sensors** package containing WaveSensor, the abstract parent class
+      representing a sensor on the device.  The package also contain
+      subclasses which wrap Android's existing hardware sensors.
     
 * **edu.berkeley.androidwave.waveui** the user interface classes.
 
